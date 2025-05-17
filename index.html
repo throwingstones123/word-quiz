@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Word Quiz</title>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 50px auto; }
+    button { padding: 10px 20px; margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Word Quiz</h2>
+
+  <p><strong>1. What does "benevolent" mean?</strong></p>
+  <input type="radio" name="q1" value="wrong"> Evil or cruel<br>
+  <input type="radio" name="q1" value="correct"> Kind and generous<br>
+  <input type="radio" name="q1" value="wrong"> Angry and loud<br>
+
+  <p><strong>2. What does "opaque" mean?</strong></p>
+  <input type="radio" name="q2" value="correct"> Not clear or transparent<br>
+  <input type="radio" name="q2" value="wrong"> Bright and colorful<br>
+  <input type="radio" name="q2" value="wrong"> Fast and loud<br>
+
+  <br>
+  <button onclick="grade()">Submit</button>
+  <p id="result"></p>
+
+  <script>
+    function grade() {
+      let score = 0;
+      const q1 = document.querySelector('input[name="q1"]:checked');
+      const q2 = document.querySelector('input[name="q2"]:checked');
+      if (q1 && q1.value === "correct") score++;
+      if (q2 && q2.value === "correct") score++;
+
+      document.getElementById("result").textContent = `You got ${score} out of 2 correct.`;
+    }
+  </script>
+</body>
+</html>
