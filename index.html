@@ -1,27 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Word Quiz</title>
   <meta charset="UTF-8">
+  <title>Word Quiz</title>
   <style>
-    body { font-family: Arial; max-width: 600px; margin: 50px auto; }
-    button { padding: 10px 20px; margin-top: 10px; font-weight: bold; }
+    body {
+      background-color: #111;
+      color: #f0f0f0;
+      font-family: 'Arial Black', sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      color: #70c1b3;
+      letter-spacing: 2px;
+    }
+
+    .quiz-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 900px;
+      margin: 2rem auto;
+    }
+
+    .question-card {
+      background: #1c1c1c;
+      padding: 1.5rem;
+      border: 2px solid #444;
+      border-radius: 8px;
+    }
+
+    .question-card p {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .question-card label {
+      display: block;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    button {
+      display: block;
+      margin: 2rem auto 1rem;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background-color: #70c1b3;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #000;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #59a499;
+    }
+
+    #result {
+      text-align: center;
+      font-size: 1.5rem;
+      color: #fff;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .quiz-container {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>Word Quiz</h2>
+  <h1>Word Quiz</h1>
 
-  <p><strong>1. What does "benevolent" mean?</strong></p>
-  <input type="radio" name="q1" value="wrong"> Evil or cruel<br>
-  <input type="radio" name="q1" value="correct"> Kind and generous<br>
-  <input type="radio" name="q1" value="wrong"> Angry and loud<br>
+  <div class="quiz-container">
+    <div class="question-card">
+      <p>1. What does "benevolent" mean?</p>
+      <label><input type="radio" name="q1" value="wrong"> Evil or cruel</label>
+      <label><input type="radio" name="q1" value="correct"> Kind and generous</label>
+      <label><input type="radio" name="q1" value="wrong"> Angry and loud</label>
+    </div>
 
-  <p><strong>2. What does "opaque" mean?</strong></p>
-  <input type="radio" name="q2" value="correct"> Not clear or transparent<br>
-  <input type="radio" name="q2" value="wrong"> Bright and colorful<br>
-  <input type="radio" name="q2" value="wrong"> Fast and loud<br>
+    <div class="question-card">
+      <p>2. What does "opaque" mean?</p>
+      <label><input type="radio" name="q2" value="correct"> Not clear or transparent</label>
+      <label><input type="radio" name="q2" value="wrong"> Bright and colorful</label>
+      <label><input type="radio" name="q2" value="wrong"> Fast and loud</label>
+    </div>
+  </div>
 
-  <br>
   <button onclick="grade()">Submit</button>
   <p id="result"></p>
 
