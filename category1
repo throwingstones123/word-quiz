@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A Pot of Culture</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #111;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: #7ad1d4;
+      margin-bottom: 1rem;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 2rem auto;
+    }
+
+    .category-card {
+      border: 1px solid #eee;
+      padding: 1.5rem;
+      background-color: #000;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+      border-color: #7ad1d4;
+    }
+
+    .category-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .explore {
+      margin-top: 3rem;
+      padding: 2rem;
+      border: 1px solid #eee;
+    }
+
+    .explore:hover {
+      border-color: #fff;
+      background-color: #222;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>EXPRESS YOURSELF, ENGLISHLY</h2>
+  <h1>A POT OF CULTURE</h1>
+
+  <h2>Word Categories</h2>
+  <hr style="max-width: 200px; margin: 0 auto 2rem; border-color: #555;">
+
+  <h2>CHOOSE A CATEGORY</h2>
+  <div class="categories">
+    <a href="category1.html" class="category-card">
+      <div class="category-title">Category 1</div>
+      <div>Short description of Category 1.</div>
+    </a>
+    <a href="category5.html" class="category-card">
+      <div class="category-title">Category 5</div>
+      <div>Short description of Category 5.</div>
+    </a>
+    <a href="category2.html" class="category-card">
+      <div class="category-title">Category 2</div>
+      <div>Short description of Category 2.</div>
+    </a>
+    <a href="category6.html" class="category-card">
+      <div class="category-title">Category 6</div>
+      <div>Short description of Category 6.</div>
+    </a>
+    <a href="category3.html" class="category-card">
+      <div class="category-title">Category 3</div>
+      <div>Short description of Category 3.</div>
+    </a>
+    <a href="category7.html" class="category-card">
+      <div class="category-title">Category 7</div>
+      <div>Short description of Category 7.</div>
+    </a>
+    <a href="category4.html" class="category-card">
+      <div class="category-title">Category 4</div>
+      <div>Short description of Category 4.</div>
+    </a>
+    <a href="category8.html" class="category-card">
+      <div class="category-title">Category 8</div>
+      <div>Short description of Category 8.</div>
+    </a>
+  </div>
+
+  <div class="explore">
+    <div class="category-title">Explore All Categories</div>
+    <div>Can’t decide? See everything in one place.</div>
+  </div>
+
+</body>
+</html>
