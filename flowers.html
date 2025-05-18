@@ -85,27 +85,28 @@
 
   <!-- Question 1 -->
   <div class="conversation active" id="step1">
-    <p><strong>Alex:</strong> I can’t believe you actually talked to the principal about it!</p>
-    <p><strong>Jamie:</strong> Well, I thought it was the right thing to do. Someone had to 
+    <p><strong>Alex:</strong> What's that white flower over there that they're decorating around the temple? They're so pretty!</p>
+    <p><strong>Jamie:</strong> Oh? that's the 
       <select id="q1">
         <option value="">--select--</option>
-        <option value="complain">complain</option>
-        <option value="hide">hide</option>
-        <option value="speak up">speak up</option>
-      </select> about the unfair rule.
+        <option value="complain">White Rose</option>
+        <option value="hide">Frangipani</option>
+        <option value="speak up">Lily</option>
+      </select>. We use them often for religious and spiritual ceremonies here. 
     </p>
     <button onclick="nextStep()">Next</button>
   </div>
 
   <!-- Question 2 -->
   <div class="conversation" id="step2">
-    <p><strong>Alex:</strong> You’re right. That took a lot of 
+    <p><strong>Kyle:</strong> Hey Quỳnh - I just got back from Hoi An. Saw lots of these papery-looking flowers in white and purple, do you know them?</p>
+    <p><strong>Quỳnh:</strong> That should be the 
       <select id="q2">
         <option value="">--select--</option>
-        <option value="courage">courage</option>
-        <option value="luck">luck</option>
-        <option value="time">time</option>
-      </select>. I’m proud of you.
+        <option value="courage">Bougainvillea</option>
+        <option value="luck">Poppy</option>
+        <option value="time">Sunflower</option>
+      </select>. 
     </p>
     <button onclick="checkAnswers()">Submit</button>
   </div>
@@ -135,7 +136,7 @@
 
       const feedback = document.getElementById("feedback");
       if (correct === 2) {
-        feedback.innerHTML = "✅ <span class='correct'>Great job! You understood the context well.</span>";
+        feedback.innerHTML = "✅ <span class='correct'>Great job! You're mastering the words in use.</span>";
       } else {
         feedback.innerHTML = "❌ <span class='incorrect'>Check your answers. Think about the meaning of the full conversation.</span>";
       }
