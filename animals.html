@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Word Quiz</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #f0f0f0;
+      font-family: 'Arial Black', sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      color: #70c1b3;
+      letter-spacing: 2px;
+    }
+
+    .quiz-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 900px;
+      margin: 2rem auto;
+    }
+
+    .question-card {
+      background: #1c1c1c;
+      padding: 1.5rem;
+      border: 2px solid #444;
+      border-radius: 8px;
+    }
+
+    .question-card p {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .question-card label {
+      display: block;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    button {
+      display: block;
+      margin: 2rem auto 1rem;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background-color: #70c1b3;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #000;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #59a499;
+    }
+
+    #result {
+      text-align: center;
+      font-size: 1.5rem;
+      color: #fff;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .quiz-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Quiz Pack 1</h1>
+
+  <div class="quiz-container">
+    <div class="question-card">
+      <p>1. A heavy stick made of clay, stone, or metal with a thick, rounded end, often used for crushing substances</p>
+      <label><input type="radio" name="q1" value="wrong"> Pestle</label>
+      <label><input type="radio" name="q1" value="correct"> Mortar</label>
+      <label><input type="radio" name="q1" value="wrong"> Mat</label>
+    </div>
+
+    <div class="question-card">
+      <p>2. : An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha</p>
+      <label><input type="radio" name="q2" value="correct"> Vesak</label>
+      <label><input type="radio" name="q2" value="wrong"> Christmas</label>
+      <label><input type="radio" name="q2" value="wrong"> Easter</label>
+    </div>
+  </div>
+
+  <button onclick="grade()">Submit</button>
+  <p id="result"></p>
+
+  <script>
+    function grade() {
+      let score = 0;
+      const q1 = document.querySelector('input[name="q1"]:checked');
+      const q2 = document.querySelector('input[name="q2"]:checked');
+      if (q1 && q1.value === "correct") score++;
+      if (q2 && q2.value === "correct") score++;
+
+      document.getElementById("result").textContent = `You got ${score} out of 2 correct.`;
+    }
+  </script>
+</body>
+</html>
