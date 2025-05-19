@@ -85,27 +85,28 @@
 
   <!-- Question 1 -->
   <div class="conversation active" id="step1">
-    <p><strong>Alex:</strong> I can’t believe you actually talked to the principal about it!</p>
-    <p><strong>Jamie:</strong> Well, I thought it was the right thing to do. Someone had to 
+    <p><strong>Paul:</strong> Which ethnic group built all these beautiful towers again - can you remind me?</p>
+    <p><strong>Jamie:</strong> Oh, that'd be the 
       <select id="q1">
         <option value="">--select--</option>
-        <option value="complain">complain</option>
-        <option value="hide">hide</option>
-        <option value="speak up">speak up</option>
-      </select> about the unfair rule.
+        <option value="complain">Cham</option>
+        <option value="hide">Khmer</option>
+        <option value="speak up">Stieng</option>
+      </select>. They were built in a Hindu style because of their faith.
     </p>
     <button onclick="nextStep()">Next</button>
   </div>
 
   <!-- Question 2 -->
   <div class="conversation" id="step2">
-    <p><strong>Alex:</strong> You’re right. That took a lot of 
+    <p><strong>Alex:</strong> That lady who wears the large bone earrings - what's her people's name again?
+    <p><strong>Jamie:</strong> Oh, she'd be
       <select id="q2">
         <option value="">--select--</option>
-        <option value="courage">courage</option>
-        <option value="luck">luck</option>
-        <option value="time">time</option>
-      </select>. I’m proud of you.
+        <option value="courage">Stieng</option>
+        <option value="luck">Hoa</option>
+        <option value="time">Khmer</option>
+      </select>. It's a traditional wear of their people.
     </p>
     <button onclick="checkAnswers()">Submit</button>
   </div>
@@ -130,12 +131,12 @@
       const q2 = document.getElementById("q2").value;
       let correct = 0;
 
-      if (q1 === "speak up") correct++;
+      if (q1 === "complain") correct++;
       if (q2 === "courage") correct++;
 
       const feedback = document.getElementById("feedback");
       if (correct === 2) {
-        feedback.innerHTML = "✅ <span class='correct'>Great job! You understood the context well.</span>";
+        feedback.innerHTML = "✅ <span class='correct'>Great job! You understood the ethnic culture well.</span>";
       } else {
         feedback.innerHTML = "❌ <span class='incorrect'>Check your answers. Think about the meaning of the full conversation.</span>";
       }
