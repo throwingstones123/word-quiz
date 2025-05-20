@@ -85,27 +85,29 @@
 
   <!-- Question 1 -->
   <div class="conversation active" id="step1">
-    <p><strong>Alex:</strong> I can’t believe you actually talked to the principal about it!</p>
-    <p><strong>Jamie:</strong> Well, I thought it was the right thing to do. Someone had to 
+    <p><strong>Alex:</strong>I'm down for something protein tonight! What should we be having?</p>
+    <p><strong>Jamie:</strong> Protein, huh? Well, we can order some
       <select id="q1">
         <option value="">--select--</option>
-        <option value="complain">complain</option>
-        <option value="hide">hide</option>
-        <option value="speak up">speak up</option>
-      </select> about the unfair rule.
+        <option value="complain">Lolot Beef</option>
+        <option value="hide">Pho</option>
+        <option value="speak up">Spring Rolls</option>
+      </select> for your enjoyment. 
     </p>
     <button onclick="nextStep()">Next</button>
   </div>
 
   <!-- Question 2 -->
   <div class="conversation" id="step2">
-    <p><strong>Alex:</strong> You’re right. That took a lot of 
+    <p><strong>Question:</strong> What sort of dish are they ordering?
+    <p><strong>Kyle:</strong> We'll take it with eggs and smoked pork, please
+    <p><strong>Dan:</strong> They do smoked pork here too? First I've heard of that
+    <p><strong>Kyle:</strong> It's been there for a long time, you have to ask for it! 
       <select id="q2">
         <option value="">--select--</option>
-        <option value="courage">courage</option>
-        <option value="luck">luck</option>
-        <option value="time">time</option>
-      </select>. I’m proud of you.
+        <option value="courage">Nem</option>
+        <option value="luck">Broken Rice</option>
+        <option value="time">Sizzling Cake</option>
     </p>
     <button onclick="checkAnswers()">Submit</button>
   </div>
@@ -130,8 +132,8 @@
       const q2 = document.getElementById("q2").value;
       let correct = 0;
 
-      if (q1 === "speak up") correct++;
-      if (q2 === "courage") correct++;
+      if (q1 === "complain") correct++;
+      if (q2 === "luck") correct++;
 
       const feedback = document.getElementById("feedback");
       if (correct === 2) {
