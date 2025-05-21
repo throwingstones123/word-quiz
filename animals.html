@@ -48,6 +48,12 @@
       cursor: pointer;
     }
 
+    .feedback {
+      margin-top: 1rem;
+      color: #ff8888;
+      font-size: 0.95rem;
+    }
+
     button {
       display: block;
       margin: 2rem auto 1rem;
@@ -84,18 +90,20 @@
   <h1>Quiz Pack 1</h1>
 
   <div class="quiz-container">
-    <div class="question-card">
+    <div class="question-card" id="card1">
       <p>1. An animal traditionally used for pulling farming tools and equipment</p>
-      <label><input type="radio" name="q1" value="wrong"> Buffalo</label>
-      <label><input type="radio" name="q1" value="correct"> Dog</label>
-      <label><input type="radio" name="q1" value="wrong"> Horses</label>
+      <label><input type="radio" name="q1" value="dog"> Dog</label>
+      <label><input type="radio" name="q1" value="buffalo"> Buffalo</label>
+      <label><input type="radio" name="q1" value="horses"> Horses</label>
+      <div class="feedback" id="feedback1"></div>
     </div>
 
-    <div class="question-card">
-      <p>2. : An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha</p>
-      <label><input type="radio" name="q2" value="correct"> Vesak</label>
-      <label><input type="radio" name="q2" value="wrong"> Christmas</label>
-      <label><input type="radio" name="q2" value="wrong"> Easter</label>
+    <div class="question-card" id="card2">
+      <p>2. An important Buddhist festival that celebrates the birth, enlightenment, and death of the Buddha</p>
+      <label><input type="radio" name="q2" value="vesak"> Vesak</label>
+      <label><input type="radio" name="q2" value="christmas"> Christmas</label>
+      <label><input type="radio" name="q2" value="easter"> Easter</label>
+      <div class="feedback" id="feedback2"></div>
     </div>
   </div>
 
@@ -105,10 +113,41 @@
   <script>
     function grade() {
       let score = 0;
+
+      const answers = {
+        q1: "buffalo",
+        q2: "vesak"
+      };
+
+      const feedbackText = {
+        q1: "Correct answer: Buffalo – Traditionally used in many cultures for plowing fields and pulling carts.",
+        q2: "Correct answer: Vesak – A sacred day in Buddhism commemorating the birth, enlightenment, and passing of the Buddha."
+      };
+
       const q1 = document.querySelector('input[name="q1"]:checked');
       const q2 = document.querySelector('input[name="q2"]:checked');
-      if (q1 && q1.value === "correct") score++;
-      if (q2 && q2.value === "correct") score++;
+
+      const feedback1 = document.getElementById("feedback1");
+      const feedback2 = document.getElementById("feedback2");
+
+      feedback1.textContent = "";
+      feedback2.textContent = "";
+
+      if (q1) {
+        if (q1.value === answers.q1) {
+          score++;
+        } else {
+          feedback1.textContent = feedbackText.q1;
+        }
+      }
+
+      if (q2) {
+        if (q2.value === answers.q2) {
+          score++;
+        } else {
+          feedback2.textContent = feedbackText.q2;
+        }
+      }
 
       document.getElementById("result").textContent = `You got ${score} out of 2 correct.`;
     }
