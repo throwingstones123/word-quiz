@@ -71,6 +71,7 @@
       font-size: 1.5rem;
       color: #fff;
       margin-top: 1rem;
+      white-space: pre-wrap;
     }
 
     @media (max-width: 768px) {
@@ -92,7 +93,7 @@
     </div>
 
     <div class="question-card">
-      <p>2. : An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha</p>
+      <p>2. An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha</p>
       <label><input type="radio" name="q2" value="correct"> Vesak</label>
       <label><input type="radio" name="q2" value="wrong"> Christmas</label>
       <label><input type="radio" name="q2" value="wrong"> Easter</label>
@@ -105,12 +106,32 @@
   <script>
     function grade() {
       let score = 0;
+      let feedback = "";
+
       const q1 = document.querySelector('input[name="q1"]:checked');
       const q2 = document.querySelector('input[name="q2"]:checked');
-      if (q1 && q1.value === "correct") score++;
-      if (q2 && q2.value === "correct") score++;
 
-      document.getElementById("result").textContent = `You got ${score} out of 2 correct.`;
+      if (q1) {
+        if (q1.value === "correct") {
+          score++;
+        } else {
+          feedback += "❌ Question 1: The correct answer is 'Mortar'.\n";
+        }
+      } else {
+        feedback += "⚠️ Question 1: You didn't select an answer.\n";
+      }
+
+      if (q2) {
+        if (q2.value === "correct") {
+          score++;
+        } else {
+          feedback += "❌ Question 2: The correct answer is 'Vesak'.\n";
+        }
+      } else {
+        feedback += "⚠️ Question 2: You didn't select an answer.\n";
+      }
+
+      document.getElementById("result").textContent = `You got ${score} out of 2 correct.\n\n${feedback}`;
     }
   </script>
 </body>
