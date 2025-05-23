@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Animated Gap Fill Quiz</title>
+  <title>Step-by-Step Gap Fill Quiz</title>
   <style>
     body {
       background-color: #111;
@@ -56,7 +56,7 @@
     }
 
     button {
-      margin-top: 2rem;
+      margin-top: 1rem;
       padding: 10px 20px;
       font-weight: bold;
       background-color: #7ad1d4;
@@ -65,9 +65,9 @@
       cursor: pointer;
     }
 
-    #feedback {
-      margin-top: 1.5rem;
-      font-size: 1.2rem;
+    .feedback {
+      margin-top: 1rem;
+      font-size: 1.1rem;
     }
 
     .correct {
@@ -94,7 +94,9 @@
         <option value="speak up">Lily</option>
       </select>. We use them often for religious and spiritual ceremonies here. 
     </p>
-    <button onclick="nextStep()">Next</button>
+    <div class="feedback" id="feedback1"></div>
+    <button onclick="checkStep1()">Check</button>
+    <button id="nextBtn1" onclick="nextStep('step1', 'step2')" style="display:none;">Next</button>
   </div>
 
   <!-- Question 2 -->
@@ -108,38 +110,54 @@
         <option value="time">Sunflower</option>
       </select>. 
     </p>
-    <button onclick="checkAnswers()">Submit</button>
+    <div class="feedback" id="feedback2"></div>
+    <button onclick="checkStep2()">Check</button>
+    <button id="submitBtn" onclick="showFinalMessage()" style="display:none;">Finish</button>
   </div>
 
-  <div id="feedback"></div>
+  <div id="finalFeedback" class="feedback"></div>
 
   <script>
-    function nextStep() {
-      const step1 = document.getElementById("step1");
-      const step2 = document.getElementById("step2");
-
-      step1.classList.remove("active");
+    function nextStep(currentId, nextId) {
+      const current = document.getElementById(currentId);
+      const next = document.getElementById(nextId);
+      current.classList.remove("active");
       setTimeout(() => {
-        step1.style.display = "none";
-        step2.style.display = "block";
-        setTimeout(() => step2.classList.add("active"), 10);
+        current.style.display = "none";
+        next.style.display = "block";
+        setTimeout(() => next.classList.add("active"), 10);
       }, 800);
     }
 
-    function checkAnswers() {
+    function checkStep1() {
       const q1 = document.getElementById("q1").value;
-      const q2 = document.getElementById("q2").value;
-      let correct = 0;
-
-      if (q1 === "hide") correct++;
-      if (q2 === "courage") correct++;
-
-      const feedback = document.getElementById("feedback");
-      if (correct === 2) {
-        feedback.innerHTML = "✅ <span class='correct'>Great job! You're mastering the words in use.</span>";
+      const feedback = document.getElementById("feedback1");
+      const nextBtn = document.getElementById("nextBtn1");
+      if (q1 === "hide") {
+        feedback.innerHTML = "<span class='correct'>✅ That's correct! Frangipani is widely used in ceremonies.</span>";
+        nextBtn.style.display = "inline-block";
       } else {
-        feedback.innerHTML = "❌ <span class='incorrect'>Check your answers. Think about the meaning of the full conversation.</span>";
+        feedback.innerHTML = "<span class='incorrect'>❌ That's not right. Think about which flower is common in spiritual rituals.</span>";
+        nextBtn.style.display = "none";
       }
+    }
+
+    function checkStep2() {
+      const q2 = document.getElementById("q2").value;
+      const feedback = document.getElementById("feedback2");
+      const submitBtn = document.getElementById("submitBtn");
+      if (q2 === "courage") {
+        feedback.innerHTML = "<span class='correct'>✅ Well done! Bougainvillea is known for its symbolism in many cultures.</span>";
+        submitBtn.style.display = "inline-block";
+      } else {
+        feedback.innerHTML = "<span class='incorrect'>❌ Not quite. Try again and think about the vibrant colors and strength.</span>";
+        submitBtn.style.display = "none";
+      }
+    }
+
+    function showFinalMessage() {
+      const finalFeedback = document.getElementById("finalFeedback");
+      finalFeedback.innerHTML = "<span class='correct'>🎉 You've completed the quiz! Great work engaging with the conversation.</span>";
     }
   </script>
 
