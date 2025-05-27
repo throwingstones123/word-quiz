@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Animated Gap Fill Quiz</title>
+  <title>Interactive Gap Fill Quiz</title>
   <style>
     body {
       background-color: #111;
@@ -33,7 +33,7 @@
       height: 100%;
       width: 0%;
       background-color: #7ad1d4;
-      transition: width 0.5s ease-in-out;
+      transition: width 0.4s ease;
     }
 
     .conversation {
@@ -46,14 +46,11 @@
       padding: 1.5rem;
       border-radius: 10px;
       border: 1px solid #444;
-      opacity: 0;
-      transition: opacity 0.8s ease;
       display: none;
     }
 
     .conversation.active {
       display: block;
-      opacity: 1;
     }
 
     select {
@@ -63,7 +60,7 @@
       font-weight: bold;
       border-radius: 4px;
       border: 1px solid #555;
-      margin: 0 0.2rem;
+      margin-left: 0.4rem;
     }
 
     select:hover {
@@ -72,8 +69,12 @@
       cursor: pointer;
     }
 
+    .controls {
+      margin-top: 1.5rem;
+    }
+
     button {
-      margin-top: 2rem;
+      margin: 0 0.5rem;
       padding: 10px 20px;
       font-weight: bold;
       background-color: #7ad1d4;
@@ -82,9 +83,9 @@
       cursor: pointer;
     }
 
-    #feedback {
-      margin-top: 1.5rem;
-      font-size: 1.2rem;
+    .feedback {
+      margin-top: 1rem;
+      font-size: 1.1rem;
     }
 
     .correct {
@@ -96,7 +97,7 @@
     }
 
     #summary {
-      margin-top: 1rem;
+      margin-top: 2rem;
       font-size: 1.2rem;
       font-weight: bold;
     }
@@ -105,92 +106,122 @@
 <body>
 
   <h1>Fill in the Missing Word</h1>
-
-  <!-- Progress bar -->
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
 
   <!-- Question 1 -->
-  <div class="conversation active" id="step1">
+  <div class="conversation active" id="step0">
     <p><strong>Alex:</strong> I'm down for something protein tonight! What should we be having?</p>
     <p><strong>Jamie:</strong> Protein, huh? Well, we can order some
-      <select id="q1">
+      <select id="q0">
         <option value="">--select--</option>
         <option value="complain">Lolot Beef</option>
         <option value="hide">Pho</option>
         <option value="speak up">Spring Rolls</option>
-      </select> for your enjoyment. 
+      </select> for your enjoyment.
     </p>
-    <button onclick="nextStep()">Next</button>
+    <div class="feedback" id="feedback0"></div>
   </div>
 
   <!-- Question 2 -->
-  <div class="conversation" id="step2">
+  <div class="conversation" id="step1">
     <p><strong>Question:</strong> What sort of dish are they ordering?</p>
     <p><strong>Kyle:</strong> We'll take it with eggs and smoked pork, please</p>
     <p><strong>Dan:</strong> They do smoked pork here too? First I've heard of that</p>
     <p><strong>Kyle:</strong> It's been there for a long time, you have to ask for it!
-      <select id="q2">
+      <select id="q1">
         <option value="">--select--</option>
         <option value="courage">Nem</option>
         <option value="luck">Broken Rice</option>
         <option value="time">Sizzling Cake</option>
       </select>
     </p>
-    <button onclick="checkAnswers()">Submit</button>
+    <div class="feedback" id="feedback1"></div>
   </div>
 
-  <div id="feedback"></div>
+  <div class="controls">
+    <button onclick="prevStep()">Back</button>
+    <button onclick="validateStep()">Check</button>
+    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
+  </div>
+
   <div id="summary"></div>
 
   <script>
-    function nextStep() {
-      const step1 = document.getElementById("step1");
-      const step2 = document.getElementById("step2");
+    const totalQuestions = 2;
+    const correctAnswers = ["complain", "luck"];
+    let currentStep = 0;
+    let score = 0;
+    const userAnswers = Array(totalQuestions).fill(null);
+    const validatedSteps = Array(totalQuestions).fill(false);
 
-      step1.classList.remove("active");
-      setTimeout(() => {
-        step1.style.display = "none";
-        step2.style.display = "block";
-        setTimeout(() => step2.classList.add("active"), 10);
-        updateProgress(50);
-      }, 800);
+    function updateProgress() {
+      const progress = (currentStep / totalQuestions) * 100;
+      document.getElementById("progressBar").style.width = progress + "%";
     }
 
-    function checkAnswers() {
-      const q1 = document.getElementById("q1").value;
-      const q2 = document.getElementById("q2").value;
-      let correct = 0;
-      const total = 2;
+    function showStep(index) {
+      document.querySelectorAll('.conversation').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+      document.getElementById("nextBtn").disabled = !validatedSteps[index];
+      updateProgress();
+    }
 
-      if (q1 === "complain") correct++;
-      if (q2 === "luck") correct++;
-
-      const percent = (correct / total) * 100;
-      const feedback = document.getElementById("feedback");
-      const summary = document.getElementById("summary");
-
-      if (correct === 2) {
-        feedback.innerHTML = "✅ <span class='correct'>Great job! You understood the context well.</span>";
+    function nextStep() {
+      if (currentStep < totalQuestions - 1) {
+        currentStep++;
+        showStep(currentStep);
       } else {
-        feedback.innerHTML = "❌ <span class='incorrect'>Check your answers. Think about the meaning of the full conversation.</span>";
+        showSummary();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    function validateStep() {
+      const select = document.getElementById(`q${currentStep}`);
+      const feedback = document.getElementById(`feedback${currentStep}`);
+      const answer = select.value;
+
+      if (!answer) {
+        feedback.innerHTML = `<span class="incorrect">❌ Please select an answer.</span>`;
+        return;
       }
 
+      userAnswers[currentStep] = answer;
+      if (answer === correctAnswers[currentStep]) {
+        if (!validatedSteps[currentStep]) score++;
+        feedback.innerHTML = `<span class="correct">✅ Correct!</span>`;
+      } else {
+        feedback.innerHTML = `<span class="incorrect">❌ Incorrect. Try again or proceed to review.</span>`;
+      }
+
+      validatedSteps[currentStep] = true;
+      document.getElementById("nextBtn").disabled = false;
+    }
+
+    function showSummary() {
+      const percent = (score / totalQuestions) * 100;
+      const summary = document.getElementById("summary");
       if (percent >= 50) {
-        summary.innerHTML = `✅ You passed with ${percent}%!`;
+        summary.innerHTML = `✅ You passed with ${percent}% (${score}/${totalQuestions})`;
         summary.style.color = "lightgreen";
       } else {
-        summary.innerHTML = `❌ You scored ${percent}%. Keep practicing!`;
+        summary.innerHTML = `❌ You scored ${percent}%. Keep practicing! (${score}/${totalQuestions})`;
         summary.style.color = "#ff4c4c";
       }
-
-      updateProgress(100);
+      document.querySelector(".controls").style.display = "none";
     }
 
-    function updateProgress(percent) {
-      document.getElementById("progressBar").style.width = percent + "%";
-    }
+    // Init
+    showStep(0);
   </script>
 
 </body>
