@@ -19,6 +19,23 @@
       letter-spacing: 2px;
     }
 
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #70c1b3;
+      transition: width 0.5s ease-in-out;
+    }
+
     .quiz-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -74,6 +91,13 @@
       white-space: pre-wrap;
     }
 
+    #summary {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
     @media (max-width: 768px) {
       .quiz-container {
         grid-template-columns: 1fr;
@@ -83,6 +107,11 @@
 </head>
 <body>
   <h1>Quiz Pack 1</h1>
+
+  <!-- Progress bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
   <div class="quiz-container">
     <div class="question-card">
@@ -102,11 +131,13 @@
 
   <button onclick="grade()">Submit</button>
   <p id="result"></p>
+  <p id="summary"></p>
 
   <script>
     function grade() {
       let score = 0;
       let feedback = "";
+      const total = 2;
 
       const q1 = document.querySelector('input[name="q1"]:checked');
       const q2 = document.querySelector('input[name="q2"]:checked');
@@ -131,7 +162,19 @@
         feedback += "⚠️ Question 2: You didn't select an answer.\n";
       }
 
-      document.getElementById("result").textContent = `You got ${score} out of 2 correct.\n\n${feedback}`;
+      const percent = (score / total) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${total} correct.\n\n${feedback}`;
+
+      const summary = document.getElementById("summary");
+      if (percent >= 50) {
+        summary.textContent = `✅ Well done! You passed with ${percent}%.`;
+        summary.style.color = "lightgreen";
+      } else {
+        summary.textContent = `❌ You got ${percent}%. Keep practicing!`;
+        summary.style.color = "#ff4c4c";
+      }
+
+      document.getElementById("progressBar").style.width = percent + "%";
     }
   </script>
 </body>
