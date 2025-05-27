@@ -20,6 +20,23 @@
       margin-bottom: 1rem;
     }
 
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #7ad1d4;
+      transition: width 0.5s ease-in-out;
+    }
+
     .quiz-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -92,6 +109,12 @@
       color: #7ad1d4;
     }
 
+    #summary {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
     .hint {
       color: #ff4c4c;
       font-size: 0.9rem;
@@ -102,6 +125,11 @@
 <body>
 
   <h1>Match the Definitions</h1>
+
+  <!-- Progress bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
   <div class="quiz-container">
     <div class="definition-box">
@@ -133,6 +161,7 @@
 
   <button onclick="checkAnswers()">Check Answers</button>
   <div id="score"></div>
+  <div id="summary"></div>
 
   <script>
     function allowDrop(ev) {
@@ -154,12 +183,10 @@
 
       if (!ev.target.classList.contains('drop-zone') && !ev.target.classList.contains('word-bank')) return;
 
-      // Move previous word back to word bank if drop-zone already contains one
       if (ev.target.classList.contains('drop-zone') && ev.target.children.length > 0) {
         document.getElementById('words').appendChild(ev.target.children[0]);
       }
 
-      // If dropped in word bank, just append
       if (ev.target.id === "words" || ev.target.classList.contains('word-bank')) {
         document.getElementById("words").appendChild(wordElement);
       } else {
@@ -170,12 +197,14 @@
     function checkAnswers() {
       const defs = document.querySelectorAll('.definition');
       let correct = 0;
+      const total = defs.length;
+
       defs.forEach(def => {
         const answer = def.getAttribute('data-answer');
         const drop = def.querySelector('.drop-zone');
         const word = drop.children[0]?.id || "";
         const hint = def.querySelector('.hint');
-        
+
         if (word.toLowerCase() === answer.toLowerCase()) {
           drop.style.borderColor = 'green';
           hint.textContent = '';
@@ -186,7 +215,23 @@
         }
       });
 
-      document.getElementById("score").textContent = `You got ${correct} out of ${defs.length} correct.`;
+      const percent = (correct / total) * 100;
+      document.getElementById("score").textContent = `You got ${correct} out of ${total} correct.`;
+
+      const summary = document.getElementById("summary");
+      if (percent >= 50) {
+        summary.textContent = `✅ Great job! You passed with ${percent.toFixed(0)}%.`;
+        summary.style.color = "lightgreen";
+      } else {
+        summary.textContent = `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+        summary.style.color = "#ff4c4c";
+      }
+
+      updateProgress(percent);
+    }
+
+    function updateProgress(percent) {
+      document.getElementById("progressBar").style.width = percent + "%";
     }
 
     function getHint(answerKey) {
