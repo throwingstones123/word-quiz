@@ -20,6 +20,23 @@
       margin-bottom: 1rem;
     }
 
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #7ad1d4;
+      transition: width 0.4s ease;
+    }
+
     .quiz-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -50,7 +67,7 @@
       margin-top: 0.5rem;
       min-height: 40px;
       font-weight: bold;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s, border-color 0.3s;
     }
 
     .drop-zone.hovered {
@@ -91,11 +108,30 @@
       font-size: 1.2rem;
       color: #7ad1d4;
     }
+
+    #summary {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    #completedBanner {
+      margin-top: 2rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #00ffaa;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
   <h1>Match the Definition</h1>
+
+  <!-- Progress bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
   <div class="quiz-container">
     <div class="definition-box">
@@ -124,8 +160,12 @@
 
   <button onclick="checkAnswers()">Check Answers</button>
   <div id="score"></div>
+  <div id="summary"></div>
+  <div id="completedBanner">🎉 You've completed the quiz!</div>
 
   <script>
+    const totalDefinitions = 3;
+
     function allowDrop(ev) {
       ev.preventDefault();
       ev.target.classList.add('hovered');
@@ -140,7 +180,9 @@
       ev.target.classList.remove('hovered');
       const data = ev.dataTransfer.getData("text");
       const wordElement = document.getElementById(data);
-      ev.target.innerHTML = "";
+      if (ev.target.children.length > 0) {
+        document.getElementById('words').appendChild(ev.target.children[0]);
+      }
       ev.target.appendChild(wordElement);
     }
 
@@ -159,7 +201,20 @@
         }
       });
 
-      document.getElementById("score").textContent = `You got ${correct} out of ${defs.length} correct.`;
+      const percent = (correct / totalDefinitions) * 100;
+      document.getElementById("score").textContent = `You got ${correct} out of ${totalDefinitions} correct.`;
+
+      const summary = document.getElementById("summary");
+      if (percent >= 50) {
+        summary.textContent = `✅ You passed with ${percent.toFixed(0)}%!`;
+        summary.style.color = "lightgreen";
+      } else {
+        summary.textContent = `❌ You scored ${percent.toFixed(0)}%. Keep practicing!`;
+        summary.style.color = "#ff4c4c";
+      }
+
+      document.getElementById("completedBanner").style.display = "block";
+      document.querySelector(".progress-bar").style.width = "100%";
     }
   </script>
 
