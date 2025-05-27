@@ -16,7 +16,24 @@
     h1 {
       color: #7ad1d4;
       font-size: 2rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #7ad1d4;
+      transition: width 0.4s ease;
     }
 
     .conversation {
@@ -29,14 +46,11 @@
       padding: 1.5rem;
       border-radius: 10px;
       border: 1px solid #444;
-      opacity: 0;
-      transition: opacity 0.8s ease;
       display: none;
     }
 
     .conversation.active {
       display: block;
-      opacity: 1;
     }
 
     select {
@@ -46,7 +60,7 @@
       font-weight: bold;
       border-radius: 4px;
       border: 1px solid #555;
-      margin: 0 0.2rem;
+      margin-left: 0.4rem;
     }
 
     select:hover {
@@ -55,8 +69,12 @@
       cursor: pointer;
     }
 
+    .controls {
+      margin-top: 1.5rem;
+    }
+
     button {
-      margin-top: 2rem;
+      margin: 0 0.5rem;
       padding: 10px 20px;
       font-weight: bold;
       background-color: #7ad1d4;
@@ -65,9 +83,9 @@
       cursor: pointer;
     }
 
-    #feedback {
-      margin-top: 1.5rem;
-      font-size: 1.2rem;
+    .feedback {
+      margin-top: 1rem;
+      font-size: 1.1rem;
     }
 
     .correct {
@@ -77,70 +95,148 @@
     .incorrect {
       color: #ff4c4c;
     }
+
+    #summary {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    #completedBanner {
+      margin-top: 2rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #00ffaa;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
   <h1>Fill in the Missing Word</h1>
 
+  <!-- Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
   <!-- Question 1 -->
-  <div class="conversation active" id="step1">
+  <div class="conversation active" id="step0">
     <p><strong>Paul:</strong> Which ethnic group built all these beautiful towers again - can you remind me?</p>
     <p><strong>Jamie:</strong> Oh, that'd be the 
-      <select id="q1">
+      <select id="q0">
         <option value="">--select--</option>
         <option value="complain">Cham</option>
         <option value="hide">Khmer</option>
         <option value="speak up">Stieng</option>
       </select>. They were built in a Hindu style because of their faith.
     </p>
-    <button onclick="nextStep()">Next</button>
+    <div class="feedback" id="feedback0"></div>
   </div>
 
   <!-- Question 2 -->
-  <div class="conversation" id="step2">
-    <p><strong>Alex:</strong> That lady who wears the large bone earrings - what's her people's name again?
+  <div class="conversation" id="step1">
+    <p><strong>Alex:</strong> That lady who wears the large bone earrings - what's her people's name again?</p>
     <p><strong>Jamie:</strong> Oh, she'd be
-      <select id="q2">
+      <select id="q1">
         <option value="">--select--</option>
         <option value="courage">Stieng</option>
         <option value="luck">Hoa</option>
         <option value="time">Khmer</option>
       </select>. It's a traditional wear of their people.
     </p>
-    <button onclick="checkAnswers()">Submit</button>
+    <div class="feedback" id="feedback1"></div>
   </div>
 
-  <div id="feedback"></div>
+  <!-- Controls -->
+  <div class="controls">
+    <button onclick="prevStep()">Back</button>
+    <button onclick="validateStep()">Check</button>
+    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
+  </div>
+
+  <div id="summary"></div>
+  <div id="completedBanner">🎉 You've completed the quiz!</div>
 
   <script>
-    function nextStep() {
-      const step1 = document.getElementById("step1");
-      const step2 = document.getElementById("step2");
+    const totalQuestions = 2;
+    const correctAnswers = ["complain", "courage"];
+    let currentStep = 0;
+    let score = 0;
+    const userAnswers = Array(totalQuestions).fill(null);
+    const validatedSteps = Array(totalQuestions).fill(false);
 
-      step1.classList.remove("active");
-      setTimeout(() => {
-        step1.style.display = "none";
-        step2.style.display = "block";
-        setTimeout(() => step2.classList.add("active"), 10);
-      }, 800);
+    function updateProgress() {
+      const progress = (currentStep / totalQuestions) * 100;
+      document.getElementById("progressBar").style.width = progress + "%";
     }
 
-    function checkAnswers() {
-      const q1 = document.getElementById("q1").value;
-      const q2 = document.getElementById("q2").value;
-      let correct = 0;
+    function showStep(index) {
+      document.querySelectorAll('.conversation').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+      document.getElementById("nextBtn").disabled = !validatedSteps[index];
+      updateProgress();
+    }
 
-      if (q1 === "complain") correct++;
-      if (q2 === "courage") correct++;
-
-      const feedback = document.getElementById("feedback");
-      if (correct === 2) {
-        feedback.innerHTML = "✅ <span class='correct'>Great job! You understood the ethnic culture well.</span>";
+    function nextStep() {
+      if (currentStep < totalQuestions - 1) {
+        currentStep++;
+        showStep(currentStep);
       } else {
-        feedback.innerHTML = "❌ <span class='incorrect'>Check your answers. Think about the meaning of the full conversation.</span>";
+        document.getElementById("progressBar").style.width = "100%";
+        document.getElementById("completedBanner").style.display = "block";
+        showSummary();
       }
     }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    function validateStep() {
+      const select = document.getElementById(`q${currentStep}`);
+      const feedback = document.getElementById(`feedback${currentStep}`);
+      const answer = select.value;
+
+      if (!answer) {
+        feedback.innerHTML = `<span class="incorrect">❌ Please select an answer.</span>`;
+        return;
+      }
+
+      userAnswers[currentStep] = answer;
+
+      if (answer === correctAnswers[currentStep]) {
+        if (!validatedSteps[currentStep]) score++;
+        feedback.innerHTML = `<span class="correct">✅ Correct!</span>`;
+      } else {
+        feedback.innerHTML = `<span class="incorrect">❌ Incorrect. Try again or continue.</span>`;
+      }
+
+      validatedSteps[currentStep] = true;
+      document.getElementById("nextBtn").disabled = false;
+    }
+
+    function showSummary() {
+      const percent = (score / totalQuestions) * 100;
+      const summary = document.getElementById("summary");
+
+      if (percent >= 50) {
+        summary.innerHTML = `✅ You passed with ${percent}% (${score}/${totalQuestions})`;
+        summary.style.color = "lightgreen";
+      } else {
+        summary.innerHTML = `❌ You scored ${percent}%. Keep practicing! (${score}/${totalQuestions})`;
+        summary.style.color = "#ff4c4c";
+      }
+
+      document.querySelector(".controls").style.display = "none";
+    }
+
+    // Init
+    showStep(0);
   </script>
 
 </body>
