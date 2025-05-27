@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mixed Format Quiz</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      color: #7ad1d4;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #7ad1d4;
+      transition: width 0.4s ease;
+    }
+
+    .question-card {
+      max-width: 800px;
+      margin: 1.5rem auto;
+      background-color: #000;
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 1px solid #444;
+      display: none;
+      text-align: left;
+    }
+
+    .question-card.active {
+      display: block;
+    }
+
+    select, input[type="radio"] {
+      margin-top: 1rem;
+    }
+
+    .drop-zone {
+      border: 2px dashed #555;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      min-height: 40px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .drop-zone.hovered {
+      background-color: #222;
+    }
+
+    .word {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #222;
+      border: 1px solid #555;
+      border-radius: 5px;
+      cursor: grab;
+      font-weight: bold;
+    }
+
+    .controls, #summary, #completedBanner {
+      margin-top: 1.5rem;
+    }
+
+    .correct {
+      color: lightgreen;
+    }
+
+    .incorrect {
+      color: #ff4c4c;
+    }
+
+    button {
+      margin: 0.5rem;
+      padding: 10px 20px;
+      font-weight: bold;
+      background-color: #7ad1d4;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #retryBtn {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mixed Question Quiz</h1>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div id="quiz-area"></div>
+
+  <div class="controls">
+    <button onclick="prevStep()">Back</button>
+    <button onclick="validateStep()">Check</button>
+    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
+  </div>
+
+  <div id="summary"></div>
+  <div id="completedBanner">🎉 You've completed the quiz!</div>
+  <button onclick="retryQuiz()" id="retryBtn">🔁 Retry Quiz</button>
+
+  <script>
+    const baseQuestions = [
+      {
+        type: 'dropdown',
+        question: "Which ethnic group built the Hindu-style towers?",
+        content: `
+          <p><strong>Paul:</strong> Which ethnic group built all these beautiful towers again?</p>
+          <p><strong>Jamie:</strong> Oh, that'd be the 
+            <select id="q0">
+              <option value="">--select--</option>
+              <option value="correct">Cham</option>
+              <option value="wrong">Khmer</option>
+              <option value="wrong">Stieng</option>
+            </select>.
+          </p>`,
+        correct: "correct"
+      },
+      {
+        type: 'radio',
+        question: "Traditional cooking item made from clay?",
+        content: `
+          <p><strong>Question:</strong> Which item is made from baked clay?</p>
+          <label><input type="radio" name="q1" value="wrong"> Mat</label><br/>
+          <label><input type="radio" name="q1" value="wrong"> Turban</label><br/>
+          <label><input type="radio" name="q1" value="correct"> Earthenware Pot</label>`,
+        correct: "correct"
+      },
+      {
+        type: 'dragdrop',
+        question: "Match the description with clothing items.",
+        content: `
+          <div class="definition" data-answer="hat">
+            Worn on the head, made of straw or bamboo
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+          </div>
+          <div class="definition" data-answer="dress">
+            Traditional Vietnamese garment from 18th century
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+          </div>
+          <div class="definition" data-answer="turban">
+            Worn by Vietnamese men during ceremonies
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+          </div>
+          <div style="margin-top:1rem;" id="words">
+            <div class="word" draggable="true" ondragstart="drag(event)" id="hat">Conical Hat</div>
+            <div class="word" draggable="true" ondragstart="drag(event)" id="dress">Five-part Dress</div>
+            <div class="word" draggable="true" ondragstart="drag(event)" id="turban">Turban</div>
+          </div>`,
+        correct: { hat: "hat", dress: "dress", turban: "turban" }
+      },
+      // Placeholder for 12 additional questions:
+      ...Array.from({ length: 12 }, (_, i) => ({
+        type: 'dropdown',
+        question: `Question ${i + 4}: [EDIT ME]`,
+        content: `
+          <p>[Dropdown Placeholder]</p>
+          <select id="q${i + 3}">
+            <option value="">--select--</option>
+            <option value="correct">Correct</option>
+            <option value="wrong">Wrong 1</option>
+            <option value="wrong">Wrong 2</option>
+          </select>`,
+        correct: "correct"
+      }))
+    ];
+
+    let questions = [];
+    let order = [];
+    let currentStep = 0;
+    let score = 0;
+    let validated = [];
+
+    function initQuiz() {
+      questions = [...baseQuestions];
+      order = [...Array(questions.length).keys()].sort(() => 0.5 - Math.random());
+      currentStep = 0;
+      score = 0;
+      validated = Array(questions.length).fill(false);
+      document.getElementById("quiz-area").innerHTML = "";
+      document.getElementById("summary").innerHTML = "";
+      document.getElementById("completedBanner").style.display = "none";
+      document.getElementById("retryBtn").style.display = "none";
+      document.querySelector(".controls").style.display = "block";
+
+      order.forEach((i, idx) => {
+        const q = questions[i];
+        const div = document.createElement("div");
+        div.className = "question-card";
+        div.id = `step${idx}`;
+        div.innerHTML = `<p><strong>${q.question}</strong></p>${q.content}<div class="feedback" id="f${idx}"></div>`;
+        document.getElementById("quiz-area").appendChild(div);
+      });
+
+      showStep(currentStep);
+    }
+
+    function showStep(index) {
+      document.querySelectorAll(".question-card").forEach((el, i) => {
+        el.classList.toggle("active", i === index);
+      });
+      document.getElementById("nextBtn").disabled = !validated[index];
+      updateProgress(index);
+    }
+
+    function updateProgress(index) {
+      document.getElementById("progressBar").style.width = ((index / questions.length) * 100) + "%";
+    }
+
+    function nextStep() {
+      if (currentStep < questions.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+      } else {
+        document.getElementById("progressBar").style.width = "100%";
+        document.getElementById("completedBanner").style.display = "block";
+        showSummary();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    function validateStep() {
+      const qIdx = order[currentStep];
+      const q = questions[qIdx];
+      const feedback = document.getElementById(`f${currentStep}`);
+      let correct = false;
+
+      if (q.type === 'dropdown') {
+        const val = document.querySelector(`#q${qIdx}`)?.value;
+        correct = val === q.correct;
+      } else if (q.type === 'radio') {
+        const checked = document.querySelector(`input[name="q${qIdx}"]:checked`);
+        if (checked) correct = checked.value === q.correct;
+      } else if (q.type === 'dragdrop') {
+        correct = true;
+        const defs = document.querySelectorAll(".definition");
+        defs.forEach(def => {
+          const expected = def.getAttribute("data-answer");
+          const actual = def.querySelector(".drop-zone").children[0]?.id;
+          if (expected !== actual) correct = false;
+        });
+      }
+
+      if (correct) {
+        feedback.innerHTML = "<span class='correct'>✅ Correct!</span>";
+        if (!validated[currentStep]) score++;
+      } else {
+        feedback.innerHTML = "<span class='incorrect'>❌ Incorrect. Try again or continue.</span>";
+      }
+
+      validated[currentStep] = true;
+      document.getElementById("nextBtn").disabled = false;
+    }
+
+    function showSummary() {
+      const percent = Math.round((score / questions.length) * 100);
+      const summary = document.getElementById("summary");
+      summary.innerHTML =
+        percent >= 50
+          ? `✅ You passed with ${percent}% (${score}/${questions.length})`
+          : `❌ You scored ${percent}%. Keep practicing! (${score}/${questions.length})`;
+      summary.style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+      document.querySelector(".controls").style.display = "none";
+      document.getElementById("retryBtn").style.display = "inline-block";
+    }
+
+    function retryQuiz() {
+      initQuiz();
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+      if (ev.target.classList.contains("drop-zone")) {
+        ev.target.classList.add("hovered");
+      }
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      ev.target.classList.remove("hovered");
+      const id = ev.dataTransfer.getData("text");
+      const dragged = document.getElementById(id);
+      if (ev.target.classList.contains("drop-zone")) {
+        if (ev.target.children.length) {
+          document.getElementById("words").appendChild(ev.target.children[0]);
+        }
+        ev.target.appendChild(dragged);
+      }
+    }
+
+    initQuiz();
+  </script>
+</body>
+</html>
