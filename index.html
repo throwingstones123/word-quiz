@@ -54,20 +54,36 @@
       text-transform: uppercase;
     }
 
-    .explore {
-      margin-top: 3rem;
-      padding: 2rem;
-      border: 1px solid #eee;
-    }
-
-    .explore:hover {
-      border-color: #fff;
-      background-color: #222;
-    }
-
     a {
       color: inherit;
       text-decoration: none;
+    }
+
+    /* 🔁 Mixed Quiz Card */
+    .mixed-card {
+      grid-column: span 2;
+      background: linear-gradient(135deg, #1c1c1c, #111);
+      border: 2px solid #7ad1d4;
+      animation: pulse 4s infinite;
+      font-size: 1.1rem;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0px rgba(122, 209, 212, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 15px rgba(122, 209, 212, 0.6);
+      }
+      100% {
+        box-shadow: 0 0 0px rgba(122, 209, 212, 0.4);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .mixed-card {
+        grid-column: span 1;
+      }
     }
   </style>
 </head>
@@ -113,11 +129,12 @@
       <div class="category-title">Ethnic Peoples</div>
       <div>The different peoples that live, grow and prosper in this country</div>
     </a>
-  </div>
 
-  <div class="explore">
-    <div class="mixed.html">Mixed Quiz</div>
-    <div>Familiarised yourself with everything? Test your knowledge here!</div>
+    <!-- 🎯 Mixed Quiz -->
+    <a href="mixed.html" class="category-card mixed-card">
+      <div class="category-title">🥁 Mixed Quiz</div>
+      <div>Familiarised yourself with everything? Test your knowledge across all categories here!</div>
+    </a>
   </div>
 
 </body>
