@@ -19,6 +19,23 @@
       letter-spacing: 2px;
     }
 
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #70c1b3;
+      transition: width 0.5s ease-in-out;
+    }
+
     .quiz-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -79,6 +96,13 @@
       margin-top: 1rem;
     }
 
+    #summary {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
     @media (max-width: 768px) {
       .quiz-container {
         grid-template-columns: 1fr;
@@ -88,6 +112,11 @@
 </head>
 <body>
   <h1>Quiz Pack 1</h1>
+
+  <!-- Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
   <div class="quiz-container">
     <div class="question-card" id="card1">
@@ -109,10 +138,12 @@
 
   <button onclick="grade()">Submit</button>
   <p id="result"></p>
+  <p id="summary"></p>
 
   <script>
     function grade() {
       let score = 0;
+      const totalQuestions = 2;
 
       const answers = {
         q1: "buffalo",
@@ -149,7 +180,23 @@
         }
       }
 
-      document.getElementById("result").textContent = `You got ${score} out of 2 correct.`;
+      const percent = (score / totalQuestions) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${totalQuestions} correct.`;
+
+      if (percent >= 50) {
+        document.getElementById("summary").textContent = `✅ Well done! You passed with ${percent}%.`;
+        document.getElementById("summary").style.color = "lightgreen";
+      } else {
+        document.getElementById("summary").textContent = `❌ You got ${percent}%. Keep practicing!`;
+        document.getElementById("summary").style.color = "#ff4c4c";
+      }
+
+      updateProgress(percent);
+    }
+
+    function updateProgress(percent) {
+      const bar = document.getElementById("progressBar");
+      bar.style.width = percent + "%";
     }
   </script>
 </body>
