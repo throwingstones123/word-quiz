@@ -2,165 +2,240 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Clothing Match Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Gap Fill Quiz</title>
   <style>
     body {
       background-color: #111;
-      color: white;
+      color: #fff;
       font-family: 'Arial', sans-serif;
-      margin: 0;
       padding: 2rem;
       text-align: center;
     }
 
     h1 {
-      font-size: 2.5rem;
       color: #7ad1d4;
-      margin-bottom: 1rem;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
     }
 
-    .quiz-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 1000px;
-      margin: 2rem auto;
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
     }
 
-    .definition-box, .word-bank {
-      border: 1px solid #555;
-      background: #000;
-      padding: 1rem;
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #7ad1d4;
+      transition: width 0.4s ease;
+    }
+
+    .conversation {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 1.2rem;
+      line-height: 1.6;
+      text-align: left;
+      background-color: #000;
+      padding: 1.5rem;
       border-radius: 10px;
-      min-height: 200px;
+      border: 1px solid #444;
+      display: none;
     }
 
-    .definition {
-      margin: 1rem 0;
-      padding: 1rem;
-      border: 1px solid #333;
-      background-color: #111;
-      border-radius: 8px;
+    .conversation.active {
+      display: block;
     }
 
-    .drop-zone {
-      border: 2px dashed #555;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      min-height: 40px;
+    select {
+      background: #222;
+      color: white;
+      padding: 0.4rem;
       font-weight: bold;
-      transition: background-color 0.3s;
-    }
-
-    .drop-zone.hovered {
-      background-color: #222;
-    }
-
-    .word {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      background-color: #222;
+      border-radius: 4px;
       border: 1px solid #555;
-      border-radius: 5px;
-      cursor: grab;
-      font-weight: bold;
-      transition: transform 0.2s ease;
+      margin-left: 0.4rem;
     }
 
-    .word:hover {
-      transform: scale(1.1);
+    select:hover {
       background-color: #7ad1d4;
       color: black;
+      cursor: pointer;
+    }
+
+    .controls {
+      margin-top: 1.5rem;
     }
 
     button {
-      margin-top: 2rem;
+      margin: 0 0.5rem;
       padding: 10px 20px;
       font-weight: bold;
-      background: #7ad1d4;
+      background-color: #7ad1d4;
       border: none;
-      cursor: pointer;
-      font-size: 1rem;
       border-radius: 5px;
+      cursor: pointer;
     }
 
-    #score {
-      margin-top: 1.5rem;
+    .feedback {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .correct {
+      color: lightgreen;
+    }
+
+    .incorrect {
+      color: #ff4c4c;
+    }
+
+    #summary {
+      margin-top: 2rem;
       font-size: 1.2rem;
-      color: #7ad1d4;
+      font-weight: bold;
+    }
+
+    #completedBanner {
+      margin-top: 2rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #00ffaa;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <h1>Match the Definition</h1>
-
-  <div class="quiz-container">
-    <div class="definition-box">
-      <div class="definition" data-answer="hat">
-        A large piece of headwear popular in some Asian countries, made of bamboo or straw
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="dress">
-        A traditional garment worn in Vietnam, particularly during the 18th century. It's considered the predecessor to the more modern áo dài
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="turban">
-        A piece of headscarf worn by Vietnamese men, particularly in historical or ceremonial contexts.
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-      </div>
-    </div>
-
-    <div class="word-bank">
-      <div id="words">
-        <div class="word" draggable="true" ondragstart="drag(event)" id="hat">Conical Hat</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="dress">Five-part Dress</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="turban">Turban</div>
-      </div>
-    </div>
+  <h1>Fill in the Missing Word</h1>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
   </div>
 
-  <button onclick="checkAnswers()">Check Answers</button>
-  <div id="score"></div>
+  <!-- Question 1 -->
+  <div class="conversation active" id="step0">
+    <p><strong>Alex:</strong> I'm down for something protein tonight! What should we be having?</p>
+    <p><strong>Jamie:</strong> Protein, huh? Well, we can order some
+      <select id="q0">
+        <option value="">--select--</option>
+        <option value="complain">Lolot Beef</option>
+        <option value="hide">Pho</option>
+        <option value="speak up">Spring Rolls</option>
+      </select> for your enjoyment.
+    </p>
+    <div class="feedback" id="feedback0"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="conversation" id="step1">
+    <p><strong>Question:</strong> What sort of dish are they ordering?</p>
+    <p><strong>Kyle:</strong> We'll take it with eggs and smoked pork, please</p>
+    <p><strong>Dan:</strong> They do smoked pork here too? First I've heard of that</p>
+    <p><strong>Kyle:</strong> It's been there for a long time, you have to ask for it!
+      <select id="q1">
+        <option value="">--select--</option>
+        <option value="courage">Nem</option>
+        <option value="luck">Broken Rice</option>
+        <option value="time">Sizzling Cake</option>
+      </select>
+    </p>
+    <div class="feedback" id="feedback1"></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="prevStep()">Back</button>
+    <button onclick="validateStep()">Check</button>
+    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
+  </div>
+
+  <div id="summary"></div>
+  <div id="completedBanner">🎉 You've completed the quiz!</div>
 
   <script>
-    function allowDrop(ev) {
-      ev.preventDefault();
-      ev.target.classList.add('hovered');
+    const totalQuestions = 2;
+    const correctAnswers = ["complain", "luck"];
+    let currentStep = 0;
+    let score = 0;
+    const userAnswers = Array(totalQuestions).fill(null);
+    const validatedSteps = Array(totalQuestions).fill(false);
+
+    function updateProgress() {
+      const progress = (currentStep / totalQuestions) * 100;
+      document.getElementById("progressBar").style.width = progress + "%";
     }
 
-    function drag(ev) {
-      ev.dataTransfer.setData("text", ev.target.id);
-    }
-
-    function drop(ev) {
-      ev.preventDefault();
-      ev.target.classList.remove('hovered');
-      const data = ev.dataTransfer.getData("text");
-      const wordElement = document.getElementById(data);
-      ev.target.innerHTML = "";
-      ev.target.appendChild(wordElement);
-    }
-
-    function checkAnswers() {
-      const defs = document.querySelectorAll('.definition');
-      let correct = 0;
-      defs.forEach(def => {
-        const answer = def.getAttribute('data-answer');
-        const drop = def.querySelector('.drop-zone');
-        const word = drop.children[0]?.id || "";
-        if (word.toLowerCase() === answer.toLowerCase()) {
-          drop.style.borderColor = 'green';
-          correct++;
-        } else {
-          drop.style.borderColor = 'red';
-        }
+    function showStep(index) {
+      document.querySelectorAll('.conversation').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
       });
-
-      document.getElementById("score").textContent = `You got ${correct} out of ${defs.length} correct.`;
+      document.getElementById("nextBtn").disabled = !validatedSteps[index];
+      updateProgress();
     }
+
+    function nextStep() {
+      if (currentStep < totalQuestions - 1) {
+        currentStep++;
+        showStep(currentStep);
+      } else {
+        document.getElementById("progressBar").style.width = "100%";
+        document.getElementById("completedBanner").style.display = "block";
+        showSummary();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    function validateStep() {
+      const select = document.getElementById(`q${currentStep}`);
+      const feedback = document.getElementById(`feedback${currentStep}`);
+      const answer = select.value;
+
+      if (!answer) {
+        feedback.innerHTML = `<span class="incorrect">❌ Please select an answer.</span>`;
+        return;
+      }
+
+      userAnswers[currentStep] = answer;
+
+      if (answer === correctAnswers[currentStep]) {
+        if (!validatedSteps[currentStep]) score++;
+        feedback.innerHTML = `<span class="correct">✅ Correct!</span>`;
+      } else {
+        feedback.innerHTML = `<span class="incorrect">❌ Incorrect. Try again or proceed to review.</span>`;
+      }
+
+      validatedSteps[currentStep] = true;
+      document.getElementById("nextBtn").disabled = false;
+    }
+
+    function showSummary() {
+      const percent = (score / totalQuestions) * 100;
+      const summary = document.getElementById("summary");
+
+      if (percent >= 50) {
+        summary.innerHTML = `✅ You passed with ${percent}% (${score}/${totalQuestions})`;
+        summary.style.color = "lightgreen";
+      } else {
+        summary.innerHTML = `❌ You scored ${percent}%. Keep practicing! (${score}/${totalQuestions})`;
+        summary.style.color = "#ff4c4c";
+      }
+
+      document.querySelector(".controls").style.display = "none";
+    }
+
+    // Init
+    showStep(0);
   </script>
 
 </body>
