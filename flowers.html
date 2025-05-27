@@ -19,6 +19,23 @@
       margin-bottom: 2rem;
     }
 
+    .progress-container {
+      width: 100%;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
+      max-width: 600px;
+      height: 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: #7ad1d4;
+      width: 0%;
+      transition: width 0.5s ease-in-out;
+    }
+
     .conversation {
       max-width: 700px;
       margin: 0 auto;
@@ -77,11 +94,22 @@
     .incorrect {
       color: #ff4c4c;
     }
+
+    .summary {
+      margin-top: 2rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
   <h1>Fill in the Missing Word</h1>
+
+  <!-- Progress bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
   <!-- Question 1 -->
   <div class="conversation active" id="step1">
@@ -96,7 +124,7 @@
     </p>
     <div class="feedback" id="feedback1"></div>
     <button onclick="checkStep1()">Check</button>
-    <button id="nextBtn1" onclick="nextStep('step1', 'step2')" style="display:none;">Next</button>
+    <button id="nextBtn1" onclick="nextStep('step1', 'step2', 1)" style="display:none;">Next</button>
   </div>
 
   <!-- Question 2 -->
@@ -116,9 +144,18 @@
   </div>
 
   <div id="finalFeedback" class="feedback"></div>
+  <div id="scoreSummary" class="summary"></div>
 
   <script>
-    function nextStep(currentId, nextId) {
+    let score = 0;
+    const totalQuestions = 2;
+
+    function updateProgress(stepIndex) {
+      const percent = ((stepIndex + 1) / totalQuestions) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function nextStep(currentId, nextId, stepIndex) {
       const current = document.getElementById(currentId);
       const next = document.getElementById(nextId);
       current.classList.remove("active");
@@ -126,6 +163,7 @@
         current.style.display = "none";
         next.style.display = "block";
         setTimeout(() => next.classList.add("active"), 10);
+        updateProgress(stepIndex);
       }, 800);
     }
 
@@ -136,6 +174,7 @@
       if (q1 === "hide") {
         feedback.innerHTML = "<span class='correct'>✅ That's correct! Frangipani is widely used in ceremonies.</span>";
         nextBtn.style.display = "inline-block";
+        score++;
       } else {
         feedback.innerHTML = "<span class='incorrect'>❌ That's not right. Think about which flower is common in spiritual rituals.</span>";
         nextBtn.style.display = "none";
@@ -149,6 +188,7 @@
       if (q2 === "courage") {
         feedback.innerHTML = "<span class='correct'>✅ Well done! Bougainvillea is known for its symbolism in many cultures.</span>";
         submitBtn.style.display = "inline-block";
+        score++;
       } else {
         feedback.innerHTML = "<span class='incorrect'>❌ Not quite. Try again and think about the vibrant colors and strength.</span>";
         submitBtn.style.display = "none";
@@ -157,7 +197,15 @@
 
     function showFinalMessage() {
       const finalFeedback = document.getElementById("finalFeedback");
+      const scoreSummary = document.getElementById("scoreSummary");
       finalFeedback.innerHTML = "<span class='correct'>🎉 You've completed the quiz! Great work engaging with the conversation.</span>";
+      const percent = (score / totalQuestions) * 100;
+      document.getElementById("progressBar").style.width = "100%";
+      if (percent >= 50) {
+        scoreSummary.innerHTML = `✅ Score: ${score}/${totalQuestions} — Nice! You passed with ${percent}%.`;
+      } else {
+        scoreSummary.innerHTML = `❌ Score: ${score}/${totalQuestions} — Keep practicing! You got ${percent}%.`;
+      }
     }
   </script>
 
