@@ -26,22 +26,49 @@
       background-color: #333;
       border-radius: 25px;
       overflow: hidden;
-      margin: 1rem auto 2rem;
+      margin: 1rem auto 1.5rem;
     }
 
     .progress-bar {
       height: 100%;
       width: 0%;
       background-color: #70c1b3;
-      transition: width 0.5s ease-in-out;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .nav-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      max-width: 700px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .nav-grid button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background-color: #444;
+      color: #fff;
+      transition: background-color 0.3s;
+    }
+
+    .nav-grid button.active {
+      background-color: #70c1b3;
+      color: #000;
+    }
+
+    .nav-grid button.answered:not(.active) {
+      background-color: #2b996e;
     }
 
     .quiz-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 900px;
-      margin: 2rem auto;
+      max-width: 700px;
+      margin: 1rem auto;
     }
 
     .question-card {
@@ -49,6 +76,11 @@
       padding: 1.5rem;
       border: 2px solid #444;
       border-radius: 8px;
+      display: none;
+    }
+
+    .question-card.active {
+      display: block;
     }
 
     .question-card p {
@@ -71,11 +103,16 @@
       font-size: 0.95rem;
     }
 
-    button {
-      display: block;
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      max-width: 700px;
       margin: 2rem auto 1rem;
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
       font-weight: bold;
       background-color: #70c1b3;
       border: none;
@@ -89,115 +126,742 @@
       background-color: #59a499;
     }
 
-    #result {
+    #result, #summary {
       text-align: center;
-      font-size: 1.5rem;
-      color: #fff;
+      font-size: 1.3rem;
       margin-top: 1rem;
     }
 
     #summary {
-      text-align: center;
-      font-size: 1.3rem;
       font-weight: bold;
-      margin-top: 1rem;
-    }
-
-    @media (max-width: 768px) {
-      .quiz-container {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
 <body>
   <h1>Quiz Pack 1</h1>
 
-  <!-- Progress Bar -->
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
 
-  <div class="quiz-container">
-    <div class="question-card" id="card1">
-      <p>1. An animal traditionally used for pulling farming tools and equipment</p>
-      <label><input type="radio" name="q1" value="dog"> Dog</label>
-      <label><input type="radio" name="q1" value="buffalo"> Buffalo</label>
-      <label><input type="radio" name="q1" value="horses"> Horses</label>
-      <div class="feedback" id="feedback1"></div>
-    </div>
-
-    <div class="question-card" id="card2">
-      <p>2. An important Buddhist festival that celebrates the birth, enlightenment, and death of the Buddha</p>
-      <label><input type="radio" name="q2" value="vesak"> Vesak</label>
-      <label><input type="radio" name="q2" value="christmas"> Christmas</label>
-      <label><input type="radio" name="q2" value="easter"> Easter</label>
-      <div class="feedback" id="feedback2"></div>
-    </div>
+  <div class="nav-grid" id="navGrid">
+    <!-- Question nav buttons will be injected here -->
   </div>
 
-  <button onclick="grade()">Submit</button>
+  <div class="quiz-container" id="quizContainer">
+    <!-- Questions injected here -->
+  </div>
+
+  <div class="nav-buttons">
+    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button onclick="nextQuestion()" id="nextBtn">Next</button>
+    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
+  </div>
+
   <p id="result"></p>
   <p id="summary"></p>
 
   <script>
+    const questions = [
+      { text: "1. An animal traditionally used for pulling farming tools and equipment", options: ["Dog", "Buffalo", "Horses"], answer: "Buffalo", feedback: "Correct answer: Buffalo – Traditionally used for plowing and pulling carts." },
+      { text: "2. An important Buddhist festival celebrating Buddha's life events", options: ["Vesak", "Christmas", "Easter"], answer: "Vesak", feedback: "Correct answer: Vesak – Celebrates the birth, enlightenment, and death of Buddha." },
+      { text: "3. A shelter made of ice blocks", options: ["Cabin", "Igloo", "Tent"], answer: "Igloo", feedback: "Correct answer: Igloo – Traditionally used by Inuit people in cold climates." },
+      { text: "4. What do bees collect from flowers?", options: ["Nectar", "Honey", "Water"], answer: "Nectar", feedback: "Correct answer: Nectar – Bees collect nectar to make honey." },
+      { text: "5. Which planet is known as the Red Planet?", options: ["Mars", "Jupiter", "Venus"], answer: "Mars", feedback: "Correct answer: Mars – Named for its reddish appearance." },
+      { text: "6. Instrument used to measure temperature", options: ["Barometer", "Thermometer", "Speedometer"], answer: "Thermometer", feedback: "Correct answer: Thermometer – Measures temperature." },
+      { text: "7. Which organ pumps blood through the body?", options: ["Lungs", "Heart", "Kidney"], answer: "Heart", feedback: "Correct answer: Heart – Central to the circulatory system." },
+      { text: "8. Who is the author of 'Harry Potter'?", options: ["J.K. Rowling", "Roald Dahl", "J.R.R. Tolkien"], answer: "J.K. Rowling", feedback: "Correct answer: J.K. Rowling – Wrote the famous wizarding series." },
+      { text: "9. The process of water turning into vapor is called?", options: ["Condensation", "Evaporation", "Freezing"], answer: "Evaporation", feedback: "Correct answer: Evaporation – Water changes into gas." },
+      { text: "10. Largest mammal on Earth", options: ["Elephant", "Blue Whale", "Giraffe"], answer: "Blue Whale", feedback: "Correct answer: Blue Whale – The heaviest and longest known animal." },
+      { text: "11. Which metal is liquid at room temperature?", options: ["Iron", "Mercury", "Gold"], answer: "Mercury", feedback: "Correct answer: Mercury – Only liquid metal at room temp." },
+      { text: "12. The capital city of France", options: ["Berlin", "Madrid", "Paris"], answer: "Paris", feedback: "Correct answer: Paris – Known as the city of lights." },
+      { text: "13. Which shape has three sides?", options: ["Square", "Triangle", "Circle"], answer: "Triangle", feedback: "Correct answer: Triangle – A 3-sided polygon." },
+      { text: "14. What gas do plants absorb?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide"], answer: "Carbon Dioxide", feedback: "Correct answer: Carbon Dioxide – Used in photosynthesis." },
+      { text: "15. A bird known for mimicking sounds", options: ["Parrot", "Eagle", "Swan"], answer: "Parrot", feedback: "Correct answer: Parrot – Can imitate human speech and sounds." }
+    ];
+
+    let currentQuestion = 0;
+    const answers = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
+
+    function renderQuestions() {
+      questions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+
+        card.innerHTML = `
+          <p>${q.text}</p>
+          ${q.options.map(opt => `
+            <label>
+              <input type="radio" name="q${i}" value="${opt}" onchange="storeAnswer(${i}, this.value)">
+              ${opt}
+            </label>`).join("")}
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+        quizContainer.appendChild(card);
+
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.onclick = () => goToQuestion(i);
+        navBtn.id = `navBtn${i}`;
+        navGrid.appendChild(navBtn);
+      });
+
+      updateProgress();
+      highlightNav();
+    }
+
+    function storeAnswer(index, value) {
+      answers[`q${index}`] = value;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      updateProgress();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+
+      document.getElementById("prevBtn").style.display = index === 0 ? "none" : "inline-block";
+      document.getElementById("nextBtn").style.display = index === questions.length - 1 ? "none" : "inline-block";
+      document.getElementById("submitBtn").style.display = index === questions.length - 1 ? "inline-block" : "none";
+
+      highlightNav();
+    }
+
+    function goToQuestion(index) {
+      currentQuestion = index;
+      showQuestion(index);
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    function highlightNav() {
+      for (let i = 0; i < questions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(answers).length / questions.length) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
     function grade() {
       let score = 0;
-      const totalQuestions = 2;
-
-      const answers = {
-        q1: "buffalo",
-        q2: "vesak"
-      };
-
-      const feedbackText = {
-        q1: "Correct answer: Buffalo – Traditionally used in many cultures for plowing fields and pulling carts.",
-        q2: "Correct answer: Vesak – A sacred day in Buddhism commemorating the birth, enlightenment, and passing of the Buddha."
-      };
-
-      const q1 = document.querySelector('input[name="q1"]:checked');
-      const q2 = document.querySelector('input[name="q2"]:checked');
-
-      const feedback1 = document.getElementById("feedback1");
-      const feedback2 = document.getElementById("feedback2");
-
-      feedback1.textContent = "";
-      feedback2.textContent = "";
-
-      if (q1) {
-        if (q1.value === answers.q1) {
-          score++;
+      questions.forEach((q, i) => {
+        const userAnswer = answers[`q${i}`];
+        const feedback = document.getElementById(`feedback${i}`);
+        if (userAnswer !== q.answer) {
+          feedback.textContent = q.feedback;
         } else {
-          feedback1.textContent = feedbackText.q1;
-        }
-      }
-
-      if (q2) {
-        if (q2.value === answers.q2) {
           score++;
-        } else {
-          feedback2.textContent = feedbackText.q2;
         }
-      }
+      });
 
-      const percent = (score / totalQuestions) * 100;
-      document.getElementById("result").textContent = `You got ${score} out of ${totalQuestions} correct.`;
-
-      if (percent >= 50) {
-        document.getElementById("summary").textContent = `✅ Well done! You passed with ${percent}%.`;
-        document.getElementById("summary").style.color = "lightgreen";
-      } else {
-        document.getElementById("summary").textContent = `❌ You got ${percent}%. Keep practicing!`;
-        document.getElementById("summary").style.color = "#ff4c4c";
-      }
-
-      updateProgress(percent);
+      const percent = (score / questions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${questions.length} correct.`;
+      document.getElementById("summary").textContent = percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
     }
 
-    function updateProgress(percent) {
-      const bar = document.getElementById("progressBar");
-      bar.style.width = percent + "%";
+    renderQuestions();
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Word Quiz</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #f0f0f0;
+      font-family: 'Arial Black', sans-serif;
+      margin: 0;
+      padding: 2rem;
     }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      color: #70c1b3;
+      letter-spacing: 2px;
+    }
+
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 1.5rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #70c1b3;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .nav-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      max-width: 700px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .nav-grid button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background-color: #444;
+      color: #fff;
+      transition: background-color 0.3s;
+    }
+
+    .nav-grid button.active {
+      background-color: #70c1b3;
+      color: #000;
+    }
+
+    .nav-grid button.answered:not(.active) {
+      background-color: #2b996e;
+    }
+
+    .quiz-container {
+      max-width: 700px;
+      margin: 1rem auto;
+    }
+
+    .question-card {
+      background: #1c1c1c;
+      padding: 1.5rem;
+      border: 2px solid #444;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .question-card.active {
+      display: block;
+    }
+
+    .question-card p {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .question-card label {
+      display: block;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      color: #ff8888;
+      font-size: 0.95rem;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      max-width: 700px;
+      margin: 2rem auto 1rem;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background-color: #70c1b3;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #000;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #59a499;
+    }
+
+    #result, #summary {
+      text-align: center;
+      font-size: 1.3rem;
+      margin-top: 1rem;
+    }
+
+    #summary {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quiz Pack 1</h1>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="nav-grid" id="navGrid">
+    <!-- Question nav buttons will be injected here -->
+  </div>
+
+  <div class="quiz-container" id="quizContainer">
+    <!-- Questions injected here -->
+  </div>
+
+  <div class="nav-buttons">
+    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button onclick="nextQuestion()" id="nextBtn">Next</button>
+    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
+  </div>
+
+  <p id="result"></p>
+  <p id="summary"></p>
+
+  <script>
+    const questions = [
+      { text: "1. An animal traditionally used for pulling farming tools and equipment", options: ["Dog", "Buffalo", "Horses"], answer: "Buffalo", feedback: "Correct answer: Buffalo – Traditionally used for plowing and pulling carts." },
+      { text: "2. An important Buddhist festival celebrating Buddha's life events", options: ["Vesak", "Christmas", "Easter"], answer: "Vesak", feedback: "Correct answer: Vesak – Celebrates the birth, enlightenment, and death of Buddha." },
+      { text: "3. A shelter made of ice blocks", options: ["Cabin", "Igloo", "Tent"], answer: "Igloo", feedback: "Correct answer: Igloo – Traditionally used by Inuit people in cold climates." },
+      { text: "4. What do bees collect from flowers?", options: ["Nectar", "Honey", "Water"], answer: "Nectar", feedback: "Correct answer: Nectar – Bees collect nectar to make honey." },
+      { text: "5. Which planet is known as the Red Planet?", options: ["Mars", "Jupiter", "Venus"], answer: "Mars", feedback: "Correct answer: Mars – Named for its reddish appearance." },
+      { text: "6. Instrument used to measure temperature", options: ["Barometer", "Thermometer", "Speedometer"], answer: "Thermometer", feedback: "Correct answer: Thermometer – Measures temperature." },
+      { text: "7. Which organ pumps blood through the body?", options: ["Lungs", "Heart", "Kidney"], answer: "Heart", feedback: "Correct answer: Heart – Central to the circulatory system." },
+      { text: "8. Who is the author of 'Harry Potter'?", options: ["J.K. Rowling", "Roald Dahl", "J.R.R. Tolkien"], answer: "J.K. Rowling", feedback: "Correct answer: J.K. Rowling – Wrote the famous wizarding series." },
+      { text: "9. The process of water turning into vapor is called?", options: ["Condensation", "Evaporation", "Freezing"], answer: "Evaporation", feedback: "Correct answer: Evaporation – Water changes into gas." },
+      { text: "10. Largest mammal on Earth", options: ["Elephant", "Blue Whale", "Giraffe"], answer: "Blue Whale", feedback: "Correct answer: Blue Whale – The heaviest and longest known animal." },
+      { text: "11. Which metal is liquid at room temperature?", options: ["Iron", "Mercury", "Gold"], answer: "Mercury", feedback: "Correct answer: Mercury – Only liquid metal at room temp." },
+      { text: "12. The capital city of France", options: ["Berlin", "Madrid", "Paris"], answer: "Paris", feedback: "Correct answer: Paris – Known as the city of lights." },
+      { text: "13. Which shape has three sides?", options: ["Square", "Triangle", "Circle"], answer: "Triangle", feedback: "Correct answer: Triangle – A 3-sided polygon." },
+      { text: "14. What gas do plants absorb?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide"], answer: "Carbon Dioxide", feedback: "Correct answer: Carbon Dioxide – Used in photosynthesis." },
+      { text: "15. A bird known for mimicking sounds", options: ["Parrot", "Eagle", "Swan"], answer: "Parrot", feedback: "Correct answer: Parrot – Can imitate human speech and sounds." }
+    ];
+
+    let currentQuestion = 0;
+    const answers = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
+
+    function renderQuestions() {
+      questions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+
+        card.innerHTML = `
+          <p>${q.text}</p>
+          ${q.options.map(opt => `
+            <label>
+              <input type="radio" name="q${i}" value="${opt}" onchange="storeAnswer(${i}, this.value)">
+              ${opt}
+            </label>`).join("")}
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+        quizContainer.appendChild(card);
+
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.onclick = () => goToQuestion(i);
+        navBtn.id = `navBtn${i}`;
+        navGrid.appendChild(navBtn);
+      });
+
+      updateProgress();
+      highlightNav();
+    }
+
+    function storeAnswer(index, value) {
+      answers[`q${index}`] = value;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      updateProgress();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+
+      document.getElementById("prevBtn").style.display = index === 0 ? "none" : "inline-block";
+      document.getElementById("nextBtn").style.display = index === questions.length - 1 ? "none" : "inline-block";
+      document.getElementById("submitBtn").style.display = index === questions.length - 1 ? "inline-block" : "none";
+
+      highlightNav();
+    }
+
+    function goToQuestion(index) {
+      currentQuestion = index;
+      showQuestion(index);
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    function highlightNav() {
+      for (let i = 0; i < questions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(answers).length / questions.length) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function grade() {
+      let score = 0;
+      questions.forEach((q, i) => {
+        const userAnswer = answers[`q${i}`];
+        const feedback = document.getElementById(`feedback${i}`);
+        if (userAnswer !== q.answer) {
+          feedback.textContent = q.feedback;
+        } else {
+          score++;
+        }
+      });
+
+      const percent = (score / questions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${questions.length} correct.`;
+      document.getElementById("summary").textContent = percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+    }
+
+    renderQuestions();
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Word Quiz</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #f0f0f0;
+      font-family: 'Arial Black', sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      color: #70c1b3;
+      letter-spacing: 2px;
+    }
+
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 1.5rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #70c1b3;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .nav-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      max-width: 700px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .nav-grid button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background-color: #444;
+      color: #fff;
+      transition: background-color 0.3s;
+    }
+
+    .nav-grid button.active {
+      background-color: #70c1b3;
+      color: #000;
+    }
+
+    .nav-grid button.answered:not(.active) {
+      background-color: #2b996e;
+    }
+
+    .quiz-container {
+      max-width: 700px;
+      margin: 1rem auto;
+    }
+
+    .question-card {
+      background: #1c1c1c;
+      padding: 1.5rem;
+      border: 2px solid #444;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .question-card.active {
+      display: block;
+    }
+
+    .question-card p {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .question-card label {
+      display: block;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      color: #ff8888;
+      font-size: 0.95rem;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      max-width: 700px;
+      margin: 2rem auto 1rem;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background-color: #70c1b3;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #000;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #59a499;
+    }
+
+    #result, #summary {
+      text-align: center;
+      font-size: 1.3rem;
+      margin-top: 1rem;
+    }
+
+    #summary {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quiz Pack 1</h1>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="nav-grid" id="navGrid">
+    <!-- Question nav buttons will be injected here -->
+  </div>
+
+  <div class="quiz-container" id="quizContainer">
+    <!-- Questions injected here -->
+  </div>
+
+  <div class="nav-buttons">
+    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button onclick="nextQuestion()" id="nextBtn">Next</button>
+    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
+  </div>
+
+  <p id="result"></p>
+  <p id="summary"></p>
+
+  <script>
+    const questions = [
+      { text: "1. An animal traditionally used for pulling farming tools and equipment", options: ["Dog", "Buffalo", "Horses"], answer: "Buffalo", feedback: "Correct answer: Buffalo – Traditionally used for plowing and pulling carts." },
+      { text: "2. An important Buddhist festival celebrating Buddha's life events", options: ["Vesak", "Christmas", "Easter"], answer: "Vesak", feedback: "Correct answer: Vesak – Celebrates the birth, enlightenment, and death of Buddha." },
+      { text: "3. A shelter made of ice blocks", options: ["Cabin", "Igloo", "Tent"], answer: "Igloo", feedback: "Correct answer: Igloo – Traditionally used by Inuit people in cold climates." },
+      { text: "4. What do bees collect from flowers?", options: ["Nectar", "Honey", "Water"], answer: "Nectar", feedback: "Correct answer: Nectar – Bees collect nectar to make honey." },
+      { text: "5. Which planet is known as the Red Planet?", options: ["Mars", "Jupiter", "Venus"], answer: "Mars", feedback: "Correct answer: Mars – Named for its reddish appearance." },
+      { text: "6. Instrument used to measure temperature", options: ["Barometer", "Thermometer", "Speedometer"], answer: "Thermometer", feedback: "Correct answer: Thermometer – Measures temperature." },
+      { text: "7. Which organ pumps blood through the body?", options: ["Lungs", "Heart", "Kidney"], answer: "Heart", feedback: "Correct answer: Heart – Central to the circulatory system." },
+      { text: "8. Who is the author of 'Harry Potter'?", options: ["J.K. Rowling", "Roald Dahl", "J.R.R. Tolkien"], answer: "J.K. Rowling", feedback: "Correct answer: J.K. Rowling – Wrote the famous wizarding series." },
+      { text: "9. The process of water turning into vapor is called?", options: ["Condensation", "Evaporation", "Freezing"], answer: "Evaporation", feedback: "Correct answer: Evaporation – Water changes into gas." },
+      { text: "10. Largest mammal on Earth", options: ["Elephant", "Blue Whale", "Giraffe"], answer: "Blue Whale", feedback: "Correct answer: Blue Whale – The heaviest and longest known animal." },
+      { text: "11. Which metal is liquid at room temperature?", options: ["Iron", "Mercury", "Gold"], answer: "Mercury", feedback: "Correct answer: Mercury – Only liquid metal at room temp." },
+      { text: "12. The capital city of France", options: ["Berlin", "Madrid", "Paris"], answer: "Paris", feedback: "Correct answer: Paris – Known as the city of lights." },
+      { text: "13. Which shape has three sides?", options: ["Square", "Triangle", "Circle"], answer: "Triangle", feedback: "Correct answer: Triangle – A 3-sided polygon." },
+      { text: "14. What gas do plants absorb?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide"], answer: "Carbon Dioxide", feedback: "Correct answer: Carbon Dioxide – Used in photosynthesis." },
+      { text: "15. A bird known for mimicking sounds", options: ["Parrot", "Eagle", "Swan"], answer: "Parrot", feedback: "Correct answer: Parrot – Can imitate human speech and sounds." }
+    ];
+
+    let currentQuestion = 0;
+    const answers = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
+
+    function renderQuestions() {
+      questions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+
+        card.innerHTML = `
+          <p>${q.text}</p>
+          ${q.options.map(opt => `
+            <label>
+              <input type="radio" name="q${i}" value="${opt}" onchange="storeAnswer(${i}, this.value)">
+              ${opt}
+            </label>`).join("")}
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+        quizContainer.appendChild(card);
+
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.onclick = () => goToQuestion(i);
+        navBtn.id = `navBtn${i}`;
+        navGrid.appendChild(navBtn);
+      });
+
+      updateProgress();
+      highlightNav();
+    }
+
+    function storeAnswer(index, value) {
+      answers[`q${index}`] = value;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      updateProgress();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+
+      document.getElementById("prevBtn").style.display = index === 0 ? "none" : "inline-block";
+      document.getElementById("nextBtn").style.display = index === questions.length - 1 ? "none" : "inline-block";
+      document.getElementById("submitBtn").style.display = index === questions.length - 1 ? "inline-block" : "none";
+
+      highlightNav();
+    }
+
+    function goToQuestion(index) {
+      currentQuestion = index;
+      showQuestion(index);
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    function highlightNav() {
+      for (let i = 0; i < questions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(answers).length / questions.length) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function grade() {
+      let score = 0;
+      questions.forEach((q, i) => {
+        const userAnswer = answers[`q${i}`];
+        const feedback = document.getElementById(`feedback${i}`);
+        if (userAnswer !== q.answer) {
+          feedback.textContent = q.feedback;
+        } else {
+          score++;
+        }
+      });
+
+      const percent = (score / questions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${questions.length} correct.`;
+      document.getElementById("summary").textContent = percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+    }
+
+    renderQuestions();
+    showQuestion(currentQuestion);
   </script>
 </body>
 </html>
