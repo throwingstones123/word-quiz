@@ -36,6 +36,35 @@
       transition: width 0.5s ease-in-out;
     }
 
+    .nav-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .nav-grid button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background-color: #444;
+      color: #fff;
+    }
+
+    .nav-grid button.active {
+      background-color: #7ad1d4;
+      color: #000;
+    }
+
+    .nav-grid button.answered:not(.active) {
+      background-color: #2b996e;
+    }
+
     .conversation {
       max-width: 700px;
       margin: 0 auto;
@@ -46,14 +75,17 @@
       padding: 1.5rem;
       border-radius: 10px;
       border: 1px solid #444;
-      opacity: 0;
-      transition: opacity 0.8s ease;
       display: none;
     }
 
     .conversation.active {
       display: block;
-      opacity: 1;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     select {
@@ -80,6 +112,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      color: #000;
     }
 
     .feedback {
@@ -104,110 +137,175 @@
 </head>
 <body>
 
-  <h1>Fill in the Missing Word</h1>
+<h1>Fill in the Missing Word</h1>
 
-  <!-- Progress bar -->
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
 
-  <!-- Question 1 -->
-  <div class="conversation active" id="step1">
-    <p><strong>Alex:</strong> What's that white flower over there that they're decorating around the temple? They're so pretty!</p>
-    <p><strong>Jamie:</strong> Oh? that's the 
-      <select id="q1">
-        <option value="">--select--</option>
-        <option value="complain">White Rose</option>
-        <option value="hide">Frangipani</option>
-        <option value="speak up">Lily</option>
-      </select>. We use them often for religious and spiritual ceremonies here. 
-    </p>
-    <div class="feedback" id="feedback1"></div>
-    <button onclick="checkStep1()">Check</button>
-    <button id="nextBtn1" onclick="nextStep('step1', 'step2', 1)" style="display:none;">Next</button>
-  </div>
+<div class="nav-grid" id="navGrid"></div>
+<div id="quizContainer"></div>
 
-  <!-- Question 2 -->
-  <div class="conversation" id="step2">
-    <p><strong>Kyle:</strong> Hey Quỳnh - I just got back from Hoi An. Saw lots of these papery-looking flowers in white and purple, do you know them?</p>
-    <p><strong>Quỳnh:</strong> That should be the 
-      <select id="q2">
-        <option value="">--select--</option>
-        <option value="courage">Bougainvillea</option>
-        <option value="luck">Poppy</option>
-        <option value="time">Sunflower</option>
-      </select>. 
-    </p>
-    <div class="feedback" id="feedback2"></div>
-    <button onclick="checkStep2()">Check</button>
-    <button id="submitBtn" onclick="showFinalMessage()" style="display:none;">Finish</button>
-  </div>
+<div class="summary">
+  <p id="finalFeedback"></p>
+  <p id="scoreSummary"></p>
+  <button onclick="resetQuiz()" id="resetBtn" style="display:none;">🔁 Reattempt Quiz</button>
+</div>
 
-  <div id="finalFeedback" class="feedback"></div>
-  <div id="scoreSummary" class="summary"></div>
-
-  <script>
-    let score = 0;
-    const totalQuestions = 2;
-
-    function updateProgress(stepIndex) {
-      const percent = ((stepIndex + 1) / totalQuestions) * 100;
-      document.getElementById("progressBar").style.width = percent + "%";
+<script>
+  const originalQuestions = [
+    {
+      id: "step1",
+      dialogue: `<strong>Alex:</strong> What's that white flower over there that they're decorating around the temple? They're so pretty!
+                 <br><strong>Jamie:</strong> Oh? that's the `,
+      options: [
+        { value: "complain", text: "White Rose" },
+        { value: "hide", text: "Frangipani" },
+        { value: "speak up", text: "Lily" }
+      ],
+      answer: "hide",
+      feedbackCorrect: "✅ That's correct! Frangipani is widely used in ceremonies.",
+      feedbackIncorrect: "❌ That's not right. Think about which flower is common in spiritual rituals."
+    },
+    {
+      id: "step2",
+      dialogue: `<strong>Kyle:</strong> Hey Quỳnh - I just got back from Hoi An. Saw lots of these papery-looking flowers in white and purple, do you know them?
+                 <br><strong>Quỳnh:</strong> That should be the `,
+      options: [
+        { value: "courage", text: "Bougainvillea" },
+        { value: "luck", text: "Poppy" },
+        { value: "time", text: "Sunflower" }
+      ],
+      answer: "courage",
+      feedbackCorrect: "✅ Well done! Bougainvillea is known for its symbolism in many cultures.",
+      feedbackIncorrect: "❌ Not quite. Try again and think about the vibrant colors and strength."
     }
+  ];
 
-    function nextStep(currentId, nextId, stepIndex) {
-      const current = document.getElementById(currentId);
-      const next = document.getElementById(nextId);
-      current.classList.remove("active");
-      setTimeout(() => {
-        current.style.display = "none";
-        next.style.display = "block";
-        setTimeout(() => next.classList.add("active"), 10);
-        updateProgress(stepIndex);
-      }, 800);
+  let shuffledQuestions = [];
+  let score = 0;
+  let current = 0;
+  const answers = {};
+
+  const quizContainer = document.getElementById("quizContainer");
+  const navGrid = document.getElementById("navGrid");
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
+  }
 
-    function checkStep1() {
-      const q1 = document.getElementById("q1").value;
-      const feedback = document.getElementById("feedback1");
-      const nextBtn = document.getElementById("nextBtn1");
-      if (q1 === "hide") {
-        feedback.innerHTML = "<span class='correct'>✅ That's correct! Frangipani is widely used in ceremonies.</span>";
-        nextBtn.style.display = "inline-block";
+  function renderQuestions() {
+    quizContainer.innerHTML = "";
+    navGrid.innerHTML = "";
+    shuffledQuestions = shuffle([...originalQuestions]);
+
+    shuffledQuestions.forEach((q, i) => {
+      const card = document.createElement("div");
+      card.className = "conversation";
+      card.id = `card${i}`;
+      if (i === 0) card.classList.add("active");
+
+      const selectOptions = q.options.map(opt =>
+        `<option value="${opt.value}">${opt.text}</option>`).join("");
+
+      card.innerHTML = `
+        <p>${q.dialogue}
+        <select id="q${i}">
+          <option value="">--select--</option>
+          ${selectOptions}
+        </select>.</p>
+        <div class="feedback" id="feedback${i}"></div>
+        <button onclick="checkAnswer(${i})">Check</button>
+      `;
+
+      quizContainer.appendChild(card);
+
+      const navBtn = document.createElement("button");
+      navBtn.textContent = i + 1;
+      navBtn.onclick = () => showQuestion(i);
+      navBtn.id = `navBtn${i}`;
+      navGrid.appendChild(navBtn);
+    });
+
+    updateProgress();
+    highlightNav();
+  }
+
+  function showQuestion(index) {
+    document.querySelectorAll(".conversation").forEach(c => c.classList.remove("active"));
+    document.getElementById(`card${index}`).classList.add("active");
+    current = index;
+    highlightNav();
+  }
+
+  function checkAnswer(index) {
+    const select = document.getElementById(`q${index}`);
+    const feedback = document.getElementById(`feedback${index}`);
+    const value = select.value;
+    const q = shuffledQuestions[index];
+
+    if (!value) return;
+
+    if (value === q.answer) {
+      feedback.innerHTML = `<span class="correct">${q.feedbackCorrect}</span>`;
+      if (!answers[index]) {
+        answers[index] = true;
         score++;
-      } else {
-        feedback.innerHTML = "<span class='incorrect'>❌ That's not right. Think about which flower is common in spiritual rituals.</span>";
-        nextBtn.style.display = "none";
+        document.getElementById(`navBtn${index}`).classList.add("answered");
       }
+    } else {
+      feedback.innerHTML = `<span class="incorrect">${q.feedbackIncorrect}</span>`;
+      answers[index] = false;
     }
 
-    function checkStep2() {
-      const q2 = document.getElementById("q2").value;
-      const feedback = document.getElementById("feedback2");
-      const submitBtn = document.getElementById("submitBtn");
-      if (q2 === "courage") {
-        feedback.innerHTML = "<span class='correct'>✅ Well done! Bougainvillea is known for its symbolism in many cultures.</span>";
-        submitBtn.style.display = "inline-block";
-        score++;
-      } else {
-        feedback.innerHTML = "<span class='incorrect'>❌ Not quite. Try again and think about the vibrant colors and strength.</span>";
-        submitBtn.style.display = "none";
-      }
-    }
+    updateProgress();
 
-    function showFinalMessage() {
-      const finalFeedback = document.getElementById("finalFeedback");
-      const scoreSummary = document.getElementById("scoreSummary");
-      finalFeedback.innerHTML = "<span class='correct'>🎉 You've completed the quiz! Great work engaging with the conversation.</span>";
-      const percent = (score / totalQuestions) * 100;
-      document.getElementById("progressBar").style.width = "100%";
-      if (percent >= 50) {
-        scoreSummary.innerHTML = `✅ Score: ${score}/${totalQuestions} — Nice! You passed with ${percent}%.`;
-      } else {
-        scoreSummary.innerHTML = `❌ Score: ${score}/${totalQuestions} — Keep practicing! You got ${percent}%.`;
-      }
+    if (Object.keys(answers).length === shuffledQuestions.length) {
+      showFinalMessage();
     }
-  </script>
+  }
 
+  function highlightNav() {
+    shuffledQuestions.forEach((_, i) => {
+      document.getElementById(`navBtn${i}`).classList.remove("active");
+    });
+    document.getElementById(`navBtn${current}`).classList.add("active");
+  }
+
+  function updateProgress() {
+    const percent = (Object.keys(answers).length / shuffledQuestions.length) * 100;
+    document.getElementById("progressBar").style.width = `${percent}%`;
+  }
+
+  function showFinalMessage() {
+    const finalFeedback = document.getElementById("finalFeedback");
+    const scoreSummary = document.getElementById("scoreSummary");
+    const percent = (score / shuffledQuestions.length) * 100;
+
+    finalFeedback.innerHTML = `<span class="correct">🎉 You've completed the quiz!</span>`;
+    scoreSummary.innerHTML = percent >= 50
+      ? `✅ Score: ${score}/${shuffledQuestions.length} — You passed with ${percent.toFixed(0)}%.`
+      : `❌ Score: ${score}/${shuffledQuestions.length} — Try again! You got ${percent.toFixed(0)}%.`;
+
+    document.getElementById("resetBtn").style.display = "inline-block";
+  }
+
+  function resetQuiz() {
+    score = 0;
+    current = 0;
+    for (let key in answers) delete answers[key];
+    document.getElementById("finalFeedback").innerHTML = "";
+    document.getElementById("scoreSummary").innerHTML = "";
+    document.getElementById("resetBtn").style.display = "none";
+    renderQuestions();
+    showQuestion(0);
+  }
+
+  renderQuestions();
+</script>
 </body>
 </html>
