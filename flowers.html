@@ -115,6 +115,13 @@
       color: #000;
     }
 
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem auto;
+    }
+
     .feedback {
       margin-top: 1rem;
       font-size: 1.1rem;
@@ -145,6 +152,11 @@
 
 <div class="nav-grid" id="navGrid"></div>
 <div id="quizContainer"></div>
+
+<div class="nav-buttons">
+  <button onclick="prevQuestion()" id="prevBtn" style="display:none;">⬅️ Previous</button>
+  <button onclick="nextQuestion()" id="nextBtn" style="display:none;">➡️ Next</button>
+</div>
 
 <div class="summary">
   <p id="finalFeedback"></p>
@@ -229,7 +241,7 @@
         { value: "time", text: "Water Lily" }
       ],
       answer: "Time",
-      feedbackCorrect: "✅ Well done! Water Lillies have large, flat leaves and cup-shaped petals float on the surface of lakes and pools",
+      feedbackCorrect: "✅ Well done! Water Lillies have large, flat leaves and cup-shaped petals float on the surface of lakes and pools",
       feedbackIncorrect: "❌ Not quite. Try again and think about the tea that the environment and what parts of the plant they're mentioning."
     },
     {
@@ -268,7 +280,7 @@
         { value: "time", text: "Birch" }
       ],
       answer: "luck",
-      feedbackCorrect: "✅ Well done! A fruit tree with branches that produce roots that grow down into the ground to form extra trunks.",
+      feedbackCorrect: "✅ Well done! A fruit tree with branches that produce roots that grow down into the ground to form extra trunks.",
       feedbackIncorrect: "❌ Not quite. Try again and think about the context of the village and being the centre."
     },
     {
@@ -337,6 +349,7 @@
 
     updateProgress();
     highlightNav();
+    toggleNavButtons(current);
   }
 
   function showQuestion(index) {
@@ -344,6 +357,20 @@
     document.getElementById(`card${index}`).classList.add("active");
     current = index;
     highlightNav();
+    toggleNavButtons(index);
+  }
+
+  function toggleNavButtons(index) {
+    document.getElementById("prevBtn").style.display = index > 0 ? "inline-block" : "none";
+    document.getElementById("nextBtn").style.display = index < shuffledQuestions.length - 1 ? "inline-block" : "none";
+  }
+
+  function prevQuestion() {
+    if (current > 0) showQuestion(current - 1);
+  }
+
+  function nextQuestion() {
+    if (current < shuffledQuestions.length - 1) showQuestion(current + 1);
   }
 
   function checkAnswer(index) {
