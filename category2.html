@@ -36,12 +36,33 @@
       transition: width 0.5s ease-in-out;
     }
 
-    .quiz-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 900px;
-      margin: 2rem auto;
+    .nav-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+
+    .nav-grid button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background-color: #444;
+      color: #fff;
+    }
+
+    .nav-grid button.active {
+      background-color: #70c1b3;
+      color: #000;
+    }
+
+    .nav-grid button.answered:not(.active) {
+      background-color: #2b996e;
     }
 
     .question-card {
@@ -49,6 +70,13 @@
       padding: 1.5rem;
       border: 2px solid #444;
       border-radius: 8px;
+      max-width: 700px;
+      margin: 0 auto;
+      display: none;
+    }
+
+    .question-card.active {
+      display: block;
     }
 
     .question-card p {
@@ -66,8 +94,8 @@
     }
 
     button {
-      display: block;
-      margin: 2rem auto 1rem;
+      display: inline-block;
+      margin: 2rem 1rem 1rem;
       padding: 1rem 2rem;
       font-size: 1.2rem;
       font-weight: bold;
@@ -83,99 +111,217 @@
       background-color: #59a499;
     }
 
-    #result {
+    #result, #summary {
       text-align: center;
       font-size: 1.5rem;
-      color: #fff;
       margin-top: 1rem;
       white-space: pre-wrap;
     }
 
     #summary {
-      text-align: center;
-      font-size: 1.3rem;
       font-weight: bold;
-      margin-top: 1rem;
     }
 
-    @media (max-width: 768px) {
-      .quiz-container {
-        grid-template-columns: 1fr;
-      }
+    .feedback {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #ff8888;
     }
   </style>
 </head>
 <body>
   <h1>Quiz Pack 1</h1>
 
-  <!-- Progress bar -->
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
 
-  <div class="quiz-container">
-    <div class="question-card">
-      <p>1. A heavy stick made of clay, stone, or metal with a thick, rounded end, often used for crushing substances</p>
-      <label><input type="radio" name="q1" value="wrong"> Pestle</label>
-      <label><input type="radio" name="q1" value="correct"> Mortar</label>
-      <label><input type="radio" name="q1" value="wrong"> Mat</label>
-    </div>
+  <div class="nav-grid" id="navGrid"></div>
+  <div id="quizContainer"></div>
 
-    <div class="question-card">
-      <p>2. An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha</p>
-      <label><input type="radio" name="q2" value="correct"> Vesak</label>
-      <label><input type="radio" name="q2" value="wrong"> Christmas</label>
-      <label><input type="radio" name="q2" value="wrong"> Easter</label>
-    </div>
+  <div style="text-align: center;">
+    <button onclick="prevQuestion()" id="prevBtn" style="display:none;">⬅️ Previous</button>
+    <button onclick="nextQuestion()" id="nextBtn" style="display:none;">➡️ Next</button>
+    <button onclick="grade()" id="submitBtn" style="display:none;">✅ Submit</button>
+    <button onclick="resetQuiz()" id="resetBtn" style="display:none;">🔁 Retry</button>
   </div>
 
-  <button onclick="grade()">Submit</button>
   <p id="result"></p>
   <p id="summary"></p>
 
   <script>
+    const questions = [
+      {
+        question: "1. The beginning of the year according to the calendars of China, Vietnam, Korea, and some other East Asian countries",
+        options: ["Lunar New Year", "Golden Week", "Spring Festival"],
+        answer: "Lunar New Year",
+        feedback: "❌ Question 1: The correct answer is 'Lunar New Year'."
+      },
+      {
+        question: "2. An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha",
+        options: ["Vesak", "Christmas", "Easter"],
+        answer: "Vesak",
+        feedback: "❌ Question 2: The correct answer is 'Vesak'."
+      },
+      {
+        question: "3. An important celebration in Vietnamese culture that honors the nation’s ancient founders.",
+        options: ["Hung Kings’ Commemoration Day", "Tet Vu Lan", "Easter"],
+        answer: "Hung Kings’ Commemoration Day",
+        feedback: "❌ Question 3: The correct answer is 'Hung Kings’ Commemoration Day'."
+      },
+      {
+        question: "4. A traditional Buddhist festival celebrated primarily in Vietnam and parts of East Asia to show honor and gratitude to parents",
+        options: ["Vu Lan Festival", "Christmas Eve", "Parents' Day"],
+        answer: "Vu Lan Festival",
+        feedback: "❌ Question 4: The correct answer is 'Vu Lan Festival'."
+      },
+      {
+        question: "5. A national celebration in Vietnam held annually on November 20th, dedicated to honoring educators and recognizing their contributions",
+        options: ["Vietnamese Teachers’ Day", "Tet", "Parents' Day"],
+        answer: "Vietnamese Teachers’ Day",
+        feedback: "❌ Question 5: The correct answer is 'Vietnamese Teachers’ Day'."
+      },
+      {
+        question: "6. A national holiday in Vietnam celebrated on September 2nd to commemorate the day President Hồ Chí Minh declared independence",
+        options: ["Vietnamese National Day", "Unification Day", "Hung Kings' Anniversary"],
+        answer: "Vietnamese National Day",
+        feedback: "❌ Question 6: The correct answer is 'Vietnamese National Day'."
+      },
+      {
+        question: "7. A national holiday in Vietnam celebrated on April 30th each year to commemorate the end of the Anti-American War of Resistance",
+        options: ["Reunification Day", "Tet", "Trung Thu Festival"],
+        answer: "Reunification Day",
+        feedback: "❌ Question 7: The correct answer is 'Reunification Day'."
+      },
+      {
+        question: "8. A national holiday in Vietnam celebrated on October 20th each year to honour the contributios of the fairer sex.",
+        options: ["Women’s Day", "Teachers' Day", "Vesak"],
+        answer: "Women’s Day",
+        feedback: "❌ Question 8: The correct answer is 'Women’s Day'."
+      },
+    ];
+
+    let current = 0;
+    const answers = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
+
+    function renderQuiz() {
+      questions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+
+        const optionsHtml = q.options.map(opt => `
+          <label>
+            <input type="radio" name="q${i}" value="${opt}" onchange="selectAnswer(${i}, this.value)">
+            ${opt}
+          </label>
+        `).join("");
+
+        card.innerHTML = `
+          <p>${q.question}</p>
+          ${optionsHtml}
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+
+        quizContainer.appendChild(card);
+
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.id = `navBtn${i}`;
+        navBtn.onclick = () => showQuestion(i);
+        navGrid.appendChild(navBtn);
+      });
+
+      updateNavButtons();
+    }
+
+    function selectAnswer(index, value) {
+      answers[index] = value;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      updateProgress();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(c => c.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+      current = index;
+      updateNavButtons();
+    }
+
+    function prevQuestion() {
+      if (current > 0) showQuestion(current - 1);
+    }
+
+    function nextQuestion() {
+      if (current < questions.length - 1) showQuestion(current + 1);
+    }
+
+    function updateNavButtons() {
+      for (let i = 0; i < questions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${current}`).classList.add("active");
+
+      document.getElementById("prevBtn").style.display = current > 0 ? "inline-block" : "none";
+      document.getElementById("nextBtn").style.display = current < questions.length - 1 ? "inline-block" : "none";
+      document.getElementById("submitBtn").style.display = current === questions.length - 1 ? "inline-block" : "none";
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(answers).length / questions.length) * 100;
+      document.getElementById("progressBar").style.width = `${percent}%`;
+    }
+
     function grade() {
       let score = 0;
-      let feedback = "";
-      const total = 2;
+      let feedbackText = "";
 
-      const q1 = document.querySelector('input[name="q1"]:checked');
-      const q2 = document.querySelector('input[name="q2"]:checked');
-
-      if (q1) {
-        if (q1.value === "correct") {
+      questions.forEach((q, i) => {
+        const userAnswer = answers[i];
+        const feedback = document.getElementById(`feedback${i}`);
+        if (userAnswer === q.answer) {
           score++;
+          feedback.textContent = "";
+        } else if (userAnswer) {
+          feedback.textContent = q.feedback;
         } else {
-          feedback += "❌ Question 1: The correct answer is 'Mortar'.\n";
+          feedback.textContent = `⚠️ Question ${i + 1}: You didn't select an answer.`;
         }
-      } else {
-        feedback += "⚠️ Question 1: You didn't select an answer.\n";
-      }
+      });
 
-      if (q2) {
-        if (q2.value === "correct") {
-          score++;
-        } else {
-          feedback += "❌ Question 2: The correct answer is 'Vesak'.\n";
-        }
-      } else {
-        feedback += "⚠️ Question 2: You didn't select an answer.\n";
-      }
+      const percent = (score / questions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${questions.length} correct.`;
+      document.getElementById("summary").textContent =
+        percent >= 50
+          ? `✅ Well done! You passed with ${percent}%.`
+          : `❌ You got ${percent}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
 
-      const percent = (score / total) * 100;
-      document.getElementById("result").textContent = `You got ${score} out of ${total} correct.\n\n${feedback}`;
-
-      const summary = document.getElementById("summary");
-      if (percent >= 50) {
-        summary.textContent = `✅ Well done! You passed with ${percent}%.`;
-        summary.style.color = "lightgreen";
-      } else {
-        summary.textContent = `❌ You got ${percent}%. Keep practicing!`;
-        summary.style.color = "#ff4c4c";
-      }
-
-      document.getElementById("progressBar").style.width = percent + "%";
+      document.getElementById("progressBar").style.width = `${percent}%`;
+      document.getElementById("resetBtn").style.display = "inline-block";
     }
+
+    function resetQuiz() {
+      current = 0;
+      for (let i = 0; i < questions.length; i++) {
+        delete answers[i];
+        const radios = document.querySelectorAll(`input[name="q${i}"]`);
+        radios.forEach(r => r.checked = false);
+        document.getElementById(`feedback${i}`).textContent = "";
+        document.getElementById(`navBtn${i}`).classList.remove("answered");
+      }
+
+      document.getElementById("result").textContent = "";
+      document.getElementById("summary").textContent = "";
+      document.getElementById("resetBtn").style.display = "none";
+      updateProgress();
+      showQuestion(0);
+    }
+
+    renderQuiz();
   </script>
 </body>
 </html>
