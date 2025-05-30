@@ -46,19 +46,19 @@
     }
 
     .definition-box, .word-bank {
-      border: 1px solid #555;
-      background: #000;
+      background: rgba(0, 0, 0, 0.75);
       padding: 1rem;
       border-radius: 10px;
       min-height: 200px;
+      border: 2px solid #888;
     }
 
     .definition {
       margin: 1rem 0;
       padding: 1rem;
-      border: 1px solid #333;
       background-color: #111;
       border-radius: 8px;
+      border: 2px solid #333;
     }
 
     .drop-zone {
@@ -132,29 +132,13 @@
   </div>
 
   <div class="quiz-container">
-    <div class="definition-box">
-      <div class="definition" data-answer="altar">
-        A dedicated shrine or space in a household
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-        <div class="hint"></div>
-      </div>
-      <div class="definition" data-answer="pot">
-        A cooking utensil made from baked clay
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-        <div class="hint"></div>
-      </div>
-      <div class="definition" data-answer="mat">
-        Made from dried reeds, rushes, or straw, woven together, commonly used in Southeast Asian homes
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-        <div class="hint"></div>
-      </div>
+    <div class="definition-box" id="definitionBox">
+      <!-- Definitions will be injected here -->
     </div>
 
     <div class="word-bank" ondrop="drop(event)" ondragover="allowDrop(event)">
       <div id="words">
-        <div class="word" draggable="true" ondragstart="drag(event)" id="altar">Ancestor Altar</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="pot">Earthenware Pot</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="mat">Straw Mat</div>
+        <!-- Words will be injected here -->
       </div>
     </div>
   </div>
@@ -164,6 +148,49 @@
   <div id="summary"></div>
 
   <script>
+    const data = [
+      { id: "altar", text: "Ancestor Altar", def: "A dedicated shrine or space in a household", hint: "Hint: It’s often used for honoring ancestors." },
+      { id: "pot", text: "Earthenware Pot", def: "A cooking utensil made from baked clay", hint: "Hint: Think of traditional cookware made from clay." },
+      { id: "mat", text: "Straw Mat", def: "Made from dried reeds, rushes, or straw, woven together, commonly used in Southeast Asian homes", hint: "Hint: These are commonly found on the floors of rural homes." },
+      { id: "lantern", text: "Silk Lantern", def: "Used for decoration and lighting, especially during festivals", hint: "Hint: A colorful item seen hanging during celebrations." },
+      { id: "broom", text: "Coconut Broom", def: "Traditional household cleaning tool made from coconut fibers", hint: "Hint: A sweeping device made from natural materials." },
+      // Add more items if needed
+    ];
+
+    const groupSize = 4;
+    let currentSet = 0;
+    let scoreCount = 0;
+
+    function loadSet() {
+      const start = currentSet * groupSize;
+      const set = data.slice(start, start + groupSize);
+
+      const defBox = document.getElementById("definitionBox");
+      const wordBank = document.getElementById("words");
+      defBox.innerHTML = '';
+      wordBank.innerHTML = '';
+
+      set.forEach(item => {
+        const def = document.createElement("div");
+        def.className = "definition";
+        def.setAttribute("data-answer", item.id);
+        def.innerHTML = `
+          ${item.def}
+          <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+          <div class="hint"></div>
+        `;
+        defBox.appendChild(def);
+
+        const word = document.createElement("div");
+        word.className = "word";
+        word.id = item.id;
+        word.textContent = item.text;
+        word.setAttribute("draggable", "true");
+        word.setAttribute("ondragstart", "drag(event)");
+        wordBank.appendChild(word);
+      });
+    }
+
     function allowDrop(ev) {
       ev.preventDefault();
       if (ev.target.classList.contains('drop-zone')) {
@@ -175,29 +202,31 @@
       ev.dataTransfer.setData("text", ev.target.id);
     }
 
-    function drop(ev) {
-      ev.preventDefault();
-      ev.target.classList.remove('hovered');
-      const data = ev.dataTransfer.getData("text");
-      const wordElement = document.getElementById(data);
+   function drop(ev) {
+  ev.preventDefault();
+  ev.target.classList.remove('hovered');
+  const data = ev.dataTransfer.getData("text");
+  const wordElement = document.getElementById(data);
 
-      if (!ev.target.classList.contains('drop-zone') && !ev.target.classList.contains('word-bank')) return;
+  if (!ev.target.classList.contains('drop-zone') && !ev.target.classList.contains('word-bank')) return;
 
-      if (ev.target.classList.contains('drop-zone') && ev.target.children.length > 0) {
-        document.getElementById('words').appendChild(ev.target.children[0]);
-      }
+  const wordBank = document.getElementById('words');
 
-      if (ev.target.id === "words" || ev.target.classList.contains('word-bank')) {
-        document.getElementById("words").appendChild(wordElement);
-      } else {
-        ev.target.appendChild(wordElement);
-      }
+  // If the target is a drop-zone with an existing child, move it back to word bank
+  if (ev.target.classList.contains('drop-zone')) {
+    if (ev.target.children.length > 0) {
+      const existingWord = ev.target.children[0];
+      wordBank.appendChild(existingWord);
     }
+    ev.target.appendChild(wordElement);
+  } else if (ev.target.id === "words" || ev.target.classList.contains('word-bank')) {
+    wordBank.appendChild(wordElement);
+  }
+}
 
     function checkAnswers() {
       const defs = document.querySelectorAll('.definition');
       let correct = 0;
-      const total = defs.length;
 
       defs.forEach(def => {
         const answer = def.getAttribute('data-answer');
@@ -215,33 +244,35 @@
         }
       });
 
-      const percent = (correct / total) * 100;
-      document.getElementById("score").textContent = `You got ${correct} out of ${total} correct.`;
+      scoreCount += correct;
+      const percent = (scoreCount / data.length) * 100;
+      document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
 
       const summary = document.getElementById("summary");
-      if (percent >= 50) {
-        summary.textContent = `✅ Great job! You passed with ${percent.toFixed(0)}%.`;
-        summary.style.color = "lightgreen";
+      if ((currentSet + 1) * groupSize >= data.length) {
+        summary.textContent = percent >= 50
+          ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
+          : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
+        summary.style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
       } else {
-        summary.textContent = `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
-        summary.style.color = "#ff4c4c";
+        currentSet++;
+        loadSet();
       }
 
       updateProgress(percent);
+    }
+
+    function getHint(answerKey) {
+      const item = data.find(d => d.id === answerKey);
+      return item ? item.hint : '';
     }
 
     function updateProgress(percent) {
       document.getElementById("progressBar").style.width = percent + "%";
     }
 
-    function getHint(answerKey) {
-      const hints = {
-        altar: "Hint: It’s often used for honoring ancestors.",
-        pot: "Hint: Think of traditional cookware made from clay.",
-        mat: "Hint: These are commonly found on the floors of rural homes."
-      };
-      return hints[answerKey] || '';
-    }
+    // Init
+    loadSet();
   </script>
 
 </body>
