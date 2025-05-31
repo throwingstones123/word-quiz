@@ -36,6 +36,34 @@
       transition: width 0.4s ease;
     }
 
+    .nav-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .nav-grid button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background-color: #444;
+      color: #fff;
+    }
+
+    .nav-grid button.active {
+      background-color: #7ad1d4;
+      color: #000;
+    }
+
+    .nav-grid button.answered:not(.active) {
+      background-color: #2b996e;
+    }
+
     .conversation {
       max-width: 700px;
       margin: 0 auto;
@@ -69,20 +97,6 @@
       cursor: pointer;
     }
 
-    .controls {
-      margin-top: 1.5rem;
-    }
-
-    button {
-      margin: 0 0.5rem;
-      padding: 10px 20px;
-      font-weight: bold;
-      background-color: #7ad1d4;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
     .feedback {
       margin-top: 1rem;
       font-size: 1.1rem;
@@ -94,6 +108,20 @@
 
     .incorrect {
       color: #ff4c4c;
+    }
+
+    .controls {
+      margin-top: 1.5rem;
+    }
+
+    button {
+      margin: 0.4rem;
+      padding: 10px 20px;
+      font-weight: bold;
+      background-color: #7ad1d4;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
     #summary {
@@ -113,131 +141,196 @@
 </head>
 <body>
 
-  <h1>Fill in the Missing Word</h1>
+<h1>Fill in the Missing Word</h1>
 
-  <!-- Progress Bar -->
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
 
-  <!-- Question 1 -->
-  <div class="conversation active" id="step0">
-    <p><strong>Paul:</strong> Which ethnic group built all these beautiful towers again - can you remind me?</p>
-    <p><strong>Jamie:</strong> Oh, that'd be the 
-      <select id="q0">
-        <option value="">--select--</option>
-        <option value="complain">Cham</option>
-        <option value="hide">Khmer</option>
-        <option value="speak up">Stieng</option>
-      </select>. They were built in a Hindu style because of their faith.
-    </p>
-    <div class="feedback" id="feedback0"></div>
-  </div>
+<div class="nav-grid" id="navGrid"></div>
 
-  <!-- Question 2 -->
-  <div class="conversation" id="step1">
-    <p><strong>Alex:</strong> That lady who wears the large bone earrings - what's her people's name again?</p>
-    <p><strong>Jamie:</strong> Oh, she'd be
-      <select id="q1">
-        <option value="">--select--</option>
-        <option value="courage">Stieng</option>
-        <option value="luck">Hoa</option>
-        <option value="time">Khmer</option>
-      </select>. It's a traditional wear of their people.
-    </p>
-    <div class="feedback" id="feedback1"></div>
-  </div>
+<div id="quizContainer"></div>
 
-  <!-- Controls -->
-  <div class="controls">
-    <button onclick="prevStep()">Back</button>
-    <button onclick="validateStep()">Check</button>
-    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
-  </div>
+<div class="controls" id="controlBtns">
+  <button onclick="prevStep()">⬅️ Back</button>
+  <button onclick="validateStep()">✅ Check</button>
+  <button onclick="nextStep()">➡️ Next</button>
+</div>
 
-  <div id="summary"></div>
-  <div id="completedBanner">🎉 You've completed the quiz!</div>
+<div id="summary"></div>
+<div id="completedBanner">🎉 You've completed the quiz!</div>
+<button onclick="resetQuiz()" id="resetBtn" style="display:none;">🔁 Restart Quiz</button>
 
-  <script>
-    const totalQuestions = 2;
-    const correctAnswers = ["complain", "courage"];
-    let currentStep = 0;
-    let score = 0;
-    const userAnswers = Array(totalQuestions).fill(null);
-    const validatedSteps = Array(totalQuestions).fill(false);
+<script>
+  const originalQuestions = [
+    {
+      dialogue: `<strong>Paul:</strong> Which ethnic group built all these beautiful towers again?<br>
+                 <strong>Jamie:</strong> Oh, that'd be the`,
+      options: [
+        { value: "complain", text: "Cham" },
+        { value: "hide", text: "Khmer" },
+        { value: "speak up", text: "Stieng" }
+      ],
+      answer: "complain",
+      feedbackCorrect: "✅ Correct! The Cham built many Hindu-style towers.",
+      feedbackIncorrect: "❌ Incorrect. Think about Hindu influence."
+    },
+    {
+      dialogue: `<strong>Alex:</strong> That lady with large bone earrings - what's her ethnic group again?<br>
+                 <strong>Jamie:</strong> Oh, she'd be`,
+      options: [
+        { value: "courage", text: "Stieng" },
+        { value: "luck", text: "Hoa" },
+        { value: "time", text: "Khmer" }
+      ],
+      answer: "courage",
+      feedbackCorrect: "✅ Correct! Stieng people wear traditional bone earrings.",
+      feedbackIncorrect: "❌ Incorrect. Look for distinctive traditions."
+    }
+  ];
 
-    function updateProgress() {
-      const progress = (currentStep / totalQuestions) * 100;
-      document.getElementById("progressBar").style.width = progress + "%";
+  let currentStep = 0;
+  let shuffledQuestions = [];
+  let score = 0;
+  const answers = {};
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function renderQuiz() {
+    shuffledQuestions = shuffle([...originalQuestions]);
+    const container = document.getElementById("quizContainer");
+    const nav = document.getElementById("navGrid");
+    container.innerHTML = '';
+    nav.innerHTML = '';
+
+    shuffledQuestions.forEach((q, i) => {
+      const convo = document.createElement("div");
+      convo.className = "conversation";
+      convo.id = `step${i}`;
+      if (i === 0) convo.classList.add("active");
+
+      convo.innerHTML = `
+        <p>${q.dialogue}
+          <select id="q${i}">
+            <option value="">--select--</option>
+            ${q.options.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join('')}
+          </select>.
+        </p>
+        <div class="feedback" id="feedback${i}"></div>
+      `;
+      container.appendChild(convo);
+
+      const navBtn = document.createElement("button");
+      navBtn.textContent = i + 1;
+      navBtn.id = `navBtn${i}`;
+      navBtn.onclick = () => showStep(i);
+      nav.appendChild(navBtn);
+    });
+
+    updateProgress();
+    updateNavStyles();
+  }
+
+  function showStep(index) {
+    document.querySelectorAll('.conversation').forEach(el => el.classList.remove('active'));
+    document.getElementById(`step${index}`).classList.add("active");
+    currentStep = index;
+    updateNavStyles();
+  }
+
+  function prevStep() {
+    if (currentStep > 0) showStep(currentStep - 1);
+  }
+
+  function nextStep() {
+    if (currentStep < shuffledQuestions.length - 1) {
+      showStep(currentStep + 1);
+    } else {
+      finishQuiz();
+    }
+  }
+
+  function validateStep() {
+    const select = document.getElementById(`q${currentStep}`);
+    const feedback = document.getElementById(`feedback${currentStep}`);
+    const value = select.value;
+    const q = shuffledQuestions[currentStep];
+
+    if (!value) {
+      feedback.innerHTML = `<span class="incorrect">❌ Please select an answer.</span>`;
+      return;
     }
 
-    function showStep(index) {
-      document.querySelectorAll('.conversation').forEach((el, i) => {
-        el.classList.toggle('active', i === index);
-      });
-      document.getElementById("nextBtn").disabled = !validatedSteps[index];
-      updateProgress();
-    }
+    const navBtn = document.getElementById(`navBtn${currentStep}`);
+    navBtn.classList.add("answered");
 
-    function nextStep() {
-      if (currentStep < totalQuestions - 1) {
-        currentStep++;
-        showStep(currentStep);
-      } else {
-        document.getElementById("progressBar").style.width = "100%";
-        document.getElementById("completedBanner").style.display = "block";
-        showSummary();
+    if (value === q.answer) {
+      if (!answers[currentStep]) {
+        score++;
+        answers[currentStep] = true;
       }
+      feedback.innerHTML = `<span class="correct">${q.feedbackCorrect}</span>`;
+    } else {
+      answers[currentStep] = false;
+      feedback.innerHTML = `<span class="incorrect">${q.feedbackIncorrect}</span>`;
     }
 
-    function prevStep() {
-      if (currentStep > 0) {
-        currentStep--;
-        showStep(currentStep);
-      }
+    updateProgress();
+    updateNavStyles();
+
+    if (Object.keys(answers).length === shuffledQuestions.length) {
+      finishQuiz();
     }
+  }
 
-    function validateStep() {
-      const select = document.getElementById(`q${currentStep}`);
-      const feedback = document.getElementById(`feedback${currentStep}`);
-      const answer = select.value;
+  function updateProgress() {
+    const percent = (Object.keys(answers).length / shuffledQuestions.length) * 100;
+    document.getElementById("progressBar").style.width = `${percent}%`;
+  }
 
-      if (!answer) {
-        feedback.innerHTML = `<span class="incorrect">❌ Please select an answer.</span>`;
-        return;
-      }
+  function updateNavStyles() {
+    shuffledQuestions.forEach((_, i) => {
+      const btn = document.getElementById(`navBtn${i}`);
+      btn.classList.remove("active");
+    });
+    document.getElementById(`navBtn${currentStep}`).classList.add("active");
+  }
 
-      userAnswers[currentStep] = answer;
+  function finishQuiz() {
+    const percent = (score / shuffledQuestions.length) * 100;
+    const summary = document.getElementById("summary");
+    const banner = document.getElementById("completedBanner");
 
-      if (answer === correctAnswers[currentStep]) {
-        if (!validatedSteps[currentStep]) score++;
-        feedback.innerHTML = `<span class="correct">✅ Correct!</span>`;
-      } else {
-        feedback.innerHTML = `<span class="incorrect">❌ Incorrect. Try again or continue.</span>`;
-      }
+    summary.style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+    summary.innerHTML = percent >= 50
+      ? `✅ You passed with ${percent.toFixed(0)}% (${score}/${shuffledQuestions.length})`
+      : `❌ You got ${percent.toFixed(0)}%. Try again. (${score}/${shuffledQuestions.length})`;
 
-      validatedSteps[currentStep] = true;
-      document.getElementById("nextBtn").disabled = false;
-    }
+    banner.style.display = "block";
+    document.getElementById("controlBtns").style.display = "none";
+    document.getElementById("resetBtn").style.display = "inline-block";
+  }
 
-    function showSummary() {
-      const percent = (score / totalQuestions) * 100;
-      const summary = document.getElementById("summary");
+  function resetQuiz() {
+    currentStep = 0;
+    score = 0;
+    for (let key in answers) delete answers[key];
+    document.getElementById("summary").innerHTML = "";
+    document.getElementById("completedBanner").style.display = "none";
+    document.getElementById("resetBtn").style.display = "none";
+    document.getElementById("controlBtns").style.display = "block";
+    renderQuiz();
+  }
 
-      if (percent >= 50) {
-        summary.innerHTML = `✅ You passed with ${percent}% (${score}/${totalQuestions})`;
-        summary.style.color = "lightgreen";
-      } else {
-        summary.innerHTML = `❌ You scored ${percent}%. Keep practicing! (${score}/${totalQuestions})`;
-        summary.style.color = "#ff4c4c";
-      }
-
-      document.querySelector(".controls").style.display = "none";
-    }
-
-    // Init
-    showStep(0);
-  </script>
+  // Init
+  renderQuiz();
+</script>
 
 </body>
 </html>
