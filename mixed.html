@@ -125,7 +125,135 @@
   <button onclick="retryQuiz()" id="retryBtn">🔁 Retry Quiz</button>
 
   <script>
-      // 💾 Injected full quiz dataset from uploaded files
+    const baseQuestions = [];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mixed Format Quiz</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      color: #7ad1d4;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #7ad1d4;
+      transition: width 0.4s ease;
+    }
+
+    .question-card {
+      max-width: 800px;
+      margin: 1.5rem auto;
+      background-color: #000;
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 1px solid #444;
+      display: none;
+      text-align: left;
+    }
+
+    .question-card.active {
+      display: block;
+    }
+
+    select, input[type="radio"] {
+      margin-top: 1rem;
+    }
+
+    .drop-zone {
+      border: 2px dashed #555;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      min-height: 40px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .drop-zone.hovered {
+      background-color: #222;
+    }
+
+    .word {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #222;
+      border: 1px solid #555;
+      border-radius: 5px;
+      cursor: grab;
+      font-weight: bold;
+    }
+
+    .controls, #summary, #completedBanner {
+      margin-top: 1.5rem;
+    }
+
+    .correct {
+      color: lightgreen;
+    }
+
+    .incorrect {
+      color: #ff4c4c;
+    }
+
+    button {
+      margin: 0.5rem;
+      padding: 10px 20px;
+      font-weight: bold;
+      background-color: #7ad1d4;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #retryBtn {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mixed Question Quiz</h1>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div id="quiz-area"></div>
+
+  <div class="controls">
+    <button onclick="prevStep()">Back</button>
+    <button onclick="validateStep()">Check</button>
+    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
+  </div>
+
+  <div id="summary"></div>
+  <div id="completedBanner">🎉 You've completed the quiz!</div>
+  <button onclick="retryQuiz()" id="retryBtn">🔁 Retry Quiz</button>
+
+  <script>
+        // 💾 Injected full quiz dataset from uploaded files
     const baseQuestions = [
 
       // 1 - Dropdown (flowers.html)
@@ -255,7 +383,7 @@
           </select> tree around.`,
         correct: "correct"
       },
-            // 9 - DragDrop (household.html)
+          // 9 - DragDrop (household.html)
       {
         type: 'dragdrop',
         question: "Match household items to their descriptions",
@@ -401,8 +529,8 @@
             <div class="word" draggable="true" ondragstart="drag(event)" id="aodai">Ao Dai</div>
           </div>`,
         correct: { SquareRobe: "SquareRobe", CrossRobe: "CrossRobe", aodai: "aodai" }
-      },
-            // 17 - Radio (category2.html)
+      }
+          // 17 - Radio (category2.html)
       {
         type: 'radio',
         question: "Which Buddhist festival celebrates the birth and enlightenment of Buddha?",
@@ -482,10 +610,7 @@
           </div>`,
         correct: { Plow: "Plow", Stove: "Stove", Fan: "Fan" }
       },
-
-      // [... Additional 14 follow the same structure - omitted for brevity ...]
     ];
-
         let questions = [];
     let order = [];
     let currentStep = 0;
