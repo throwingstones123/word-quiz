@@ -689,7 +689,7 @@ function validateStep() {
       dropZone.classList.add('incorrect-drop');
       allCorrect = false;
       details.push(
-        `<p class='incorrect'>❌ For "<strong>${def.textContent.split('\n')[0].trim()}</strong>", you dropped "<em>${wordElement.textContent}</em>". Expected: "<strong>${expected}</strong>".</p>`
+        `<>❌ For "<strong>${def.textContent.split('\n')[0].trim()}</strong>", you dropped "<em>${wordElement.textContent}</em>". Expected: "<strong>${expected}</strong>".</p>`
       );
     }
   });
@@ -701,21 +701,6 @@ function validateStep() {
     `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
   correct = allCorrect;
 }
-
-      if (expected === actual) {
-        dropZone.classList.add('correct-drop');
-      } else {
-        dropZone.classList.add('incorrect-drop');
-        allCorrect = false;
-        details.push(
-          `<p class='incorrect'>❌ For "<strong>${def.textContent.split('\n')[0].trim()}</strong>", you dropped "<em>${wordElement.textContent}</em>". Expected: "<strong>${expected}</strong>".</p>`
-        );
-      }
-    });
-
-    feedbackDiv.innerHTML = Feedback.dragdropFeedback(allCorrect, details);
-    correct = allCorrect;
-  }
 
   quizState.markValidated(correct);
   document.getElementById("nextBtn").disabled = false;
