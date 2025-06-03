@@ -637,7 +637,7 @@ function validateStep() {
     `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
 } else {
   correct = false;
-  feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`) +
+  feedbackDiv.innerHTML = Feedback.incorrect("❌ Incorrect.") +
     `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
 }
 } else if (q.type === 'radio') {
@@ -649,7 +649,7 @@ function validateStep() {
     `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
 } else {
   correct = false;
-  feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`) +
+  feedbackDiv.innerHTML = Feedback.incorrect("❌ Incorrect.") +
     `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
 }
   } else {
@@ -686,7 +686,7 @@ function validateStep() {
     } else {
       dropZone.classList.add('incorrect-drop');
       allCorrect = false;
-      details.push(
+     details.push(
   `<>❌ For "<strong>${def.textContent.split('\n')[0].trim()}</strong>", you dropped "<em>${wordElement.textContent}</em>".`
 );
     }
