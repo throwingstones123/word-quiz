@@ -116,7 +116,21 @@
   </style>
 </head>
 <body>
-@@ -133,536 +27,192 @@ <h1>Mixed Question Quiz</h1>
+  <h1>Mixed Question Quiz</h1>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div id="quiz-area"></div>
+
+  <div class="controls">
+    <button onclick="prevStep()">Back</button>
+    <button onclick="validateStep()" id="checkBtn">Check</button>
+    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
+  </div>
+
+  <div id="summary"></div>
+  <div id="completedBanner">🎉 You've completed the quiz!</div>
   <button onclick="retryQuiz()" id="retryBtn">🔁 Retry Quiz</button>
 
   <script>
@@ -470,7 +484,6 @@
       // displayNameMap: { hat: "Conical Hat", dress: "Five-part Dress", turban: "Turban" }
       // This is added in the logic where needed.Add commentMore actions
     ];
-    /* ...styles unchanged... */
   </style>
 </head>
 <body>
