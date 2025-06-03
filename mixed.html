@@ -633,27 +633,25 @@ function validateStep() {
   quizState.userAnswers[idx] = val;
 
   if (val === q.correct) {
-    feedbackDiv.innerHTML = Feedback.correct() +
-      `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
-  } else {
-    correct = false;
-    feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`) +
-      `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>` +
-      `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
-  }
+  feedbackDiv.innerHTML = Feedback.correct() +
+    `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
+} else {
+  correct = false;
+  feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`) +
+    `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
+}
 } else if (q.type === 'radio') {
   const checked = stepEl.querySelector('input[type="radio"]:checked');
   if (checked) {
     quizState.userAnswers[idx] = checked.value;
     if (checked.value === q.correct) {
-      feedbackDiv.innerHTML = Feedback.correct() +
-        `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
-    } else {
-      correct = false;
-      feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`) +
-        `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>` +
-        `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
-    }
+  feedbackDiv.innerHTML = Feedback.correct() +
+    `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
+} else {
+  correct = false;
+  feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`) +
+    `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
+}
   } else {
     correct = false;
     feedbackDiv.innerHTML = Feedback.warning();
@@ -695,11 +693,16 @@ function validateStep() {
   });
 
   // Show hint and explanation always
+  if (allCorrect) {
   feedbackDiv.innerHTML =
     Feedback.dragdropFeedback(allCorrect, details) +
-    `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>` +
     `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
-  correct = allCorrect;
+} else {
+  feedbackDiv.innerHTML =
+    Feedback.dragdropFeedback(allCorrect, details) +
+    `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
+}
+correct = allCorrect;
 }
 
   quizState.markValidated(correct);
