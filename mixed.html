@@ -114,355 +114,393 @@
   <button onclick="retryQuiz()" id="retryBtn">🔁 Retry Quiz</button>
   <script>
       // 💾 Injected full quiz dataset from uploaded files
-      const baseQuestions = [
+     const baseQuestions = [
+  // 1 - Dropdown (flowers.html)
+  {
+    type: 'dropdown',
+    question: "Which white flower is commonly used in temple decorations?",
+    content: `<p><strong>Alex:</strong> What's that white flower around the temple?</p>
+      <p><strong>Jamie:</strong> Oh? that's the 
+        <select id="q0">
+          <option value="">--select--</option>
+          <option value="correct">Frangipani</option>
+          <option value="wrong">White Rose</option>
+          <option value="wrong">Lily</option>
+        </select>.
+      </p>`,
+    correct: "correct",
+    correctAnswerText: "Frangipani",
+    hint: "It's known for its strong fragrance and is often seen at religious ceremonies.",
+    explanation: "Frangipani flowers are valued in Vietnam for their fragrance and are commonly used as temple offerings and decorations."
+  },
 
-      // 1 - Dropdown (flowers.html)
-      {
-        type: 'dropdown',
-        question: "Which white flower is commonly used in temple decorations?",
-        content:           `<p><strong>Alex:</strong> What's that white flower around the temple?</p>
-          <p><strong>Jamie:</strong> Oh? that's the 
-            <select id="q0">
-              <option value="">--select--</option>
-              <option value="correct">Frangipani</option>
-              <option value="wrong">White Rose</option>
-              <option value="wrong">Lily</option>
-            </select>.
-          </p>`,        correct: "correct",
-          correctAnswerText: "Frangipani" // Added for explicit feedback
-      },
+  // 2 - Dropdown (people.html)
+  {
+    type: 'dropdown',
+    question: "Which ethnic group is known for Hindu-style towers?",
+    content: `<p><strong>Paul:</strong> Which ethnic group built all these beautiful towers again?</p>
+      <p><strong>Jamie:</strong> That’d be the 
+        <select id="q1">
+          <option value="">--select--</option>
+          <option value="correct">Cham</option>
+          <option value="wrong">Khmer</option>
+          <option value="wrong">Stieng</option>
+        </select>.
+      </p>`,
+    correct: "correct",
+    correctAnswerText: "Cham",
+    hint: "This group built the famous My Son sanctuary.",
+    explanation: "The Cham people constructed the iconic brick Hindu-style towers in central Vietnam, especially at the My Son site."
+  },
 
-      // 2 - Dropdown (people.html)
-      {
-        type: 'dropdown',
-        question: "Which ethnic group is known for Hindu-style towers?",
-        content:           `<p><strong>Paul:</strong> Which ethnic group built all these beautiful towers again?</p>
-          <p><strong>Jamie:</strong> That’d be the 
-            <select id="q1">
-              <option value="">--select--</option>
-              <option value="correct">Cham</option>
-              <option value="wrong">Khmer</option>
-              <option value="wrong">Stieng</option>
-            </select>.
-          </p>`,        correct: "correct",
-          correctAnswerText: "Cham" // Added for explicit feedback
-      },
+  // 3 - Radio (animals.html)
+  {
+    type: 'radio',
+    question: "Animal used for farming in Vietnam?",
+    content: `<p><strong>Question:</strong> Which animal is traditionally used for pulling tools?</p>
+      <label><input type="radio" name="q2" value="wrong"> Dog</label><br/>
+      <label><input type="radio" name="q2" value="correct"> Buffalo</label><br/>
+      <label><input type="radio" name="q2" value="wrong"> Horses</label>`,
+    correct: "correct",
+    correctAnswerText: "Buffalo",
+    hint: "This strong animal is often seen working in rice fields.",
+    explanation: "Water buffalo are traditionally used for plowing and other farming tasks in Vietnam."
+  },
 
-      // 3 - Radio (animals.html)
-      {
-        type: 'radio',
-        question: "Animal used for farming in Vietnam?",
-        content:           `<p><strong>Question:</strong> Which animal is traditionally used for pulling tools?</p>
-          <label><input type="radio" name="q2" value="wrong"> Dog</label><br/>
-          <label><input type="radio" name="q2" value="correct"> Buffalo</label><br/>
-          <label><input type="radio" name="q2" value="wrong"> Horses</label>`,
-        correct: "correct",
-        correctAnswerText: "Buffalo" // Added for explicit feedback
-      },
+  // 4 - Radio (category2.html)
+  {
+    type: 'radio',
+    question: "Celebration for honoring ancient Vietnamese founders?",
+    content: `<p><strong>Question:</strong> What is the festival that honors Vietnam’s ancient founders?</p>
+      <label><input type="radio" name="q3" value="correct"> Hung Kings’ Commemoration Day</label><br/>
+      <label><input type="radio" name="q3" value="wrong"> Vu Lan Festival</label><br/>
+      <label><input type="radio" name="q3" value="wrong"> Easter</label>`,
+    correct: "correct",
+    correctAnswerText: "Hung Kings’ Commemoration Day",
+    hint: "It's a national holiday, celebrated in April.",
+    explanation: "Hung Kings’ Commemoration Day honors the legendary founders of Vietnam and is a major public holiday."
+  },
 
-      // 4 - Radio (category2.html)
-      {
-        type: 'radio',
-        question: "Celebration for honoring ancient Vietnamese founders?",
-        content:           `<p><strong>Question:</strong> What is the festival that honors Vietnam’s ancient founders?</p>
-          <label><input type="radio" name="q3" value="correct"> Hung Kings’ Commemoration Day</label><br/>
-          <label><input type="radio" name="q3" value="wrong"> Vu Lan Festival</label><br/>
-          <label><input type="radio" name="q3" value="wrong"> Easter</label>`,
-        correct: "correct",
-        correctAnswerText: "Hung Kings’ Commemoration Day" // Added for explicit feedback
-      },
+  // 5 - DragDrop (definition-match.html)
+  {
+    type: 'dragdrop',
+    question: "Match traditional Vietnamese clothing to its description",
+    content: `<div class="definition" data-answer="hat">
+        A large piece of headwear made of bamboo or straw.
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="dress">
+        A predecessor to the Ao Dai worn in 18th century.
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="turban">
+        Worn by Vietnamese men during ceremonies.
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div style="margin-top:1rem;" id="words">
+        <div class="word" draggable="true" ondragstart="drag(event)" id="hat">Conical Hat</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="dress">Five-part Dress</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="turban">Turban</div>
+      </div>`,
+    correct: { hat: "hat", dress: "dress", turban: "turban" },
+    hint: "The conical hat is iconic; the Five-part Dress predates the Ao Dai.",
+    explanation: "The conical hat (nón lá) is made of bamboo/straw, the Five-part Dress is a traditional predecessor of the Ao Dai, and the turban is a ceremonial headpiece for men."
+  },
 
-      // 5 - DragDrop (definition-match.html)
-      {
-        type: 'dragdrop',
-        question: "Match traditional Vietnamese clothing to its description",
-        content:           `<div class="definition" data-answer="hat">
-            A large piece of headwear made of bamboo or straw.
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="dress">
-            A predecessor to the Ao Dai worn in 18th century.
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="turban">
-            Worn by Vietnamese men during ceremonies.
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div style="margin-top:1rem;" id="words">
-            <div class="word" draggable="true" ondragstart="drag(event)" id="hat">Conical Hat</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="dress">Five-part Dress</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="turban">Turban</div>
-          </div>`,
-        correct: { hat: "hat", dress: "dress", turban: "turban" }
-      },
+  // 6 - Radio (animals.html)
+  {
+    type: 'radio',
+    question: "What large bird lives near water and symbolizes longevity?",
+    content: `<p>What large bird lives near water and symbolizes longevity?</p>
+      <label><input type="radio" name="q4" value="correct"> Heron</label><br/>
+      <label><input type="radio" name="q4" value="wrong"> Crane</label><br/>
+      <label><input type="radio" name="q4" value="wrong"> Flamingo</label>`,
+    correct: "correct",
+    correctAnswerText: "Heron",
+    hint: "This bird is often depicted in Vietnamese art near rivers.",
+    explanation: "Herons symbolize longevity and are commonly seen around Vietnamese waterways."
+  },
 
-      // 6 - Radio (animals.html)
-      {
-        type: 'radio',
-        question: "What large bird lives near water and symbolizes longevity?",
-        content:           `<p>What large bird lives near water and symbolizes longevity?</p>
-          <label><input type="radio" name="q4" value="correct"> Heron</label><br/>
-          <label><input type="radio" name="q4" value="wrong"> Crane</label><br/>
-          <label><input type="radio" name="q4" value="wrong"> Flamingo</label>`,
-        correct: "correct",
-        correctAnswerText: "Heron"
-      },
+  // 7 - Dropdown (cuisine.html)
+  {
+    type: 'dropdown',
+    question: "What green Vietnamese dessert is made from sticky rice and mung bean?",
+    content: `<p><strong>Lan:</strong> It’s the one made from mung bean paste and sticky rice — that green one!</p>
+      <select id="q5">
+        <option value="">--select--</option>
+        <option value="correct">Green Sticky Rice Cake</option>
+        <option value="wrong">Sizzling Cake</option>
+        <option value="wrong">Fermented Pork Roll</option>
+      </select>`,
+    correct: "correct",
+    correctAnswerText: "Green Sticky Rice Cake",
+    hint: "It's green, sweet, and often served during festivals.",
+    explanation: "Green Sticky Rice Cake (Bánh Cốm) is a traditional dessert made from mung bean paste and sticky rice."
+  },
 
-      // 7 - Dropdown (cuisine.html)
-      {
-        type: 'dropdown',
-        question: "What green Vietnamese dessert is made from sticky rice and mung bean?",
-        content:           `<p><strong>Lan:</strong> It’s the one made from mung bean paste and sticky rice — that green one!</p>
-          <select id="q5">
-            <option value="">--select--</option>
-            <option value="correct">Green Sticky Rice Cake</option>
-            <option value="wrong">Sizzling Cake</option>
-            <option value="wrong">Fermented Pork Roll</option>
-          </select>`,
-        correct: "correct",
-        correctAnswerText: "Green Sticky Rice Cake"
-      },
+  // 8 - Dropdown (flowers.html)
+  {
+    type: 'dropdown',
+    question: "What tree is commonly found as a village gathering place?",
+    content: `<p><strong>Kyle:</strong> This place feels like the heart of the village with that big</p>
+      <select id="q6">
+        <option value="">--select--</option>
+        <option value="wrong">Oak</option>
+        <option value="correct">Banyan</option>
+        <option value="wrong">Birch</option>
+      </select> tree around.`,
+    correct: "correct",
+    correctAnswerText: "Banyan",
+    hint: "This tree is huge with aerial roots and lots of shade.",
+    explanation: "The banyan tree is a traditional gathering spot at the heart of many Vietnamese villages."
+  },
 
-      // 8 - Dropdown (flowers.html)
-      {
-        type: 'dropdown',
-        question: "What tree is commonly found as a village gathering place?",
-        content:           `<p><strong>Kyle:</strong> This place feels like the heart of the village with that big</p>
-          <select id="q6">
-            <option value="">--select--</option>
-            <option value="wrong">Oak</option>
-            <option value="correct">Banyan</option>
-            <option value="wrong">Birch</option>
-          </select> tree around.`,
-        correct: "correct",
-        correctAnswerText: "Banyan"
-      },
-            // 9 - DragDrop (household.html)
-      {
-        type: 'dragdrop',
-        question: "Match household items to their descriptions",
-        content:           `<div class="definition" data-answer="Pot">
-            Traditional clay cookware
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="Mat">
-            Floor item woven from reeds or straw
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="Lantern">
-            Decoration used during festivals
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div id="words" style="margin-top:1rem;">
-            <div class="word" draggable="true" ondragstart="drag(event)" id="Pot">Earthenware Pot</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="Mat">Straw Mat</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="Lantern">Silk Lantern</div>
-          </div>`,
-        correct: { Pot: "Pot", Mat: "Mat", Lantern: "Lantern" }
-      },
+  // 9 - DragDrop (household.html)
+  {
+    type: 'dragdrop',
+    question: "Match household items to their descriptions",
+    content: `<div class="definition" data-answer="Pot">
+        Traditional clay cookware
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="Mat">
+        Floor item woven from reeds or straw
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="Lantern">
+        Decoration used during festivals
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div id="words" style="margin-top:1rem;">
+        <div class="word" draggable="true" ondragstart="drag(event)" id="Pot">Earthenware Pot</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="Mat">Straw Mat</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="Lantern">Silk Lantern</div>
+      </div>`,
+    correct: { Pot: "Pot", Mat: "Mat", Lantern: "Lantern" },
+    hint: "Earthenware is used for cooking; the mat is woven; the lantern is for festivals.",
+    explanation: "Earthenware pots are used for cooking, straw mats are for sitting/sleeping, and silk lanterns decorate festival areas."
+  },
 
-      // 10 - Radio (category2.html)
-      {
-        type: 'radio',
-        question: "What is celebrated on Nov 20 in Vietnam?",
-        content:           `<p><strong>Question:</strong> What is celebrated in Vietnam to honor teachers?</p>
-          <label><input type="radio" name="q7" value="wrong"> Tet</label><br/>
-          <label><input type="radio" name="q7" value="correct"> Vietnamese Teachers’ Day</label><br/>
-          <label><input type="radio" name="q7" value="wrong"> Parents' Day</label>`,
-        correct: "correct",
-        correctAnswerText: "Vietnamese Teachers’ Day"
-      },
+  // 10 - Radio (category2.html)
+  {
+    type: 'radio',
+    question: "What is celebrated on Nov 20 in Vietnam?",
+    content: `<p><strong>Question:</strong> What is celebrated in Vietnam to honor teachers?</p>
+      <label><input type="radio" name="q7" value="wrong"> Tet</label><br/>
+      <label><input type="radio" name="q7" value="correct"> Vietnamese Teachers’ Day</label><br/>
+      <label><input type="radio" name="q7" value="wrong"> Parents' Day</label>`,
+    correct: "correct",
+    correctAnswerText: "Vietnamese Teachers’ Day",
+    hint: "It's a day to honor a respected profession.",
+    explanation: "Vietnamese Teachers’ Day is celebrated on Nov 20 to honor teachers and education."
+  },
 
-      // 11 - Dropdown (people.html)
-      {
-        type: 'dropdown',
-        question: "Which ethnic group wears colorful skirts and silver jewelry?",
-        content:           `<p><strong>Quỳnh:</strong> Those women with silver jewelry must be</p>
-          <select id="q8">
-            <option value="">--select--</option>
-            <option value="correct">Hmong</option>
-            <option value="wrong">Khmer</option>
-            <option value="wrong">Tay</option>
-          </select>!`,
-        correct: "correct",
-        correctAnswerText: "Hmong"
-      },
+  // 11 - Dropdown (people.html)
+  {
+    type: 'dropdown',
+    question: "Which ethnic group wears colorful skirts and silver jewelry?",
+    content: `<p><strong>Quỳnh:</strong> Those women with silver jewelry must be</p>
+      <select id="q8">
+        <option value="">--select--</option>
+        <option value="correct">Hmong</option>
+        <option value="wrong">Khmer</option>
+        <option value="wrong">Tay</option>
+      </select>!`,
+    correct: "correct",
+    correctAnswerText: "Hmong",
+    hint: "This group lives mostly in the northern mountains and is known for vibrant embroidery.",
+    explanation: "The Hmong people are recognized by their colorful skirts and distinctive silver jewelry."
+  },
 
-      // 12 - Radio (animals.html)
-      {
-        type: 'radio',
-        question: "What water animal has a thick shell?",
-        content:           `<p>Which of these animals has a hard shell and is considered sacred?</p>
-          <label><input type="radio" name="q9" value="correct"> Turtle</label><br/>
-          <label><input type="radio" name="q9" value="wrong"> Beetle</label><br/>
-          <label><input type="radio" name="q9" value="wrong"> Snails</label>`,
-        correct: "correct",
-        correctAnswerText: "Turtle"
-      },
+  // 12 - Radio (animals.html)
+  {
+    type: 'radio',
+    question: "What water animal has a thick shell?",
+    content: `<p>Which of these animals has a hard shell and is considered sacred?</p>
+      <label><input type="radio" name="q9" value="correct"> Turtle</label><br/>
+      <label><input type="radio" name="q9" value="wrong"> Beetle</label><br/>
+      <label><input type="radio" name="q9" value="wrong"> Snails</label>`,
+    correct: "correct",
+    correctAnswerText: "Turtle",
+    hint: "This animal is often a symbol of longevity and wisdom.",
+    explanation: "Turtles are sacred and symbolic in Vietnamese culture, known for their thick shells."
+  },
 
-      // 13 - DragDrop (environment.html)
-      {
-        type: 'dragdrop',
-        question: "Match English words to environment-related definitions",
-        content:           `<div class="definition" data-answer="benevolent">
-            Kind and generous
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="opaque">
-            Not clear or transparent
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="audible">
-            Able to be heard
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div id="words" style="margin-top:1rem;">
-            <div class="word" draggable="true" ondragstart="drag(event)" id="benevolent">Benevolent</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="opaque">Opaque</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="audible">Audible</div>
-          </div>`,
-        correct: {
-          benevolent: "benevolent",
-          opaque: "opaque",
-          audible: "audible"
-        }
-      },
+  // 13 - DragDrop (environment.html)
+  {
+    type: 'dragdrop',
+    question: "Match English words to environment-related definitions",
+    content: `<div class="definition" data-answer="benevolent">
+        Kind and generous
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="opaque">
+        Not clear or transparent
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="audible">
+        Able to be heard
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div id="words" style="margin-top:1rem;">
+        <div class="word" draggable="true" ondragstart="drag(event)" id="benevolent">Benevolent</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="opaque">Opaque</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="audible">Audible</div>
+      </div>`,
+    correct: {
+      benevolent: "benevolent",
+      opaque: "opaque",
+      audible: "audible"
+    },
+    hint: "Benevolent means kind; opaque means not clear; audible means can be heard.",
+    explanation: "These words are common environmental terms: benevolent (kind), opaque (not transparent), audible (can be heard)."
+  },
 
-      // 14 - Dropdown (cuisine.html)
-      {
-        type: 'dropdown',
-        question: "Which Vietnamese dish is made with mung bean paste and sticky rice?",
-        content:           `<p><strong>Thu:</strong> That green one, remember?</p>
-          <select id="q10">
-            <option value="">--select--</option>
-            <option value="correct">Green Sticky Rice Cake</option>
-            <option value="wrong">Fried Spring Roll</option>
-            <option value="wrong">Nem</option>
-          </select>`,
-        correct: "correct",
-        correctAnswerText: "Green Sticky Rice Cake"
-      },
+  // 14 - Dropdown (cuisine.html)
+  {
+    type: 'dropdown',
+    question: "Which Vietnamese dish is made with mung bean paste and sticky rice?",
+    content: `<p><strong>Thu:</strong> That green one, remember?</p>
+      <select id="q10">
+        <option value="">--select--</option>
+        <option value="correct">Green Sticky Rice Cake</option>
+        <option value="wrong">Fried Spring Roll</option>
+        <option value="wrong">Nem</option>
+      </select>`,
+    correct: "correct",
+    correctAnswerText: "Green Sticky Rice Cake",
+    hint: "It's green, sweet, and a festival favorite.",
+    explanation: "Green Sticky Rice Cake is a traditional Vietnamese dessert made from mung bean and sticky rice."
+  },
 
-      // 15 - Radio (category2.html)
-      {
-        type: 'radio',
-        question: "Vietnam’s independence day falls on?",
-        content:           `<p>Which date celebrates Vietnam’s declaration of independence?</p>
-          <label><input type="radio" name="q11" value="correct"> Vietnamese National Day</label><br/>
-          <label><input type="radio" name="q11" value="wrong"> Unification Day</label><br/>
-          <label><input type="radio" name="q11" value="wrong"> Hung Kings' Anniversary</label>`,
-        correct: "correct",
-        correctAnswerText: "Vietnamese National Day"
-      },
+  // 15 - Radio (category2.html)
+  {
+    type: 'radio',
+    question: "Vietnam’s independence day falls on?",
+    content: `<p>Which date celebrates Vietnam’s declaration of independence?</p>
+      <label><input type="radio" name="q11" value="correct"> Vietnamese National Day</label><br/>
+      <label><input type="radio" name="q11" value="wrong"> Unification Day</label><br/>
+      <label><input type="radio" name="q11" value="wrong"> Hung Kings' Anniversary</label>`,
+    correct: "correct",
+    correctAnswerText: "Vietnamese National Day",
+    hint: "This day is celebrated on September 2nd.",
+    explanation: "Vietnamese National Day (September 2nd) marks the country's declaration of independence."
+  },
 
-      // 16 - DragDrop (definition-match.html)
-      {
-        type: 'dragdrop',
-        question: "Match Vietnamese royal clothing items",
-        content:           `<div class="definition" data-answer="SquareRobe">
-            Worn by Empresses in the Nguyen Dynasty
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="CrossRobe">
-            Dominant robe before 19th century
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="aodai">
-            Modern Vietnamese woman’s outfit
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div style="margin-top:1rem;" id="words">
-            <div class="word" draggable="true" ondragstart="drag(event)" id="SquareRobe">Square-collared Robe</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="CrossRobe">Cross-collared Robe</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="aodai">Ao Dai</div>
-          </div>`,
-        correct: { SquareRobe: "SquareRobe", CrossRobe: "CrossRobe", aodai: "aodai" }
-      },
-            // 17 - Radio (category2.html)
-      {
-        type: 'radio',
-        question: "Which Buddhist festival celebrates the birth and enlightenment of Buddha?",
-        content:           `<p>Which Buddhist festival celebrates birth, enlightenment, and death of Buddha?</p>
-          <label><input type="radio" name="q12" value="correct"> Vesak</label><br/>
-          <label><input type="radio" name="q12" value="wrong"> Christmas</label><br/>
-          <label><input type="radio" name="q12" value="wrong"> Easter</label>`,
-        correct: "correct",
-        correctAnswerText: "Vesak"
-      },
+  // 16 - DragDrop (definition-match.html)
+  {
+    type: 'dragdrop',
+    question: "Match Vietnamese royal clothing items",
+    content: `<div class="definition" data-answer="SquareRobe">
+        Worn by Empresses in the Nguyen Dynasty
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="CrossRobe">
+        Dominant robe before 19th century
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="aodai">
+        Modern Vietnamese woman’s outfit
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div style="margin-top:1rem;" id="words">
+        <div class="word" draggable="true" ondragstart="drag(event)" id="SquareRobe">Square-collared Robe</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="CrossRobe">Cross-collared Robe</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="aodai">Ao Dai</div>
+      </div>`,
+    correct: { SquareRobe: "SquareRobe", CrossRobe: "CrossRobe", aodai: "aodai" },
+    hint: "Empresses wore square-collared robes; the Ao Dai is modern.",
+    explanation: "Square-collared robes were worn by empresses, cross-collared robes predate the Ao Dai, which is modern."
+  },
 
-      // 18 - Dropdown (flowers.html)
-      {
-        type: 'dropdown',
-        question: "Which flower is a major symbol of Tet in Vietnam?",
-        content:           `<p><strong>Manny:</strong> Look at the 
-            <select id="q13">
-              <option value="">--select--</option>
-              <option value="correct">Yellow Apricot</option>
-              <option value="wrong">Tulips</option>
-              <option value="wrong">Poppy</option>
-            </select>, it's blooming. Tet must be near.</p>`,
-        correct: "correct",
-        correctAnswerText: "Yellow Apricot"
-      },
+  // 17 - Radio (category2.html)
+  {
+    type: 'radio',
+    question: "Which Buddhist festival celebrates the birth and enlightenment of Buddha?",
+    content: `<p>Which Buddhist festival celebrates birth, enlightenment, and death of Buddha?</p>
+      <label><input type="radio" name="q12" value="correct"> Vesak</label><br/>
+      <label><input type="radio" name="q12" value="wrong"> Christmas</label><br/>
+      <label><input type="radio" name="q12" value="wrong"> Easter</label>`,
+    correct: "correct",
+    correctAnswerText: "Vesak",
+    hint: "It's a major Buddhist holiday in many Asian countries.",
+    explanation: "Vesak celebrates the birth, enlightenment, and death of Buddha."
+  },
 
-      // 19 - Radio (animals.html)
-      {
-        type: 'radio',
-        question: "What fish symbolizes success in Vietnamese culture?",
-        content:           `<p><strong>Which fish symbolizes perseverance and success?</strong></p>
-          <label><input type="radio" name="q14" value="correct"> Carp</label><br/>
-          <label><input type="radio" name="q14" value="wrong"> Goldfish</label><br/>
-          <label><input type="radio" name="q14" value="wrong"> Sharks</label>`,
-        correct: "correct",
-        correctAnswerText: "Carp"
-      },
+  // 18 - Dropdown (flowers.html)
+  {
+    type: 'dropdown',
+    question: "Which flower is a major symbol of Tet in Vietnam?",
+    content: `<p><strong>Manny:</strong> Look at the 
+        <select id="q13">
+          <option value="">--select--</option>
+          <option value="correct">Yellow Apricot</option>
+          <option value="wrong">Tulips</option>
+          <option value="wrong">Poppy</option>
+        </select>, it's blooming. Tet must be near.</p>`,
+    correct: "correct",
+    correctAnswerText: "Yellow Apricot",
+    hint: "This flower blooms around Lunar New Year, especially in the south.",
+    explanation: "Yellow Apricot (Hoa Mai) is the symbolic flower of Tet in southern Vietnam."
+  },
 
-      // 20 - Dropdown (cuisine.html)
-      {
-        type: 'dropdown',
-        question: "Which dish is wrapped in banana leaves and has a chewy, fermented texture?",
-        content:           `<p><strong>Phuc:</strong> Let's try something tangy and chewy wrapped in leaves?</p>
-          <select id="q15">
-            <option value="">--select--</option>
-            <option value="correct">Fermented Pork Roll</option>
-            <option value="wrong">Sticky Rice Cake</option>
-            <option value="wrong">Fried Spring Roll</option>
-          </select>`,
-        correct: "correct",
-        correctAnswerText: "Fermented Pork Roll"
-      },
+  // 19 - Radio (animals.html)
+  {
+    type: 'radio',
+    question: "What fish symbolizes success in Vietnamese culture?",
+    content: `<p><strong>Which fish symbolizes perseverance and success?</strong></p>
+      <label><input type="radio" name="q14" value="correct"> Carp</label><br/>
+      <label><input type="radio" name="q14" value="wrong"> Goldfish</label><br/>
+      <label><input type="radio" name="q14" value="wrong"> Sharks</label>`,
+    correct: "correct",
+    correctAnswerText: "Carp",
+    hint: "This fish is associated with the Kitchen Gods and New Year traditions.",
+    explanation: "Carp symbolizes perseverance and success, featuring in the Kitchen Gods legend."
+  },
 
-      // 21 - DragDrop (household.html)
-      {
-        type: 'dragdrop',
-        question: "Match traditional tools to their purpose",
-        content:           `<div class="definition" data-answer="Plow">
-            Used in Vietnamese rice farming.
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="Stove">
-            Cylindrical charcoal stove
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div class="definition" data-answer="Fan">
-            Used to cool off in hot weather
-            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-          </div>
-          <div id="words" style="margin-top:1rem;">
-            <div class="word" draggable="true" ondragstart="drag(event)" id="Plow">Plow</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="Stove">Honeycomb Stove</div>
-            <div class="word" draggable="true" ondragstart="drag(event)" id="Fan">Palm-leaf Fan</div>
-          </div>`,
-        correct: { Plow: "Plow", Stove: "Stove", Fan: "Fan" }
-      },
+  // 20 - Dropdown (cuisine.html)
+  {
+    type: 'dropdown',
+    question: "Which dish is wrapped in banana leaves and has a chewy, fermented texture?",
+    content: `<p><strong>Phuc:</strong> Let's try something tangy and chewy wrapped in leaves?</p>
+      <select id="q15">
+        <option value="">--select--</option>
+        <option value="correct">Fermented Pork Roll</option>
+        <option value="wrong">Sticky Rice Cake</option>
+        <option value="wrong">Fried Spring Roll</option>
+      </select>`,
+    correct: "correct",
+    correctAnswerText: "Fermented Pork Roll",
+    hint: "It's tangy, chewy, and often eaten as a snack.",
+    explanation: "Fermented Pork Roll (Nem Chua) is a tangy, chewy delicacy wrapped in banana leaves."
+  },
 
-      // NOTE: For drag-and-drop questions, the 'correct' property stores the IDs of the draggable words
-      // and their corresponding drop-zone data-answer values. To provide specific feedback,
-      // you might need a way to map these IDs back to their display names.
-      // E.g., for DragDrop question 5, you could add:
-      // displayNameMap: { hat: "Conical Hat", dress: "Five-part Dress", turban: "Turban" }
-      // This is added in the logic where needed.
-    ];
+  // 21 - DragDrop (household.html)
+  {
+    type: 'dragdrop',
+    question: "Match traditional tools to their purpose",
+    content: `<div class="definition" data-answer="Plow">
+        Used in Vietnamese rice farming.
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="Stove">
+        Cylindrical charcoal stove
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div class="definition" data-answer="Fan">
+        Used to cool off in hot weather
+        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
+      </div>
+      <div id="words" style="margin-top:1rem;">
+        <div class="word" draggable="true" ondragstart="drag(event)" id="Plow">Plow</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="Stove">Honeycomb Stove</div>
+        <div class="word" draggable="true" ondragstart="drag(event)" id="Fan">Palm-leaf Fan</div>
+      </div>`,
+    correct: { Plow: "Plow", Stove: "Stove", Fan: "Fan" },
+    hint: "Plow for farming, honeycomb stove for cooking, palm-leaf fan for cooling.",
+    explanation: "The plow is used in rice farming, the honeycomb stove for cooking, and the palm-leaf fan for cooling off in hot weather."
+  }
+];
 
       // Modified state storage
       let questions = [];
