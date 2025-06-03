@@ -628,54 +628,79 @@ function validateStep() {
   let correct = true;
 
   if (q.type === 'dropdown') {
-    const select = stepEl.querySelector('select');
-    const val = select?.value;
-    quizState.userAnswers[idx] = val;
+  const select = stepEl.querySelector('select');
+  const val = select?.value;
+  quizState.userAnswers[idx] = val;
 
-    if (val === q.correct) {
-      feedbackDiv.innerHTML = Feedback.correct();
+  if (val === q.correct) {
+    feedbackDiv.innerHTML = Feedback.correct() +
+      `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
+  } else {
+    correct = false;
+    feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`) +
+      `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>` +
+      `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
+  }
+} else if (q.type === 'radio') {
+  const checked = stepEl.querySelector('input[type="radio"]:checked');
+  if (checked) {
+    quizState.userAnswers[idx] = checked.value;
+    if (checked.value === q.correct) {
+      feedbackDiv.innerHTML = Feedback.correct() +
+        `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
     } else {
       correct = false;
-      feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`);
+      feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`) +
+        `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>` +
+        `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
     }
-  } else if (q.type === 'radio') {
-    const checked = stepEl.querySelector('input[type="radio"]:checked');
-    if (checked) {
-      quizState.userAnswers[idx] = checked.value;
-      if (checked.value === q.correct) {
-        feedbackDiv.innerHTML = Feedback.correct();
-      } else {
-        correct = false;
-        feedbackDiv.innerHTML = Feedback.incorrect(`❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.`);
+  } else {
+    correct = false;
+    feedbackDiv.innerHTML = Feedback.warning();
+  }
+} else if (q.type === 'dragdrop') {
+  let allCorrect = true;
+  let details = [];
+  const defs = stepEl.querySelectorAll(".definition");
+
+  defs.forEach(def => {
+    const expected = def.getAttribute("data-answer")?.toLowerCase();
+    const dropZone = def.querySelector(".drop-zone");
+    const wordElement = dropZone.children[0];
+    const actual = wordElement?.id?.toLowerCase();
+
+    dropZone.classList.remove('correct-drop', 'incorrect-drop');
+
+    if (!wordElement) {
+      allCorrect = false;
+      details.push(`❌ Nothing dropped in "<em>${def.textContent.trim()}</em>"`);
+      return;
+    }
+
+    document.querySelectorAll('.drop-zone').forEach(dz => {
+      if (dz !== dropZone && dz.contains(wordElement)) {
+        dz.removeChild(wordElement);
       }
+    });
+
+    if (expected === actual) {
+      dropZone.classList.add('correct-drop');
     } else {
-      correct = false;
-      feedbackDiv.innerHTML = Feedback.warning();
+      dropZone.classList.add('incorrect-drop');
+      allCorrect = false;
+      details.push(
+        `<p class='incorrect'>❌ For "<strong>${def.textContent.split('\n')[0].trim()}</strong>", you dropped "<em>${wordElement.textContent}</em>". Expected: "<strong>${expected}</strong>".</p>`
+      );
     }
-  } else if (q.type === 'dragdrop') {
-    let allCorrect = true;
-    let details = [];
-    const defs = stepEl.querySelectorAll(".definition");
+  });
 
-    defs.forEach(def => {
-      const expected = def.getAttribute("data-answer")?.toLowerCase();
-      const dropZone = def.querySelector(".drop-zone");
-      const wordElement = dropZone.children[0];
-      const actual = wordElement?.id?.toLowerCase();
-
-      dropZone.classList.remove('correct-drop', 'incorrect-drop');
-
-      if (!wordElement) {
-        allCorrect = false;
-        details.push(`❌ Nothing dropped in "<em>${def.textContent.trim()}</em>"`);
-        return;
-      }
-
-      document.querySelectorAll('.drop-zone').forEach(dz => {
-        if (dz !== dropZone && dz.contains(wordElement)) {
-          dz.removeChild(wordElement);
-        }
-      });
+  // Show hint and explanation always
+  feedbackDiv.innerHTML =
+    Feedback.dragdropFeedback(allCorrect, details) +
+    `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>` +
+    `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
+  correct = allCorrect;
+}
 
       if (expected === actual) {
         dropZone.classList.add('correct-drop');
