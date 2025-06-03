@@ -5,20 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mixed Format Quiz</title>
   <style>
-        body {
+    body {
       background-color: #111;
       color: white;
       font-family: Arial, sans-serif;
       padding: 2rem;
       text-align: center;
     }
-
     h1 {
       color: #7ad1d4;
       font-size: 2rem;
       margin-bottom: 1.5rem;
     }
-
     .progress-container {
       width: 100%;
       max-width: 700px;
@@ -28,14 +26,12 @@
       overflow: hidden;
       margin: 1rem auto;
     }
-
     .progress-bar {
       height: 100%;
       width: 0%;
       background-color: #7ad1d4;
       transition: width 0.4s ease;
     }
-
     .question-card {
       max-width: 800px;
       margin: 1.5rem auto;
@@ -46,36 +42,29 @@
       display: none;
       text-align: left;
     }
-
     .question-card.active {
       display: block;
     }
-
     select, input[type="radio"] {
       margin-top: 1rem;
     }
-
     .drop-zone {
       border: 2px dashed #555;
       padding: 0.5rem;
       margin-top: 0.5rem;
       min-height: 40px;
       font-weight: bold;
-      transition: background 0.3s, border-color 0.3s; /* Added border-color to transition */
+      transition: background 0.3s, border-color 0.3s;
     }
-
     .drop-zone.hovered {
       background-color: #222;
     }
-
     .drop-zone.correct-drop {
-        border-color: lightgreen;
+      border-color: lightgreen;
     }
-
     .drop-zone.incorrect-drop {
-        border-color: #ff4c4c;
+      border-color: #ff4c4c;
     }
-
     .word {
       display: inline-block;
       margin: 0.5rem;
@@ -86,19 +75,15 @@
       cursor: grab;
       font-weight: bold;
     }
-
     .controls, #summary, #completedBanner {
       margin-top: 1.5rem;
     }
-
     .correct {
       color: lightgreen;
     }
-
     .incorrect {
       color: #ff4c4c;
     }
-
     button {
       margin: 0.5rem;
       padding: 10px 20px;
@@ -108,11 +93,9 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     #retryBtn {
       display: none;
     }
-    /* ...styles unchanged... */
   </style>
 </head>
 <body>
@@ -120,22 +103,18 @@
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-
   <div id="quiz-area"></div>
-
   <div class="controls">
     <button onclick="prevStep()">Back</button>
     <button onclick="validateStep()" id="checkBtn">Check</button>
     <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
   </div>
-
   <div id="summary"></div>
   <div id="completedBanner">🎉 You've completed the quiz!</div>
   <button onclick="retryQuiz()" id="retryBtn">🔁 Retry Quiz</button>
-
   <script>
       // 💾 Injected full quiz dataset from uploaded files
-    const baseQuestions = [
+      const baseQuestions = [
 
       // 1 - Dropdown (flowers.html)
       {
@@ -476,258 +455,261 @@
           </div>`,
         correct: { Plow: "Plow", Stove: "Stove", Fan: "Fan" }
       },
+
+      // NOTE: For drag-and-drop questions, the 'correct' property stores the IDs of the draggable words
+      // and their corresponding drop-zone data-answer values. To provide specific feedback,
+      // you might need a way to map these IDs back to their display names.
+      // E.g., for DragDrop question 5, you could add:
+      // displayNameMap: { hat: "Conical Hat", dress: "Five-part Dress", turban: "Turban" }
+      // This is added in the logic where needed.
     ];
-  </style>
-</head>
-<body>
-  <h1>Mixed Question Quiz</h1>
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
 
-  <div id="quiz-area"></div>
+      // Modified state storage
+      let questions = [];
+      let order = [];
+      let currentStep = 0;
+      let score = 0;
+      let validated = [];
+      let sectionScores = { dropdown: 0, radio: 0, dragdrop: 0 };
+      let userAnswers = [];
 
-  <div class="controls">
-    <button onclick="prevStep()">Back</button>
-    <button onclick="validateStep()" id="checkBtn">Check</button>
-    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
-  </div>
+      function initQuiz() {
+        questions = JSON.parse(JSON.stringify(baseQuestions));
+        order = [...Array(questions.length).keys()].sort(() => 0.5 - Math.random());
+        currentStep = 0;
+        score = 0;
+        validated = Array(questions.length).fill(false);
+        userAnswers = Array(questions.length).fill(null);
+        sectionScores = { dropdown: 0, radio: 0, dragdrop: 0 };
 
-  <div id="summary"></div>
-  <div id="completedBanner">🎉 You've completed the quiz!</div>
-  <button onclick="retryQuiz()" id="retryBtn">🔁 Retry Quiz</button>
+        const quizArea = document.getElementById("quiz-area");
+        quizArea.innerHTML = "";
 
-  <script>
-    // Modified state storage
-    let questions = [];
-    let order = [];
-    let currentStep = 0;
-    let score = 0;
-    let validated = [];
-    let sectionScores = { dropdown: 0, radio: 0, dragdrop: 0 };
-    let userAnswers = [];
-
-    function initQuiz() {
-      questions = JSON.parse(JSON.stringify(baseQuestions));
-      order = [...Array(questions.length).keys()].sort(() => 0.5 - Math.random());
-      currentStep = 0;
-      score = 0;
-      validated = Array(questions.length).fill(false);
-      userAnswers = Array(questions.length).fill(null);
-      sectionScores = { dropdown: 0, radio: 0, dragdrop: 0 };
-
-      const quizArea = document.getElementById("quiz-area");
-      quizArea.innerHTML = "";
-
-      order.forEach((i, idx) => {
-        const q = questions[i];
-        const div = document.createElement("div");
-        div.className = "question-card";
-        div.id = `step${idx}`;
-        div.innerHTML = `<p><strong>${q.question}</strong></p>${q.content}<div class="feedback" id="f${idx}"></div>`;
-        quizArea.appendChild(div);
-      });
-
-      attachDragDropListeners();
-      showStep(currentStep);
-
-      document.getElementById("summary").innerHTML = "";
-      document.getElementById("completedBanner").style.display = "none";
-      document.getElementById("retryBtn").style.display = "none";
-      document.querySelector(".controls").style.display = "block";
-      document.getElementById("checkBtn").textContent = "Check";
-    }
-
-    function showStep(index) {
-      document.querySelectorAll(".question-card").forEach((el, i) => {
-        el.classList.toggle("active", i === index);
-      });
-
-      const qIdx = order[currentStep];
-      const q = questions[qIdx];
-      const stepEl = document.getElementById(`step${currentStep}`);
-
-      if (q.type === 'dropdown') {
-        const select = stepEl.querySelector('select');
-        if (userAnswers[qIdx]) select.value = userAnswers[qIdx];
-      }
-
-      if (q.type === 'radio') {
-        const radios = stepEl.querySelectorAll('input[type="radio"]');
-        radios.forEach(r => {
-          r.checked = (r.value === userAnswers[qIdx]);
+        order.forEach((i, idx) => {
+          const q = questions[i];
+          const div = document.createElement("div");
+          div.className = "question-card";
+          div.id = `step${idx}`;
+          div.innerHTML = `<p><strong>${q.question}</strong></p>${q.content}<div class="feedback" id="f${idx}"></div>`;
+          quizArea.appendChild(div);
         });
+
+        attachDragDropListeners();
+        showStep(currentStep);
+
+        document.getElementById("summary").innerHTML = "";
+        document.getElementById("completedBanner").style.display = "none";
+        document.getElementById("retryBtn").style.display = "none";
+        document.querySelector(".controls").style.display = "block";
+        document.getElementById("checkBtn").textContent = "Check";
       }
 
-      document.getElementById("nextBtn").disabled = !validated[index];
-      document.getElementById(`f${index}`).innerHTML = '';
-      document.getElementById("checkBtn").textContent = validated[index] ? "Review" : "Check";
-      updateProgress(index);
-    }
+      function showStep(index) {
+        document.querySelectorAll(".question-card").forEach((el, i) => {
+          el.classList.toggle("active", i === index);
+        });
 
-    function validateStep() {
-      const qIdx = order[currentStep];
-      const q = questions[qIdx];
-      const stepEl = document.getElementById(`step${currentStep}`);
-      const feedbackDiv = document.getElementById(`f${currentStep}`);
-      feedbackDiv.innerHTML = '';
-      let currentStepCorrect = true;
+        const qIdx = order[currentStep];
+        const q = questions[qIdx];
+        const stepEl = document.getElementById(`step${currentStep}`);
 
-      if (q.type === 'dropdown') {
-        const select = stepEl.querySelector('select');
-        const val = select?.value;
-        userAnswers[qIdx] = val;
-
-        if (val === q.correct) {
-          feedbackDiv.innerHTML = "<span class='correct'>✅ Correct!</span>";
-        } else {
-          currentStepCorrect = false;
-          feedbackDiv.innerHTML = `<span class='incorrect'>❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.</span>`;
+        if (q.type === 'dropdown') {
+          const select = stepEl.querySelector('select');
+          if (userAnswers[qIdx]) select.value = userAnswers[qIdx];
         }
-      } else if (q.type === 'radio') {
-        const checked = stepEl.querySelector('input[type="radio"]:checked');
-        if (checked) {
-          userAnswers[qIdx] = checked.value;
-          if (checked.value === q.correct) {
+
+        if (q.type === 'radio') {
+          const radios = stepEl.querySelectorAll('input[type="radio"]');
+          radios.forEach(r => {
+            r.checked = (r.value === userAnswers[qIdx]);
+          });
+        }
+
+        document.getElementById("nextBtn").disabled = !validated[index];
+        document.getElementById(`f${index}`).innerHTML = '';
+        document.getElementById("checkBtn").textContent = validated[index] ? "Review" : "Check";
+        updateProgress(index);
+      }
+
+      function validateStep() {
+        const qIdx = order[currentStep];
+        const q = questions[qIdx];
+        const stepEl = document.getElementById(`step${currentStep}`);
+        const feedbackDiv = document.getElementById(`f${currentStep}`);
+        feedbackDiv.innerHTML = '';
+        let currentStepCorrect = true;
+
+        if (q.type === 'dropdown') {
+          const select = stepEl.querySelector('select');
+          const val = select?.value;
+          userAnswers[qIdx] = val;
+
+          if (val === q.correct) {
             feedbackDiv.innerHTML = "<span class='correct'>✅ Correct!</span>";
           } else {
             currentStepCorrect = false;
             feedbackDiv.innerHTML = `<span class='incorrect'>❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.</span>`;
           }
-        } else {
-          currentStepCorrect = false;
-          feedbackDiv.innerHTML = "<span class='incorrect'>⚠️ Please select an answer.</span>";
-        }
-      } else if (q.type === 'dragdrop') {
-        currentStepCorrect = true;
-        let specificFeedback = [];
-        const defs = stepEl.querySelectorAll(".definition");
-
-        defs.forEach(def => {
-          const expected = def.getAttribute("data-answer")?.toLowerCase();
-          const dropZone = def.querySelector(".drop-zone");
-          const wordElement = dropZone.children[0];
-          const actual = wordElement?.id?.toLowerCase();
-
-          dropZone.classList.remove('correct-drop', 'incorrect-drop');
-
-          if (!wordElement) {
+        } else if (q.type === 'radio') {
+          const checked = stepEl.querySelector('input[type="radio"]:checked');
+          if (checked) {
+            userAnswers[qIdx] = checked.value;
+            if (checked.value === q.correct) {
+              feedbackDiv.innerHTML = "<span class='correct'>✅ Correct!</span>";
+            } else {
+              currentStepCorrect = false;
+              feedbackDiv.innerHTML = `<span class='incorrect'>❌ Incorrect. The correct answer was: <strong>${q.correctAnswerText}</strong>.</span>`;
+            }
+          } else {
             currentStepCorrect = false;
-            specificFeedback.push(`❌ Nothing dropped in "${def.textContent.trim()}"`);
-            return;
+            feedbackDiv.innerHTML = "<span class='incorrect'>⚠️ Please select an answer.</span>";
           }
+        } else if (q.type === 'dragdrop') {
+          currentStepCorrect = true;
+          let specificFeedback = [];
+          const defs = stepEl.querySelectorAll(".definition");
 
-          // Prevent duplicate use
-          document.querySelectorAll('.drop-zone').forEach(dz => {
-            if (dz !== dropZone && dz.contains(wordElement)) {
-              dz.removeChild(wordElement);
+          defs.forEach(def => {
+            const expected = def.getAttribute("data-answer")?.toLowerCase();
+            const dropZone = def.querySelector(".drop-zone");
+            const wordElement = dropZone.children[0];
+            const actual = wordElement?.id?.toLowerCase();
+
+            dropZone.classList.remove('correct-drop', 'incorrect-drop');
+
+            if (!wordElement) {
+              currentStepCorrect = false;
+              specificFeedback.push(`❌ Nothing dropped in "${def.textContent.trim()}"`);
+              return;
+            }
+
+            // Prevent duplicate use
+            document.querySelectorAll('.drop-zone').forEach(dz => {
+              if (dz !== dropZone && dz.contains(wordElement)) {
+                dz.removeChild(wordElement);
+              }
+            });
+
+            if (expected === actual) {
+              dropZone.classList.add('correct-drop');
+            } else {
+              dropZone.classList.add('incorrect-drop');
+              currentStepCorrect = false;
+              specificFeedback.push(`<p class='incorrect'>❌ For "<strong>${def.textContent.split('\n')[0].trim()}</strong>", you dropped "<em>${wordElement.textContent}</em>". Expected: "<strong>${expected}</strong>".</p>`);
             }
           });
 
-          if (expected === actual) {
-            dropZone.classList.add('correct-drop');
-          } else {
-            dropZone.classList.add('incorrect-drop');
-            currentStepCorrect = false;
-            specificFeedback.push(`<p class='incorrect'>❌ For "<strong>${def.textContent.split('\n')[0].trim()}</strong>", you dropped "<em>${wordElement.textContent}</em>". Expected: "<strong>${expected}</strong>"</p>`);
-          }
-        });
-
-        feedbackDiv.innerHTML = currentStepCorrect ? 
-          "<span class='correct'>✅ All matches correct!</span>" : 
-          "<span class='incorrect'>❌ Some matches incorrect.</span>" + specificFeedback.join('');
-      }
-
-      if (currentStepCorrect && !validated[currentStep]) {
-        score++;
-        sectionScores[q.type]++;
-      }
-
-      validated[currentStep] = true;
-      document.getElementById("nextBtn").disabled = false;
-      document.getElementById("checkBtn").textContent = "Review";
-    }
-
-    function updateProgress(index) {
-      document.getElementById("progressBar").style.width = ((index / questions.length) * 100) + "%";
-    }
-
-    function nextStep() {
-      if (currentStep < questions.length - 1) {
-        currentStep++;
-        showStep(currentStep);
-      } else {
-        document.getElementById("progressBar").style.width = "100%";
-        document.getElementById("completedBanner").style.display = "block";
-        showSummary();
-      }
-    }
-
-    function prevStep() {
-      if (currentStep > 0) {
-        currentStep--;
-        showStep(currentStep);
-      }
-    }
-
-    function showSummary() {
-      const total = questions.length;
-      const percent = Math.round((score / total) * 100);
-      const summary = document.getElementById("summary");
-
-      summary.innerHTML = `<p style="color:${percent >= 50 ? 'lightgreen' : '#ff4c4c'}">
-        ${percent >= 50 ? '✅ You passed with ' + percent + '% (' + score + '/' + total + ')' : '❌ You scored ' + percent + '%. Keep practicing! (' + score + '/' + total + ')'}
-      </p>
-      <p><strong>📊 Section Breakdown:</strong></p>
-      <ul style="text-align:left; display:inline-block;">
-        <li>🟡 Dropdown: ${sectionScores.dropdown}</li>
-        <li>🔵 Radio: ${sectionScores.radio}</li>
-        <li>🟣 Drag & Drop: ${sectionScores.dragdrop}</li>
-      </ul>`;
-      document.querySelector(".controls").style.display = "none";
-      document.getElementById("retryBtn").style.display = "inline-block";
-    }
-
-    function retryQuiz() {
-      initQuiz();
-    }
-
-    function allowDrop(ev) {
-      ev.preventDefault();
-      if (ev.target.classList.contains("drop-zone")) {
-        ev.target.classList.add("hovered");
-      }
-    }
-
-    function leaveDrop(ev) {
-      if (ev.target.classList.contains("drop-zone")) {
-        ev.target.classList.remove("hovered");
-      }
-    }
-
-    function drag(ev) {
-      ev.dataTransfer.setData("text", ev.target.id);
-    }
-
-    function drop(ev) {
-      ev.preventDefault();
-      const id = ev.dataTransfer.getData("text");
-      const dragged = document.getElementById(id);
-
-      if (ev.target.classList.contains("drop-zone")) {
-        ev.target.classList.remove("hovered");
-
-        if (ev.target.children.length > 0) {
-          const existing = ev.target.children[0];
-          document.getElementById("words").appendChild(existing);
+          feedbackDiv.innerHTML = currentStepCorrect ? 
+            "<span class='correct'>✅ All matches correct!</span>" : 
+            "<span class='incorrect'>❌ Some matches incorrect.</span>" + specificFeedback.join('');
         }
 
-        ev.target.appendChild(dragged);
-      }
-    }
+        if (currentStepCorrect && !validated[currentStep]) {
+          score++;
+          sectionScores[q.type]++;
+        }
 
-    // Assumes baseQuestions is injected above
-    initQuiz();
+        validated[currentStep] = true;
+        document.getElementById("nextBtn").disabled = false;
+        document.getElementById("checkBtn").textContent = "Review";
+      }
+
+      function updateProgress(index) {
+        document.getElementById("progressBar").style.width = ((index / questions.length) * 100) + "%";
+      }
+
+      function nextStep() {
+        if (currentStep < questions.length - 1) {
+          currentStep++;
+          showStep(currentStep);
+        } else {
+          document.getElementById("progressBar").style.width = "100%";
+          document.getElementById("completedBanner").style.display = "block";
+          showSummary();
+        }
+      }
+
+      function prevStep() {
+        if (currentStep > 0) {
+          currentStep--;
+          showStep(currentStep);
+        }
+      }
+
+      function showSummary() {
+        const total = questions.length;
+        const percent = Math.round((score / total) * 100);
+        const summary = document.getElementById("summary");
+
+        summary.innerHTML = `<p style="color:${percent >= 50 ? 'lightgreen' : '#ff4c4c'}">
+          ${percent >= 50 ? '✅ You passed with ' + percent + '% (' + score + '/' + total + ')' : '❌ You scored ' + percent + '%. Keep practicing! (' + score + '/' + total + ')'}
+        </p>
+        <p><strong>📊 Section Breakdown:</strong></p>
+        <ul style="text-align:left; display:inline-block;">
+          <li>🟡 Dropdown: ${sectionScores.dropdown}</li>
+          <li>🔵 Radio: ${sectionScores.radio}</li>
+          <li>🟣 Drag & Drop: ${sectionScores.dragdrop}</li>
+        </ul>`;
+        document.querySelector(".controls").style.display = "none";
+        document.getElementById("retryBtn").style.display = "inline-block";
+      }
+
+      function retryQuiz() {
+        initQuiz();
+      }
+
+      function allowDrop(ev) {
+        ev.preventDefault();
+        if (ev.target.classList.contains("drop-zone")) {
+          ev.target.classList.add("hovered");
+        }
+      }
+
+      function leaveDrop(ev) {
+        if (ev.target.classList.contains("drop-zone")) {
+          ev.target.classList.remove("hovered");
+        }
+      }
+
+      function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+      }
+
+      function drop(ev) {
+        ev.preventDefault();
+        const id = ev.dataTransfer.getData("text");
+        const dragged = document.getElementById(id);
+
+        if (ev.target.classList.contains("drop-zone")) {
+          ev.target.classList.remove("hovered");
+
+          if (ev.target.children.length > 0) {
+            const existing = ev.target.children[0];
+            document.getElementById("words").appendChild(existing);
+          }
+
+          ev.target.appendChild(dragged);
+        }
+      }
+
+      function attachDragDropListeners() {
+        // For dynamically created drag/drop questions
+        document.addEventListener('dragstart', function(ev) {
+          if (ev.target.classList.contains('word')) drag(ev);
+        });
+        document.addEventListener('dragover', function(ev) {
+          if (ev.target.classList.contains('drop-zone')) allowDrop(ev);
+        });
+        document.addEventListener('dragleave', function(ev) {
+          if (ev.target.classList.contains('drop-zone')) leaveDrop(ev);
+        });
+        document.addEventListener('drop', function(ev) {
+          if (ev.target.classList.contains('drop-zone')) drop(ev);
+        });
+      }
+
+      // Assumes baseQuestions is injected above
+      initQuiz();
   </script>
 </body>
 </html>
