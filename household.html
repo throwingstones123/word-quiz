@@ -58,6 +58,7 @@
     #summary { font-size: 1.2rem; font-weight: bold; margin-top: 1rem; }
     .hint { color: #ff4c4c; font-size: 0.9rem; margin-top: 0.3rem; }
     #nextBtn { margin-left: 1rem; background: #49cc90; }
+    #checkBtn[disabled] { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -111,6 +112,8 @@
       document.getElementById("summary").textContent = '';
       document.getElementById("restartBtn").style.display = 'none';
       document.getElementById("checkBtn").style.display = 'inline-block';
+      document.getElementById("checkBtn").disabled = false;
+      document.getElementById("checkBtn").style.opacity = 1;
       const nextBtn = document.getElementById('nextBtn');
       if (nextBtn) nextBtn.remove();
       updateProgress(0);
@@ -147,6 +150,9 @@
       // Remove nextBtn if it exists
       const nextBtn = document.getElementById('nextBtn');
       if (nextBtn) nextBtn.remove();
+      // Enable Check Answers for new set
+      document.getElementById("checkBtn").disabled = false;
+      document.getElementById("checkBtn").style.opacity = 1;
     }
     function allowDrop(ev) {
       ev.preventDefault();
@@ -213,8 +219,11 @@
       let totalAnswered = (currentSet * groupSize) + correct;
       let percent = (totalAnswered / data.length) * 100;
       document.getElementById("score").textContent = `You got ${scoreCount + correct} out of ${data.length} correct.`;
-      // Proceed only if all are correct
+
+      // Cap Check Answers if all correct
       if (correct === defs.length) {
+        document.getElementById("checkBtn").disabled = true;
+        document.getElementById("checkBtn").style.opacity = 0.5;
         scoreCount += correct;
         const summary = document.getElementById("summary");
         if ((currentSet + 1) * groupSize >= data.length) {
