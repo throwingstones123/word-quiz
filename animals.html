@@ -18,6 +18,7 @@
     .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
     .question-card label { display: block; margin: 0.5rem 0; font-size: 1rem; font-weight: normal; cursor: pointer; }
     .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
+    .correct { color: #8ef08e !important; }
     .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
     button { padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: bold; background-color: #70c1b3; border: none; border-radius: 6px; cursor: pointer; color: #000; transition: background-color 0.3s; }
     button:hover { background-color: #59a499; }
@@ -181,13 +182,16 @@
       const feedback = document.getElementById(`feedback${index}`);
       if (!selected) {
         feedback.innerHTML = "❌ Please select an answer.";
+        feedback.className = "feedback";
         return;
       }
       answers[`q${index}`] = selected;
       if (selected === shuffledQuestions[index].answer) {
         feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
+        feedback.className = "feedback correct";
       } else {
         feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
+        feedback.className = "feedback";
       }
       validated[index] = true;
       document.getElementById(`navBtn${index}`).classList.add("answered");
@@ -201,7 +205,7 @@
     function updateCheckButton() {
       // Move "Check" button to match the current question
       document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
-      document.getElementById('checkBtn').disabled = validated[currentQuestion] || false;
+      // The "Check" button is always enabled, so no disabling here.
     }
 
     function updateNavButtons() {
@@ -256,8 +260,10 @@
         const feedback = document.getElementById(`feedback${i}`);
         if (userAnswer !== q.answer) {
           feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
         } else {
           score++;
+          feedback.className = "feedback correct";
         }
       });
       const percent = (score / shuffledQuestions.length) * 100;
