@@ -16,7 +16,7 @@
     .question-card { background: #1c1c1c; padding: 1.5rem; border: 2px solid #444; border-radius: 8px; display: none; }
     .question-card.active { display: block; }
     .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
-    .question-card label { display: block; margin: 0.5rem 0; font-size: 1rem; font-weight: normal; cursor: pointer; }
+    .question-card input[type="text"] { width: 100%; padding: 0.7rem; font-size: 1.1rem; border-radius: 5px; border: 1px solid #555; margin-bottom: 0.5rem; background: #222; color: #fff; }
     .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
     .correct { color: #8ef08e !important; }
     .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
@@ -50,70 +50,60 @@
     const originalQuestions = [
       {
         text: "What's that white flower over there that they're decorating around the temple? They're so pretty!",
-        options: ["White Rose", "Frangipani", "Lily"],
         answer: "Frangipani",
         explanation: "Frangipani is widely used in ceremonies.",
         hint: "Think about which flower is common in spiritual rituals."
       },
       {
         text: "Lots of these papery-looking flowers in white and purple are seen in Hoi An. What are they?",
-        options: ["Bougainvillea", "Poppy", "Sunflower"],
         answer: "Bougainvillea",
         explanation: "Bougainvillea is known for its symbolism and vibrancy in many cultures.",
         hint: "Think about the vibrant colors and strength."
       },
       {
         text: "They're flowers that most schools grow. There's a reason they're known as ______ flowers!",
-        options: ["Burgundy", "Peacock", "Rosemary"],
         answer: "Peacock",
         explanation: "Peacock is especially tied to Vietnamese student life.",
         hint: "Think about the environment they're mentioning."
       },
       {
         text: "Look at the ______, it's blooming. Tet must be just around the corner.",
-        options: ["Yellow Apricot", "Tulips", "Poppy"],
         answer: "Yellow Apricot",
         explanation: "Yellow Apricot is a major symbol of Tet in Southern Vietnam.",
         hint: "Think about the time of year they're mentioning."
       },
       {
         text: "What flower is used to color tea in Vietnam, making it look appetizing?",
-        options: ["Hibiscus", "Apricot", "Roses"],
         answer: "Hibiscus",
         explanation: "Hibiscus is often used along with tea in Vietnam.",
         hint: "Think about the tea they're making."
       },
       {
         text: "All these _____ are blooming on the water! It's so beautiful. You can even eat the stems.",
-        options: ["Tangles", "Lily Pads", "Water Lily"],
         answer: "Water Lily",
         explanation: "Water Lilies have large, flat leaves and cup-shaped petals floating on the surface.",
         hint: "Think about the environment and what parts of the plant they're mentioning."
       },
       {
         text: "Look at these beautiful _______, They look so beautiful in the pond. The lotus symbolizes so much in Vietnamese culture.",
-        options: ["Tangles", "Lotus", "Apricot"],
         answer: "Lotus",
         explanation: "The lotus flower in Vietnamese culture symbolizes purity, resilience, spiritual enlightenment, and beauty.",
         hint: "Think about the symbolic value mentioned."
       },
       {
         text: "Those bright clusters of flowers over there are so beautiful. What are they?",
-        options: ["Ixora", "Tulips", "Hibiscus"],
         answer: "Ixora",
         explanation: "Ixora are clusters of small, tubular flowers in shades like red, pink, orange, and yellow.",
         hint: "Think about the shape of the flowers mentioned."
       },
       {
         text: "This place really does feel like the heart of this village. I always see people gathering underneath it. With such a big ______ tree as gathering place, no wonder!",
-        options: ["Oak", "Banyan", "Birch"],
         answer: "Banyan",
         explanation: "A banyan is a fruit tree with branches that produce roots that grow down into the ground to form extra trunks.",
         hint: "Think about the context of the village and being the centre."
       },
       {
         text: "This ______ Tree offers such great shade on a hot day like today. They're everywhere, a familiar sight across Vietnam.",
-        options: ["Tropical Almond", "Oak", "Banyan"],
         answer: "Tropical Almond",
         explanation: "The tropical almond tree in Vietnam is a familiar and often overlooked part of the everyday landscape.",
         hint: "Think about the context of its widespread growing."
@@ -146,15 +136,9 @@
         card.className = "question-card";
         card.id = `card${i}`;
         if (i === 0) card.classList.add("active");
-
         card.innerHTML = `
           <p>${q.text}</p>
-          ${q.options.map(opt => `
-            <label>
-              <input type="radio" name="q${i}" value="${opt}">
-              ${opt}
-            </label>
-          `).join("")}
+          <input type="text" id="q${i}" autocomplete="off" placeholder="Type your answer here">
           <div class="feedback" id="feedback${i}"></div>
         `;
         quizContainer.appendChild(card);
@@ -171,20 +155,24 @@
       updateCheckButton();
     }
 
+    function normalize(str) {
+      return str.trim().toLowerCase();
+    }
+
     function checkAnswer(index) {
-      const radios = document.getElementsByName(`q${index}`);
-      let selected = null;
-      for (const radio of radios) {
-        if (radio.checked) selected = radio.value;
-      }
+      const input = document.getElementById(`q${index}`);
+      const userInput = normalize(input.value);
+      const correctAnswer = normalize(shuffledQuestions[index].answer);
       const feedback = document.getElementById(`feedback${index}`);
-      if (!selected) {
-        feedback.innerHTML = "❌ Please select an answer.";
+
+      if (!userInput) {
+        feedback.innerHTML = "❌ Please type your answer.";
         feedback.className = "feedback";
         return;
       }
-      answers[`q${index}`] = selected;
-      if (selected === shuffledQuestions[index].answer) {
+
+      answers[`q${index}`] = input.value;
+      if (userInput === correctAnswer) {
         feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
         feedback.className = "feedback correct";
       } else {
@@ -252,14 +240,846 @@
     function grade() {
       let score = 0;
       shuffledQuestions.forEach((q, i) => {
-        const userAnswer = answers[`q${i}`];
+        const userInput = normalize(answers[`q${i}`] || "");
+        const correctAnswer = normalize(q.answer);
         const feedback = document.getElementById(`feedback${i}`);
-        if (userAnswer !== q.answer) {
-          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
-          feedback.className = "feedback";
-        } else {
+        if (userInput === correctAnswer) {
           score++;
           feedback.className = "feedback correct";
+        } else {
+          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
+        }
+      });
+      const percent = (score / shuffledQuestions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
+      document.getElementById("summary").textContent = percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+      document.getElementById("resetBtn").style.display = "inline-block";
+    }
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      for (let key in answers) delete answers[key];
+      for (let key in validated) delete validated[key];
+      document.getElementById("result").textContent = "";
+      document.getElementById("summary").textContent = "";
+      document.getElementById("resetBtn").style.display = "none";
+      renderQuestions();
+      showQuestion(currentQuestion);
+    }
+
+    renderQuestions();
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vietnamese Flowers Quiz</title>
+  <style>
+    body { background-color: #111; color: #f0f0f0; font-family: 'Arial Black', sans-serif; margin: 0; padding: 2rem; }
+    h1 { text-align: center; font-size: 3rem; color: #70c1b3; letter-spacing: 2px; }
+    .progress-container { width: 100%; max-width: 700px; height: 20px; background-color: #333; border-radius: 25px; overflow: hidden; margin: 1rem auto 1.5rem; }
+    .progress-bar { height: 100%; width: 0%; background-color: #70c1b3; transition: width 0.3s ease-in-out; }
+    .nav-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; max-width: 700px; margin: 0 auto 1.5rem; }
+    .nav-grid button { width: 40px; height: 40px; border-radius: 50%; font-weight: bold; border: none; cursor: pointer; background-color: #444; color: #fff; transition: background-color 0.3s; }
+    .nav-grid button.active { background-color: #70c1b3; color: #000; }
+    .nav-grid button.answered:not(.active) { background-color: #2b996e; }
+    .quiz-container { max-width: 700px; margin: 1rem auto; }
+    .question-card { background: #1c1c1c; padding: 1.5rem; border: 2px solid #444; border-radius: 8px; display: none; }
+    .question-card.active { display: block; }
+    .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
+    .question-card input[type="text"] { width: 100%; padding: 0.7rem; font-size: 1.1rem; border-radius: 5px; border: 1px solid #555; margin-bottom: 0.5rem; background: #222; color: #fff; }
+    .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
+    .correct { color: #8ef08e !important; }
+    .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
+    button { padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: bold; background-color: #70c1b3; border: none; border-radius: 6px; cursor: pointer; color: #000; transition: background-color 0.3s; }
+    button:hover { background-color: #59a499; }
+    #result, #summary { text-align: center; font-size: 1.3rem; margin-top: 1rem; }
+    #summary { font-weight: bold; }
+    #resetBtn { margin: 1rem auto; display: none; }
+    .check-btn[disabled], .nav-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Vietnamese Flowers Quiz</h1>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="nav-grid" id="navGrid"></div>
+  <div class="quiz-container" id="quizContainer"></div>
+  <div class="nav-buttons">
+    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button class="check-btn" onclick="checkAnswer(currentQuestion)" id="checkBtn">Check</button>
+    <button onclick="nextQuestion()" id="nextBtn" disabled>Next</button>
+    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
+  </div>
+  <p id="result"></p>
+  <p id="summary"></p>
+  <div style="text-align: center;">
+    <button onclick="resetQuiz()" id="resetBtn">🔁 Reattempt Quiz</button>
+  </div>
+  <script>
+    const originalQuestions = [
+      {
+        text: "What's that white flower over there that they're decorating around the temple? They're so pretty!",
+        answer: "Frangipani",
+        explanation: "Frangipani is widely used in ceremonies.",
+        hint: "Think about which flower is common in spiritual rituals."
+      },
+      {
+        text: "Lots of these papery-looking flowers in white and purple are seen in Hoi An. What are they?",
+        answer: "Bougainvillea",
+        explanation: "Bougainvillea is known for its symbolism and vibrancy in many cultures.",
+        hint: "Think about the vibrant colors and strength."
+      },
+      {
+        text: "They're flowers that most schools grow. There's a reason they're known as ______ flowers!",
+        answer: "Peacock",
+        explanation: "Peacock is especially tied to Vietnamese student life.",
+        hint: "Think about the environment they're mentioning."
+      },
+      {
+        text: "Look at the ______, it's blooming. Tet must be just around the corner.",
+        answer: "Yellow Apricot",
+        explanation: "Yellow Apricot is a major symbol of Tet in Southern Vietnam.",
+        hint: "Think about the time of year they're mentioning."
+      },
+      {
+        text: "What flower is used to color tea in Vietnam, making it look appetizing?",
+        answer: "Hibiscus",
+        explanation: "Hibiscus is often used along with tea in Vietnam.",
+        hint: "Think about the tea they're making."
+      },
+      {
+        text: "All these _____ are blooming on the water! It's so beautiful. You can even eat the stems.",
+        answer: "Water Lily",
+        explanation: "Water Lilies have large, flat leaves and cup-shaped petals floating on the surface.",
+        hint: "Think about the environment and what parts of the plant they're mentioning."
+      },
+      {
+        text: "Look at these beautiful _______, They look so beautiful in the pond. The lotus symbolizes so much in Vietnamese culture.",
+        answer: "Lotus",
+        explanation: "The lotus flower in Vietnamese culture symbolizes purity, resilience, spiritual enlightenment, and beauty.",
+        hint: "Think about the symbolic value mentioned."
+      },
+      {
+        text: "Those bright clusters of flowers over there are so beautiful. What are they?",
+        answer: "Ixora",
+        explanation: "Ixora are clusters of small, tubular flowers in shades like red, pink, orange, and yellow.",
+        hint: "Think about the shape of the flowers mentioned."
+      },
+      {
+        text: "This place really does feel like the heart of this village. I always see people gathering underneath it. With such a big ______ tree as gathering place, no wonder!",
+        answer: "Banyan",
+        explanation: "A banyan is a fruit tree with branches that produce roots that grow down into the ground to form extra trunks.",
+        hint: "Think about the context of the village and being the centre."
+      },
+      {
+        text: "This ______ Tree offers such great shade on a hot day like today. They're everywhere, a familiar sight across Vietnam.",
+        answer: "Tropical Almond",
+        explanation: "The tropical almond tree in Vietnam is a familiar and often overlooked part of the everyday landscape.",
+        hint: "Think about the context of its widespread growing."
+      }
+    ];
+
+    let shuffledQuestions = [];
+    let currentQuestion = 0;
+    const answers = {};
+    const validated = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function renderQuestions() {
+      quizContainer.innerHTML = "";
+      navGrid.innerHTML = "";
+      shuffledQuestions = shuffle([...originalQuestions]);
+      Object.keys(validated).forEach(k => delete validated[k]);
+      Object.keys(answers).forEach(k => delete answers[k]);
+      shuffledQuestions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+        card.innerHTML = `
+          <p>${q.text}</p>
+          <input type="text" id="q${i}" autocomplete="off" placeholder="Type your answer here">
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+        quizContainer.appendChild(card);
+
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.onclick = () => goToQuestion(i);
+        navBtn.id = `navBtn${i}`;
+        navGrid.appendChild(navBtn);
+      });
+      updateProgress();
+      highlightNav();
+      updateNavButtons();
+      updateCheckButton();
+    }
+
+    function normalize(str) {
+      return str.trim().toLowerCase();
+    }
+
+    function checkAnswer(index) {
+      const input = document.getElementById(`q${index}`);
+      const userInput = normalize(input.value);
+      const correctAnswer = normalize(shuffledQuestions[index].answer);
+      const feedback = document.getElementById(`feedback${index}`);
+
+      if (!userInput) {
+        feedback.innerHTML = "❌ Please type your answer.";
+        feedback.className = "feedback";
+        return;
+      }
+
+      answers[`q${index}`] = input.value;
+      if (userInput === correctAnswer) {
+        feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
+        feedback.className = "feedback correct";
+      } else {
+        feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
+        feedback.className = "feedback";
+      }
+      validated[index] = true;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      if (index === shuffledQuestions.length - 1) {
+        document.getElementById("submitBtn").style.display = "inline-block";
+      }
+      updateProgress();
+      updateNavButtons();
+    }
+
+    function updateCheckButton() {
+      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
+      const nextBtn = document.getElementById("nextBtn");
+      if (currentQuestion === shuffledQuestions.length - 1) {
+        nextBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "inline-block";
+        nextBtn.disabled = !validated[currentQuestion];
+      }
+      document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
+      updateCheckButton();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+      currentQuestion = index;
+      highlightNav();
+      updateNavButtons();
+    }
+
+    function goToQuestion(index) {
+      showQuestion(index);
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
+    }
+
+    function highlightNav() {
+      for (let i = 0; i < shuffledQuestions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function grade() {
+      let score = 0;
+      shuffledQuestions.forEach((q, i) => {
+        const userInput = normalize(answers[`q${i}`] || "");
+        const correctAnswer = normalize(q.answer);
+        const feedback = document.getElementById(`feedback${i}`);
+        if (userInput === correctAnswer) {
+          score++;
+          feedback.className = "feedback correct";
+        } else {
+          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
+        }
+      });
+      const percent = (score / shuffledQuestions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
+      document.getElementById("summary").textContent = percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+      document.getElementById("resetBtn").style.display = "inline-block";
+    }
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      for (let key in answers) delete answers[key];
+      for (let key in validated) delete validated[key];
+      document.getElementById("result").textContent = "";
+      document.getElementById("summary").textContent = "";
+      document.getElementById("resetBtn").style.display = "none";
+      renderQuestions();
+      showQuestion(currentQuestion);
+    }
+
+    renderQuestions();
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vietnamese Flowers Quiz</title>
+  <style>
+    body { background-color: #111; color: #f0f0f0; font-family: 'Arial Black', sans-serif; margin: 0; padding: 2rem; }
+    h1 { text-align: center; font-size: 3rem; color: #70c1b3; letter-spacing: 2px; }
+    .progress-container { width: 100%; max-width: 700px; height: 20px; background-color: #333; border-radius: 25px; overflow: hidden; margin: 1rem auto 1.5rem; }
+    .progress-bar { height: 100%; width: 0%; background-color: #70c1b3; transition: width 0.3s ease-in-out; }
+    .nav-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; max-width: 700px; margin: 0 auto 1.5rem; }
+    .nav-grid button { width: 40px; height: 40px; border-radius: 50%; font-weight: bold; border: none; cursor: pointer; background-color: #444; color: #fff; transition: background-color 0.3s; }
+    .nav-grid button.active { background-color: #70c1b3; color: #000; }
+    .nav-grid button.answered:not(.active) { background-color: #2b996e; }
+    .quiz-container { max-width: 700px; margin: 1rem auto; }
+    .question-card { background: #1c1c1c; padding: 1.5rem; border: 2px solid #444; border-radius: 8px; display: none; }
+    .question-card.active { display: block; }
+    .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
+    .question-card input[type="text"] { width: 100%; padding: 0.7rem; font-size: 1.1rem; border-radius: 5px; border: 1px solid #555; margin-bottom: 0.5rem; background: #222; color: #fff; }
+    .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
+    .correct { color: #8ef08e !important; }
+    .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
+    button { padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: bold; background-color: #70c1b3; border: none; border-radius: 6px; cursor: pointer; color: #000; transition: background-color 0.3s; }
+    button:hover { background-color: #59a499; }
+    #result, #summary { text-align: center; font-size: 1.3rem; margin-top: 1rem; }
+    #summary { font-weight: bold; }
+    #resetBtn { margin: 1rem auto; display: none; }
+    .check-btn[disabled], .nav-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Vietnamese Flowers Quiz</h1>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="nav-grid" id="navGrid"></div>
+  <div class="quiz-container" id="quizContainer"></div>
+  <div class="nav-buttons">
+    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button class="check-btn" onclick="checkAnswer(currentQuestion)" id="checkBtn">Check</button>
+    <button onclick="nextQuestion()" id="nextBtn" disabled>Next</button>
+    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
+  </div>
+  <p id="result"></p>
+  <p id="summary"></p>
+  <div style="text-align: center;">
+    <button onclick="resetQuiz()" id="resetBtn">🔁 Reattempt Quiz</button>
+  </div>
+  <script>
+    const originalQuestions = [
+      {
+        text: "What's that white flower over there that they're decorating around the temple? They're so pretty!",
+        answer: "Frangipani",
+        explanation: "Frangipani is widely used in ceremonies.",
+        hint: "Think about which flower is common in spiritual rituals."
+      },
+      {
+        text: "Lots of these papery-looking flowers in white and purple are seen in Hoi An. What are they?",
+        answer: "Bougainvillea",
+        explanation: "Bougainvillea is known for its symbolism and vibrancy in many cultures.",
+        hint: "Think about the vibrant colors and strength."
+      },
+      {
+        text: "They're flowers that most schools grow. There's a reason they're known as ______ flowers!",
+        answer: "Peacock",
+        explanation: "Peacock is especially tied to Vietnamese student life.",
+        hint: "Think about the environment they're mentioning."
+      },
+      {
+        text: "Look at the ______, it's blooming. Tet must be just around the corner.",
+        answer: "Yellow Apricot",
+        explanation: "Yellow Apricot is a major symbol of Tet in Southern Vietnam.",
+        hint: "Think about the time of year they're mentioning."
+      },
+      {
+        text: "What flower is used to color tea in Vietnam, making it look appetizing?",
+        answer: "Hibiscus",
+        explanation: "Hibiscus is often used along with tea in Vietnam.",
+        hint: "Think about the tea they're making."
+      },
+      {
+        text: "All these _____ are blooming on the water! It's so beautiful. You can even eat the stems.",
+        answer: "Water Lily",
+        explanation: "Water Lilies have large, flat leaves and cup-shaped petals floating on the surface.",
+        hint: "Think about the environment and what parts of the plant they're mentioning."
+      },
+      {
+        text: "Look at these beautiful _______, They look so beautiful in the pond. The lotus symbolizes so much in Vietnamese culture.",
+        answer: "Lotus",
+        explanation: "The lotus flower in Vietnamese culture symbolizes purity, resilience, spiritual enlightenment, and beauty.",
+        hint: "Think about the symbolic value mentioned."
+      },
+      {
+        text: "Those bright clusters of flowers over there are so beautiful. What are they?",
+        answer: "Ixora",
+        explanation: "Ixora are clusters of small, tubular flowers in shades like red, pink, orange, and yellow.",
+        hint: "Think about the shape of the flowers mentioned."
+      },
+      {
+        text: "This place really does feel like the heart of this village. I always see people gathering underneath it. With such a big ______ tree as gathering place, no wonder!",
+        answer: "Banyan",
+        explanation: "A banyan is a fruit tree with branches that produce roots that grow down into the ground to form extra trunks.",
+        hint: "Think about the context of the village and being the centre."
+      },
+      {
+        text: "This ______ Tree offers such great shade on a hot day like today. They're everywhere, a familiar sight across Vietnam.",
+        answer: "Tropical Almond",
+        explanation: "The tropical almond tree in Vietnam is a familiar and often overlooked part of the everyday landscape.",
+        hint: "Think about the context of its widespread growing."
+      }
+    ];
+
+    let shuffledQuestions = [];
+    let currentQuestion = 0;
+    const answers = {};
+    const validated = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function renderQuestions() {
+      quizContainer.innerHTML = "";
+      navGrid.innerHTML = "";
+      shuffledQuestions = shuffle([...originalQuestions]);
+      Object.keys(validated).forEach(k => delete validated[k]);
+      Object.keys(answers).forEach(k => delete answers[k]);
+      shuffledQuestions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+        card.innerHTML = `
+          <p>${q.text}</p>
+          <input type="text" id="q${i}" autocomplete="off" placeholder="Type your answer here">
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+        quizContainer.appendChild(card);
+
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.onclick = () => goToQuestion(i);
+        navBtn.id = `navBtn${i}`;
+        navGrid.appendChild(navBtn);
+      });
+      updateProgress();
+      highlightNav();
+      updateNavButtons();
+      updateCheckButton();
+    }
+
+    function normalize(str) {
+      return str.trim().toLowerCase();
+    }
+
+    function checkAnswer(index) {
+      const input = document.getElementById(`q${index}`);
+      const userInput = normalize(input.value);
+      const correctAnswer = normalize(shuffledQuestions[index].answer);
+      const feedback = document.getElementById(`feedback${index}`);
+
+      if (!userInput) {
+        feedback.innerHTML = "❌ Please type your answer.";
+        feedback.className = "feedback";
+        return;
+      }
+
+      answers[`q${index}`] = input.value;
+      if (userInput === correctAnswer) {
+        feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
+        feedback.className = "feedback correct";
+      } else {
+        feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
+        feedback.className = "feedback";
+      }
+      validated[index] = true;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      if (index === shuffledQuestions.length - 1) {
+        document.getElementById("submitBtn").style.display = "inline-block";
+      }
+      updateProgress();
+      updateNavButtons();
+    }
+
+    function updateCheckButton() {
+      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
+      const nextBtn = document.getElementById("nextBtn");
+      if (currentQuestion === shuffledQuestions.length - 1) {
+        nextBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "inline-block";
+        nextBtn.disabled = !validated[currentQuestion];
+      }
+      document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
+      updateCheckButton();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+      currentQuestion = index;
+      highlightNav();
+      updateNavButtons();
+    }
+
+    function goToQuestion(index) {
+      showQuestion(index);
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
+    }
+
+    function highlightNav() {
+      for (let i = 0; i < shuffledQuestions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function grade() {
+      let score = 0;
+      shuffledQuestions.forEach((q, i) => {
+        const userInput = normalize(answers[`q${i}`] || "");
+        const correctAnswer = normalize(q.answer);
+        const feedback = document.getElementById(`feedback${i}`);
+        if (userInput === correctAnswer) {
+          score++;
+          feedback.className = "feedback correct";
+        } else {
+          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
+        }
+      });
+      const percent = (score / shuffledQuestions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
+      document.getElementById("summary").textContent = percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+      document.getElementById("resetBtn").style.display = "inline-block";
+    }
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      for (let key in answers) delete answers[key];
+      for (let key in validated) delete validated[key];
+      document.getElementById("result").textContent = "";
+      document.getElementById("summary").textContent = "";
+      document.getElementById("resetBtn").style.display = "none";
+      renderQuestions();
+      showQuestion(currentQuestion);
+    }
+
+    renderQuestions();
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vietnamese Flowers Quiz</title>
+  <style>
+    body { background-color: #111; color: #f0f0f0; font-family: 'Arial Black', sans-serif; margin: 0; padding: 2rem; }
+    h1 { text-align: center; font-size: 3rem; color: #70c1b3; letter-spacing: 2px; }
+    .progress-container { width: 100%; max-width: 700px; height: 20px; background-color: #333; border-radius: 25px; overflow: hidden; margin: 1rem auto 1.5rem; }
+    .progress-bar { height: 100%; width: 0%; background-color: #70c1b3; transition: width 0.3s ease-in-out; }
+    .nav-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; max-width: 700px; margin: 0 auto 1.5rem; }
+    .nav-grid button { width: 40px; height: 40px; border-radius: 50%; font-weight: bold; border: none; cursor: pointer; background-color: #444; color: #fff; transition: background-color 0.3s; }
+    .nav-grid button.active { background-color: #70c1b3; color: #000; }
+    .nav-grid button.answered:not(.active) { background-color: #2b996e; }
+    .quiz-container { max-width: 700px; margin: 1rem auto; }
+    .question-card { background: #1c1c1c; padding: 1.5rem; border: 2px solid #444; border-radius: 8px; display: none; }
+    .question-card.active { display: block; }
+    .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
+    .question-card input[type="text"] { width: 100%; padding: 0.7rem; font-size: 1.1rem; border-radius: 5px; border: 1px solid #555; margin-bottom: 0.5rem; background: #222; color: #fff; }
+    .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
+    .correct { color: #8ef08e !important; }
+    .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
+    button { padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: bold; background-color: #70c1b3; border: none; border-radius: 6px; cursor: pointer; color: #000; transition: background-color 0.3s; }
+    button:hover { background-color: #59a499; }
+    #result, #summary { text-align: center; font-size: 1.3rem; margin-top: 1rem; }
+    #summary { font-weight: bold; }
+    #resetBtn { margin: 1rem auto; display: none; }
+    .check-btn[disabled], .nav-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Vietnamese Flowers Quiz</h1>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="nav-grid" id="navGrid"></div>
+  <div class="quiz-container" id="quizContainer"></div>
+  <div class="nav-buttons">
+    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button class="check-btn" onclick="checkAnswer(currentQuestion)" id="checkBtn">Check</button>
+    <button onclick="nextQuestion()" id="nextBtn" disabled>Next</button>
+    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
+  </div>
+  <p id="result"></p>
+  <p id="summary"></p>
+  <div style="text-align: center;">
+    <button onclick="resetQuiz()" id="resetBtn">🔁 Reattempt Quiz</button>
+  </div>
+  <script>
+    const originalQuestions = [
+      {
+        text: "What's that white flower over there that they're decorating around the temple? They're so pretty!",
+        answer: "Frangipani",
+        explanation: "Frangipani is widely used in ceremonies.",
+        hint: "Think about which flower is common in spiritual rituals."
+      },
+      {
+        text: "Lots of these papery-looking flowers in white and purple are seen in Hoi An. What are they?",
+        answer: "Bougainvillea",
+        explanation: "Bougainvillea is known for its symbolism and vibrancy in many cultures.",
+        hint: "Think about the vibrant colors and strength."
+      },
+      {
+        text: "They're flowers that most schools grow. There's a reason they're known as ______ flowers!",
+        answer: "Peacock",
+        explanation: "Peacock is especially tied to Vietnamese student life.",
+        hint: "Think about the environment they're mentioning."
+      },
+      {
+        text: "Look at the ______, it's blooming. Tet must be just around the corner.",
+        answer: "Yellow Apricot",
+        explanation: "Yellow Apricot is a major symbol of Tet in Southern Vietnam.",
+        hint: "Think about the time of year they're mentioning."
+      },
+      {
+        text: "What flower is used to color tea in Vietnam, making it look appetizing?",
+        answer: "Hibiscus",
+        explanation: "Hibiscus is often used along with tea in Vietnam.",
+        hint: "Think about the tea they're making."
+      },
+      {
+        text: "All these _____ are blooming on the water! It's so beautiful. You can even eat the stems.",
+        answer: "Water Lily",
+        explanation: "Water Lilies have large, flat leaves and cup-shaped petals floating on the surface.",
+        hint: "Think about the environment and what parts of the plant they're mentioning."
+      },
+      {
+        text: "Look at these beautiful _______, They look so beautiful in the pond. The lotus symbolizes so much in Vietnamese culture.",
+        answer: "Lotus",
+        explanation: "The lotus flower in Vietnamese culture symbolizes purity, resilience, spiritual enlightenment, and beauty.",
+        hint: "Think about the symbolic value mentioned."
+      },
+      {
+        text: "Those bright clusters of flowers over there are so beautiful. What are they?",
+        answer: "Ixora",
+        explanation: "Ixora are clusters of small, tubular flowers in shades like red, pink, orange, and yellow.",
+        hint: "Think about the shape of the flowers mentioned."
+      },
+      {
+        text: "This place really does feel like the heart of this village. I always see people gathering underneath it. With such a big ______ tree as gathering place, no wonder!",
+        answer: "Banyan",
+        explanation: "A banyan is a fruit tree with branches that produce roots that grow down into the ground to form extra trunks.",
+        hint: "Think about the context of the village and being the centre."
+      },
+      {
+        text: "This ______ Tree offers such great shade on a hot day like today. They're everywhere, a familiar sight across Vietnam.",
+        answer: "Tropical Almond",
+        explanation: "The tropical almond tree in Vietnam is a familiar and often overlooked part of the everyday landscape.",
+        hint: "Think about the context of its widespread growing."
+      }
+    ];
+
+    let shuffledQuestions = [];
+    let currentQuestion = 0;
+    const answers = {};
+    const validated = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function renderQuestions() {
+      quizContainer.innerHTML = "";
+      navGrid.innerHTML = "";
+      shuffledQuestions = shuffle([...originalQuestions]);
+      Object.keys(validated).forEach(k => delete validated[k]);
+      Object.keys(answers).forEach(k => delete answers[k]);
+      shuffledQuestions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+        card.innerHTML = `
+          <p>${q.text}</p>
+          <input type="text" id="q${i}" autocomplete="off" placeholder="Type your answer here">
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+        quizContainer.appendChild(card);
+
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.onclick = () => goToQuestion(i);
+        navBtn.id = `navBtn${i}`;
+        navGrid.appendChild(navBtn);
+      });
+      updateProgress();
+      highlightNav();
+      updateNavButtons();
+      updateCheckButton();
+    }
+
+    function normalize(str) {
+      return str.trim().toLowerCase();
+    }
+
+    function checkAnswer(index) {
+      const input = document.getElementById(`q${index}`);
+      const userInput = normalize(input.value);
+      const correctAnswer = normalize(shuffledQuestions[index].answer);
+      const feedback = document.getElementById(`feedback${index}`);
+
+      if (!userInput) {
+        feedback.innerHTML = "❌ Please type your answer.";
+        feedback.className = "feedback";
+        return;
+      }
+
+      answers[`q${index}`] = input.value;
+      if (userInput === correctAnswer) {
+        feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
+        feedback.className = "feedback correct";
+      } else {
+        feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
+        feedback.className = "feedback";
+      }
+      validated[index] = true;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      if (index === shuffledQuestions.length - 1) {
+        document.getElementById("submitBtn").style.display = "inline-block";
+      }
+      updateProgress();
+      updateNavButtons();
+    }
+
+    function updateCheckButton() {
+      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
+      const nextBtn = document.getElementById("nextBtn");
+      if (currentQuestion === shuffledQuestions.length - 1) {
+        nextBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "inline-block";
+        nextBtn.disabled = !validated[currentQuestion];
+      }
+      document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
+      updateCheckButton();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+      currentQuestion = index;
+      highlightNav();
+      updateNavButtons();
+    }
+
+    function goToQuestion(index) {
+      showQuestion(index);
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
+    }
+
+    function highlightNav() {
+      for (let i = 0; i < shuffledQuestions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function grade() {
+      let score = 0;
+      shuffledQuestions.forEach((q, i) => {
+        const userInput = normalize(answers[`q${i}`] || "");
+        const correctAnswer = normalize(q.answer);
+        const feedback = document.getElementById(`feedback${i}`);https://github.com/throwingstones123/word-quiz/blob/main/flowers.html
+        if (userInput === correctAnswer) {
+          score++;
+          feedback.className = "feedback correct";
+        } else {
+          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
         }
       });
       const percent = (score / shuffledQuestions.length) * 100;
