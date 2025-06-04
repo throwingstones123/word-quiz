@@ -1,3 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vietnamese Cuisine Quiz</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #f0f0f0;
+      font-family: 'Arial Black', Arial, sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      color: #7ad1d4;
+      letter-spacing: 2px;
+    }
+    .progress-container {
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 1.5rem;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #7ad1d4;
+      transition: width 0.3s ease-in-out;
+    }
+    .nav-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      max-width: 700px;
+      margin: 0 auto 1.5rem;
+    }
+    .nav-grid button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background-color: #444;
+      color: #fff;
+      transition: background-color 0.3s;
+    }
+    .nav-grid button.active {
+      background-color: #7ad1d4;
+      color: #000;
+    }
+    .nav-grid button.answered:not(.active) {
+      background-color: #2b996e;
+    }
+    .quiz-container {
+      max-width: 700px;
+      margin: 1rem auto;
+    }
+    .question-card {
+      background: #1c1c1c;
+      padding: 1.5rem;
+      border: 2px solid #444;
+      border-radius: 8px;
+      display: none;
+    }
+    .question-card.active {
+      display: block;
+    }
+    .question-card p {
+      font-size: 1.15rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .question-card input[type="text"] {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1.1rem;
+      border-radius: 5px;
+      border: 1px solid #555;
+      margin-bottom: 0.5rem;
+      background: #222;
+      color: #fff;
+    }
+    .feedback {
+      margin-top: 1rem;
+      color: #ff8888;
+      font-size: 0.95rem;
+    }
+    .correct {
+      color: #8ef08e !important;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      max-width: 700px;
+      margin: 2rem auto 1rem;
+      align-items: center;
+    }
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background-color: #7ad1d4;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #000;
+      transition: background-color 0.25s;
+    }
+    button:hover {
+      background-color: #59a499;
+    }
+    #result, #summary {
+      text-align: center;
+      font-size: 1.3rem;
+      margin-top: 1rem;
+    }
+    #summary {
+      font-weight: bold;
+    }
+    #resetBtn {
+      margin: 1rem auto;
+      display: none;
+    }
+    .check-btn[disabled], .nav-btn[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
 <body>
   <h1>Vietnamese Cuisine Quiz</h1>
   <div class="progress-container">
@@ -14,23 +151,70 @@
   <p id="result"></p>
   <p id="summary"></p>
   <div style="text-align: center;">
-    <button onclick="resetQuiz()" id="resetBtn" style="display: none;">🔁 Reattempt Quiz</button>
+    <button onclick="resetQuiz()" id="resetBtn">🔁 Reattempt Quiz</button>
   </div>
   <script>
     const originalQuestions = [
       {
-        text: "I'm down for something protein tonight! What should we be having? (Hint: Vietnamese grilled beef in lolot leaves)",
+        text: `Alex: I'm down for something protein tonight! What should we be having?\nJamie: Protein, huh? Well, we can order some ______ for your enjoyment. (Hint: Vietnamese grilled beef in lolot leaves)`,
         answer: "Lolot Beef",
         explanation: "Lolot Beef (Bò lá lốt) is a traditional Vietnamese dish of grilled beef wrapped in lolot leaves.",
         hint: "It's a grilled beef dish wrapped in leaves."
       },
       {
-        text: "What rice-based dish comes with eggs and smoked pork, common in the south? (Hint: Popular street breakfast)",
+        text: `Kyle: We'll take it with eggs and smoked pork, please.\nDan: They do smoked pork here too? First I've heard of that.\nKyle: It's been there for a long time, you have to ask for it! It's ______. (Hint: Popular rice-based street breakfast with broken rice grains)`,
         answer: "Broken Rice",
         explanation: "Broken Rice (Cơm tấm) is a Vietnamese dish made from fractured rice grains, usually served with grilled meats, eggs, and smoked pork.",
         hint: "Rice grains are not whole; popular in Saigon."
       },
-      // ... Add more question objects in this format (text, answer, explanation, hint)
+      {
+        text: `Mai: We should definitely get something soft, light, and cute-looking.\nLinh: Like something topped with shrimp and scallions? Maybe some ______ — it's the kind you eat with a spoon. (Hint: Small steamed cakes from rice flour, topped with dried shrimp and scallions)`,
+        answer: "Water Fern Cake",
+        explanation: "Water Fern Cake (Bánh bèo) is a popular Vietnamese steamed rice cake, soft and cute, usually eaten with a spoon.",
+        hint: "Another name: Bánh bèo."
+      },
+      {
+        text: `Lan: We can end the meal with something sweet.\nThu: I know! Let’s get the one that’s made from mung bean paste and sticky rice — that green one, remember?\nLan: Oh yes, it’s ______ – I love how chewy it is! (Hint: Chewy, green, made with sticky rice and mung bean)`,
+        answer: "Green Sticky Rice Cake",
+        explanation: "Green Sticky Rice Cake (Bánh cốm) is a chewy Vietnamese dessert made from young sticky rice and mung bean.",
+        hint: "Another name: Bánh cốm."
+      },
+      {
+        text: `Nam: I want something crunchy and savory. Got any ideas?\nTam: Totally! Let’s get the one that crackles in the pan — it’s got shrimp, pork, and mung beans!\nNam: Ah yeah, nothing beats a good ______ to satisfy the crunch cravings. (Hint: Large, crispy, crepe-like pancake with fillings)`,
+        answer: "Sizzling Cake",
+        explanation: "Sizzling Cake (Bánh xèo) is a crispy Vietnamese pancake filled with shrimp, pork, and bean sprouts.",
+        hint: "Another name: Bánh xèo."
+      },
+      {
+        text: `Phuc: Let's try something tangy and fermented. It’s got that chewy texture and comes wrapped in banana leaves.\nYen: You’re talking about ______, right? It's kinda addictive. (Hint: Fermented pork roll wrapped in leaves)`,
+        answer: "Fermented Pork Roll",
+        explanation: "Fermented Pork Roll (Nem chua) is a tangy and chewy Vietnamese snack wrapped in banana leaves.",
+        hint: "Another name: Nem chua."
+      },
+      {
+        text: `Minh: What about something savory and soft you can eat with a spoon?\nTram: Oh yes, that pyramid-shaped snack with minced pork inside!\nMinh: Ah, you mean ______. I could eat five of those! (Hint: Savory dumpling, pyramid-shaped, with pork inside)`,
+        answer: "Pyramidal Dumpling",
+        explanation: "Pyramidal Dumpling (Bánh giò) is a soft, savory dumpling shaped like a pyramid, filled with pork.",
+        hint: "Another name: Bánh giò."
+      },
+      {
+        text: `Quang: Wanna go mini with your bites today?\nHoa: I love the crispy bottom and coconut milk drizzle on ______ — so cute and tasty! (Hint: Mini savory pancakes, crispy, with coconut milk)`,
+        answer: "Mini Pancake",
+        explanation: "Mini Pancake (Bánh khọt) is a Vietnamese mini pancake, crispy with a coconut milk drizzle.",
+        hint: "Another name: Bánh khọt."
+      },
+      {
+        text: `Tuan: I need something grilled with rice noodles. Fresh herbs too.\nHanh: That’s gotta be ______. And don't skip the dipping sauce! (Hint: Grilled pork, rice noodles, and fresh herbs bowl)`,
+        answer: "Kebab Rice Noodles",
+        explanation: "Kebab Rice Noodles (Bún chả) is a dish of grilled pork served with rice noodles and fresh herbs.",
+        hint: "Another name: Bún chả."
+      },
+      {
+        text: `My: I need something iconic, you know? Golden, crepe-like, and bursting with veggies and meat.\nHieu: You're describing ______ to a T! (Hint: Vietnamese crispy stuffed pancake)`,
+        answer: "Sizzling Cake",
+        explanation: "Sizzling Cake (Bánh xèo) is a crispy Vietnamese crepe-like pancake filled with pork, shrimp, and veggies.",
+        hint: "Another name: Bánh xèo."
+      }
     ];
 
     let shuffledQuestions = [];
@@ -60,7 +244,7 @@
         card.id = `card${i}`;
         if (i === 0) card.classList.add("active");
         card.innerHTML = `
-          <p>${q.text}</p>
+          <p>${q.text.replace(/\n/g, "<br>")}</p>
           <input type="text" id="q${i}" autocomplete="off" placeholder="Type your answer here">
           <div class="feedback" id="feedback${i}"></div>
         `;
@@ -79,7 +263,7 @@
     }
 
     function normalize(str) {
-      return str.trim().toLowerCase();
+      return str.trim().toLowerCase().replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ");
     }
 
     function checkAnswer(index) {
@@ -198,3 +382,4 @@
     showQuestion(currentQuestion);
   </script>
 </body>
+</html>
