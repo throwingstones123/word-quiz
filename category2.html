@@ -46,784 +46,241 @@
   <div style="text-align: center;">
     <button onclick="resetQuiz()" id="resetBtn">🔁 Reattempt Quiz</button>
   </div>
-  <script>
-    const originalQuestions = [
-      {
-        text: "The beginning of the year according to the calendars of China, Vietnam, Korea, and some other East Asian countries",
-        options: ["Lunar New Year", "Golden Week", "Spring Festival"],
-        answer: "Lunar New Year",
-        explanation: "Lunar New Year marks the start of a new year on the lunar calendar and is celebrated in many East Asian countries.",
-        hint: "Think of the biggest holiday in East Asia, usually in January or February."
-      },
-      {
-        text: "An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha",
-        options: ["Vesak", "Christmas", "Easter"],
-        answer: "Vesak",
-        explanation: "Vesak, also known as Buddha Day, is the most significant Buddhist festival.",
-        hint: "This festival celebrates three major events in Buddha's life."
-      },
-      {
-        text: "An important celebration in Vietnamese culture that honors the nation’s ancient founders.",
-        options: ["Hung Kings’ Commemoration Day", "Tet Vu Lan", "Easter"],
-        answer: "Hung Kings’ Commemoration Day",
-        explanation: "This holiday pays respect to the legendary founders of Vietnam.",
-        hint: "It's about honoring the 'Hung Kings'."
-      },
-      {
-        text: "A traditional Buddhist festival celebrated primarily in Vietnam and parts of East Asia to show honor and gratitude to parents",
-        options: ["Vu Lan Festival", "Christmas Eve", "Parents' Day"],
-        answer: "Vu Lan Festival",
-        explanation: "Vu Lan Festival is dedicated to filial piety and honoring one’s parents.",
-        hint: "It's also called the Ghost Festival in some places."
-      },
-      {
-        text: "A national celebration in Vietnam held annually on November 20th, dedicated to honoring educators and recognizing their contributions",
-        options: ["Vietnamese Teachers’ Day", "Tet", "Parents' Day"],
-        answer: "Vietnamese Teachers’ Day",
-        explanation: "Vietnamese Teachers’ Day recognizes the hard work and dedication of educators.",
-        hint: "It is a day to give flowers and thanks to teachers."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on September 2nd to commemorate the day President Hồ Chí Minh declared independence",
-        options: ["Vietnamese National Day", "Unification Day", "Hung Kings' Anniversary"],
-        answer: "Vietnamese National Day",
-        explanation: "Vietnamese National Day marks the country's official declaration of independence.",
-        hint: "It's Vietnam's equivalent of the 4th of July."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on April 30th each year to commemorate the end of the Anti-American War of Resistance",
-        options: ["Reunification Day", "Tet", "Trung Thu Festival"],
-        answer: "Reunification Day",
-        explanation: "Reunification Day marks the fall of Saigon and the end of the Vietnam War.",
-        hint: "It celebrates the North and South becoming one country again."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on October 20th each year to honour the contributions of the fairer sex.",
-        options: ["Women’s Day", "Teachers' Day", "Vesak"],
-        answer: "Women’s Day",
-        explanation: "Vietnamese Women’s Day celebrates women and their achievements.",
-        hint: "It's a day for women, not teachers or monks."
-      }
-    ];
+<script>
+const originalQuestions = [
+  {
+    text: "The beginning of the year according to the calendars of China, Vietnam, Korea, and some other East Asian countries",
+    options: ["Lunar New Year", "Golden Week", "Spring Festival"],
+    answer: "Lunar New Year",
+    explanation: "Lunar New Year marks the start of a new year on the lunar calendar and is celebrated in many East Asian countries.",
+    hint: "Think of the biggest holiday in East Asia, usually in January or February."
+  },
+  {
+    text: "An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha",
+    options: ["Vesak", "Christmas", "Easter"],
+    answer: "Vesak",
+    explanation: "Vesak, also known as Buddha Day, is the most significant Buddhist festival.",
+    hint: "This festival celebrates three major events in Buddha's life."
+  },
+  {
+    text: "An important celebration in Vietnamese culture that honors the nation’s ancient founders.",
+    options: ["Hung Kings’ Commemoration Day", "Tet Vu Lan", "Easter"],
+    answer: "Hung Kings’ Commemoration Day",
+    explanation: "This holiday pays respect to the legendary founders of Vietnam.",
+    hint: "It's about honoring the 'Hung Kings'."
+  },
+  {
+    text: "A traditional Buddhist festival celebrated primarily in Vietnam and parts of East Asia to show honor and gratitude to parents",
+    options: ["Vu Lan Festival", "Christmas Eve", "Parents' Day"],
+    answer: "Vu Lan Festival",
+    explanation: "Vu Lan Festival is dedicated to filial piety and honoring one’s parents.",
+    hint: "It's also called the Ghost Festival in some places."
+  },
+  {
+    text: "A national celebration in Vietnam held annually on November 20th, dedicated to honoring educators and recognizing their contributions",
+    options: ["Vietnamese Teachers’ Day", "Tet", "Parents' Day"],
+    answer: "Vietnamese Teachers’ Day",
+    explanation: "Vietnamese Teachers’ Day recognizes the hard work and dedication of educators.",
+    hint: "It is a day to give flowers and thanks to teachers."
+  },
+  {
+    text: "A national holiday in Vietnam celebrated on September 2nd to commemorate the day President Hồ Chí Minh declared independence",
+    options: ["Vietnamese National Day", "Unification Day", "Hung Kings' Anniversary"],
+    answer: "Vietnamese National Day",
+    explanation: "Vietnamese National Day marks the country's official declaration of independence.",
+    hint: "It's Vietnam's equivalent of the 4th of July."
+  },
+  {
+    text: "A national holiday in Vietnam celebrated on April 30th each year to commemorate the end of the Anti-American War of Resistance",
+    options: ["Reunification Day", "Tet", "Trung Thu Festival"],
+    answer: "Reunification Day",
+    explanation: "Reunification Day marks the fall of Saigon and the end of the Vietnam War.",
+    hint: "It celebrates the North and South becoming one country again."
+  },
+  {
+    text: "A national holiday in Vietnam celebrated on October 20th each year to honour the contributions of the fairer sex.",
+    options: ["Women’s Day", "Teachers' Day", "Vesak"],
+    answer: "Women’s Day",
+    explanation: "Vietnamese Women’s Day celebrates women and their achievements.",
+    hint: "It's a day for women, not teachers or monks."
+  }
+];
 
-    let shuffledQuestions = [];
-    let currentQuestion = 0;
-    const answers = {};
-    const validated = {};
-    const quizContainer = document.getElementById("quizContainer");
-    const navGrid = document.getElementById("navGrid");
+let shuffledQuestions = [];
+let currentQuestion = 0;
+const answers = {};
+const validated = {};
+const quizContainer = document.getElementById("quizContainer");
+const navGrid = document.getElementById("navGrid");
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function renderQuestions() {
+  quizContainer.innerHTML = "";
+  navGrid.innerHTML = "";
+  shuffledQuestions.forEach((q, i) => {
+    // Card
+    const card = document.createElement("div");
+    card.className = "question-card";
+    card.id = `card${i}`;
+    if (i === 0) card.classList.add("active");
+
+    card.innerHTML = `
+      <p>${q.text}</p>
+      ${q.options.map(opt => `
+        <label>
+          <input type="radio" name="q${i}" value="${opt}" ${answers[`q${i}`] === opt ? 'checked' : ''}>
+          ${opt}
+        </label>
+      `).join("")}
+      <div class="feedback" id="feedback${i}">${validated[i] ? getFeedbackHTML(i) : ""}</div>
+    `;
+    quizContainer.appendChild(card);
+
+    // Nav Button
+    const navBtn = document.createElement("button");
+    navBtn.textContent = i + 1;
+    navBtn.onclick = () => goToQuestion(i);
+    navBtn.id = `navBtn${i}`;
+    if (validated[i]) navBtn.classList.add("answered");
+    navGrid.appendChild(navBtn);
+  });
+}
+
+function getFeedbackHTML(index) {
+  const selected = answers[`q${index}`];
+  if (!selected) return "";
+  if (selected === shuffledQuestions[index].answer) {
+    return `✅ Correct! ${shuffledQuestions[index].explanation}`;
+  } else {
+    return `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
+  }
+}
+
+function checkAnswer(index) {
+  const radios = document.getElementsByName(`q${index}`);
+  let selected = null;
+  for (const radio of radios) {
+    if (radio.checked) selected = radio.value;
+  }
+  const feedback = document.getElementById(`feedback${index}`);
+  if (!selected) {
+    feedback.innerHTML = "❌ Please select an answer.";
+    feedback.className = "feedback";
+    return;
+  }
+  answers[`q${index}`] = selected;
+  if (selected === shuffledQuestions[index].answer) {
+    feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
+    feedback.className = "feedback correct";
+  } else {
+    feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
+    feedback.className = "feedback";
+  }
+  validated[index] = true;
+  document.getElementById(`navBtn${index}`).classList.add("answered");
+  if (index === shuffledQuestions.length - 1) {
+    document.getElementById("submitBtn").style.display = "inline-block";
+  }
+  updateProgress();
+  updateNavButtons();
+}
+
+function updateCheckButton() {
+  document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
+}
+
+function updateNavButtons() {
+  document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
+  const nextBtn = document.getElementById("nextBtn");
+  if (currentQuestion === shuffledQuestions.length - 1) {
+    nextBtn.style.display = "none";
+  } else {
+    nextBtn.style.display = "inline-block";
+    nextBtn.disabled = !validated[currentQuestion];
+  }
+  document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
+  updateCheckButton();
+}
+
+function showQuestion(index) {
+  document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+  document.getElementById(`card${index}`).classList.add("active");
+  currentQuestion = index;
+  highlightNav();
+  updateNavButtons();
+}
+
+function goToQuestion(index) {
+  showQuestion(index);
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+}
+
+function nextQuestion() {
+  if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
+}
+
+function highlightNav() {
+  for (let i = 0; i < shuffledQuestions.length; i++) {
+    document.getElementById(`navBtn${i}`).classList.remove("active");
+  }
+  document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+}
+
+function updateProgress() {
+  const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
+  document.getElementById("progressBar").style.width = percent + "%";
+}
+
+function grade() {
+  let score = 0;
+  shuffledQuestions.forEach((q, i) => {
+    const userAnswer = answers[`q${i}`];
+    const feedback = document.getElementById(`feedback${i}`);
+    if (userAnswer !== q.answer) {
+      feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
+      feedback.className = "feedback";
+    } else {
+      score++;
+      feedback.className = "feedback correct";
     }
+  });
+  const percent = (score / shuffledQuestions.length) * 100;
+  document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
+  document.getElementById("summary").textContent = percent >= 50
+    ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+    : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+  document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+  document.getElementById("resetBtn").style.display = "inline-block";
+}
 
-    function renderQuestions() {
-      quizContainer.innerHTML = "";
-      navGrid.innerHTML = "";
-      shuffledQuestions = shuffle([...originalQuestions]);
-      Object.keys(validated).forEach(k => delete validated[k]);
-      Object.keys(answers).forEach(k => delete answers[k]);
-      shuffledQuestions.forEach((q, i) => {
-        // Card
-        const card = document.createElement("div");
-        card.className = "question-card";
-        card.id = `card${i}`;
-        if (i === 0) card.classList.add("active");
+function resetQuiz() {
+  currentQuestion = 0;
+  for (let key in answers) delete answers[key];
+  for (let key in validated) delete validated[key];
+  document.getElementById("result").textContent = "";
+  document.getElementById("summary").textContent = "";
+  document.getElementById("resetBtn").style.display = "none";
+  shuffledQuestions = shuffle([...originalQuestions]);
+  renderQuestions();
+  showQuestion(currentQuestion);
+  updateProgress();
+}
 
-        card.innerHTML = `
-          <p>${q.text}</p>
-          ${q.options.map(opt => `
-            <label>
-              <input type="radio" name="q${i}" value="${opt}">
-              ${opt}
-            </label>
-          `).join("")}
-          <div class="feedback" id="feedback${i}"></div>
-        `;
-        quizContainer.appendChild(card);
-
-        // Nav Button
-        const navBtn = document.createElement("button");
-        navBtn.textContent = i + 1;
-        navBtn.onclick = () => goToQuestion(i);
-        navBtn.id = `navBtn${i}`;
-        navGrid.appendChild(navBtn);
-      });
-      updateProgress();
-      highlightNav();
-      updateNavButtons();
-      updateCheckButton();
-    }
-
-    function checkAnswer(index) {
-      const radios = document.getElementsByName(`q${index}`);
-      let selected = null;
-      for (const radio of radios) {
-        if (radio.checked) selected = radio.value;
-      }
-      const feedback = document.getElementById(`feedback${index}`);
-      if (!selected) {
-        feedback.innerHTML = "❌ Please select an answer.";
-        feedback.className = "feedback";
-        return;
-      }
-      answers[`q${index}`] = selected;
-      if (selected === shuffledQuestions[index].answer) {
-        feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
-        feedback.className = "feedback correct";
-      } else {
-        feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
-        feedback.className = "feedback";
-      }
-      validated[index] = true;
-      document.getElementById(`navBtn${index}`).classList.add("answered");
-      if (index === shuffledQuestions.length - 1) {
-        document.getElementById("submitBtn").style.display = "inline-block";
-      }
-      updateProgress();
-      updateNavButtons();
-    }
-
-    function updateCheckButton() {
-      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
-    }
-
-    function updateNavButtons() {
-      document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
-      const nextBtn = document.getElementById("nextBtn");
-      if (currentQuestion === shuffledQuestions.length - 1) {
-        nextBtn.style.display = "none";
-      } else {
-        nextBtn.style.display = "inline-block";
-        nextBtn.disabled = !validated[currentQuestion];
-      }
-      document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
-      updateCheckButton();
-    }
-
-    function showQuestion(index) {
-      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
-      document.getElementById(`card${index}`).classList.add("active");
-      currentQuestion = index;
-      highlightNav();
-      updateNavButtons();
-    }
-
-    function goToQuestion(index) {
-      showQuestion(index);
-    }
-
-    function prevQuestion() {
-      if (currentQuestion > 0) showQuestion(currentQuestion - 1);
-    }
-
-    function nextQuestion() {
-      if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
-    }
-
-    function highlightNav() {
-      for (let i = 0; i < shuffledQuestions.length; i++) {
-        document.getElementById(`navBtn${i}`).classList.remove("active");
-      }
-      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
-    }
-
-    function updateProgress() {
-      const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
-      document.getElementById("progressBar").style.width = percent + "%";
-    }
-
-    function grade() {
-      let score = 0;
-      shuffledQuestions.forEach((q, i) => {
-        const userAnswer = answers[`q${i}`];
-        const feedback = document.getElementById(`feedback${i}`);
-        if (userAnswer !== q.answer) {
-          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
-          feedback.className = "feedback";
-        } else {
-          score++;
-          feedback.className = "feedback correct";
-        }
-      });
-      const percent = (score / shuffledQuestions.length) * 100;
-      document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
-      document.getElementById("summary").textContent = percent >= 50
-        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
-        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
-      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
-      document.getElementById("resetBtn").style.display = "inline-block";
-    }
-
-    function resetQuiz() {
-      currentQuestion = 0;
-      for (let key in answers) delete answers[key];
-      for (let key in validated) delete validated[key];
-      document.getElementById("result").textContent = "";
-      document.getElementById("summary").textContent = "";
-      document.getElementById("resetBtn").style.display = "none";
-      renderQuestions();
-      showQuestion(currentQuestion);
-    }
-
-    renderQuestions();
-    showQuestion(currentQuestion);
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Word Quiz</title>
-  <style>
-    body { background-color: #111; color: #f0f0f0; font-family: 'Arial Black', sans-serif; margin: 0; padding: 2rem; }
-    h1 { text-align: center; font-size: 3rem; color: #70c1b3; letter-spacing: 2px; }
-    .progress-container { width: 100%; max-width: 700px; height: 20px; background-color: #333; border-radius: 25px; overflow: hidden; margin: 1rem auto 1.5rem; }
-    .progress-bar { height: 100%; width: 0%; background-color: #70c1b3; transition: width 0.3s ease-in-out; }
-    .nav-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; max-width: 700px; margin: 0 auto 1.5rem; }
-    .nav-grid button { width: 40px; height: 40px; border-radius: 50%; font-weight: bold; border: none; cursor: pointer; background-color: #444; color: #fff; transition: background-color 0.3s; }
-    .nav-grid button.active { background-color: #70c1b3; color: #000; }
-    .nav-grid button.answered:not(.active) { background-color: #2b996e; }
-    .quiz-container { max-width: 700px; margin: 1rem auto; }
-    .question-card { background: #1c1c1c; padding: 1.5rem; border: 2px solid #444; border-radius: 8px; display: none; }
-    .question-card.active { display: block; }
-    .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
-    .question-card label { display: block; margin: 0.5rem 0; font-size: 1rem; font-weight: normal; cursor: pointer; }
-    .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
-    .correct { color: #8ef08e !important; }
-    .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
-    button { padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: bold; background-color: #70c1b3; border: none; border-radius: 6px; cursor: pointer; color: #000; transition: background-color 0.3s; }
-    button:hover { background-color: #59a499; }
-    #result, #summary { text-align: center; font-size: 1.3rem; margin-top: 1rem; }
-    #summary { font-weight: bold; }
-    #resetBtn { margin: 1rem auto; display: none; }
-    .check-btn[disabled], .nav-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
-  </style>
-</head>
-<body>
-  <h1>Quiz Pack 1</h1>
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
-  <div class="nav-grid" id="navGrid"></div>
-  <div class="quiz-container" id="quizContainer"></div>
-  <div class="nav-buttons">
-    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
-    <button class="check-btn" onclick="checkAnswer(currentQuestion)" id="checkBtn">Check</button>
-    <button onclick="nextQuestion()" id="nextBtn" disabled>Next</button>
-    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
-  </div>
-  <p id="result"></p>
-  <p id="summary"></p>
-  <div style="text-align: center;">
-    <button onclick="resetQuiz()" id="resetBtn">🔁 Reattempt Quiz</button>
-  </div>
-  <script>
-    const originalQuestions = [
-      {
-        text: "The beginning of the year according to the calendars of China, Vietnam, Korea, and some other East Asian countries",
-        options: ["Lunar New Year", "Golden Week", "Spring Festival"],
-        answer: "Lunar New Year",
-        explanation: "Lunar New Year marks the start of a new year on the lunar calendar and is celebrated in many East Asian countries.",
-        hint: "Think of the biggest holiday in East Asia, usually in January or February."
-      },
-      {
-        text: "An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha",
-        options: ["Vesak", "Christmas", "Easter"],
-        answer: "Vesak",
-        explanation: "Vesak, also known as Buddha Day, is the most significant Buddhist festival.",
-        hint: "This festival celebrates three major events in Buddha's life."
-      },
-      {
-        text: "An important celebration in Vietnamese culture that honors the nation’s ancient founders.",
-        options: ["Hung Kings’ Commemoration Day", "Tet Vu Lan", "Easter"],
-        answer: "Hung Kings’ Commemoration Day",
-        explanation: "This holiday pays respect to the legendary founders of Vietnam.",
-        hint: "It's about honoring the 'Hung Kings'."
-      },
-      {
-        text: "A traditional Buddhist festival celebrated primarily in Vietnam and parts of East Asia to show honor and gratitude to parents",
-        options: ["Vu Lan Festival", "Christmas Eve", "Parents' Day"],
-        answer: "Vu Lan Festival",
-        explanation: "Vu Lan Festival is dedicated to filial piety and honoring one’s parents.",
-        hint: "It's also called the Ghost Festival in some places."
-      },
-      {
-        text: "A national celebration in Vietnam held annually on November 20th, dedicated to honoring educators and recognizing their contributions",
-        options: ["Vietnamese Teachers’ Day", "Tet", "Parents' Day"],
-        answer: "Vietnamese Teachers’ Day",
-        explanation: "Vietnamese Teachers’ Day recognizes the hard work and dedication of educators.",
-        hint: "It is a day to give flowers and thanks to teachers."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on September 2nd to commemorate the day President Hồ Chí Minh declared independence",
-        options: ["Vietnamese National Day", "Unification Day", "Hung Kings' Anniversary"],
-        answer: "Vietnamese National Day",
-        explanation: "Vietnamese National Day marks the country's official declaration of independence.",
-        hint: "It's Vietnam's equivalent of the 4th of July."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on April 30th each year to commemorate the end of the Anti-American War of Resistance",
-        options: ["Reunification Day", "Tet", "Trung Thu Festival"],
-        answer: "Reunification Day",
-        explanation: "Reunification Day marks the fall of Saigon and the end of the Vietnam War.",
-        hint: "It celebrates the North and South becoming one country again."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on October 20th each year to honour the contributions of the fairer sex.",
-        options: ["Women’s Day", "Teachers' Day", "Vesak"],
-        answer: "Women’s Day",
-        explanation: "Vietnamese Women’s Day celebrates women and their achievements.",
-        hint: "It's a day for women, not teachers or monks."
-      }
-    ];
-
-    let shuffledQuestions = [];
-    let currentQuestion = 0;
-    const answers = {};
-    const validated = {};
-    const quizContainer = document.getElementById("quizContainer");
-    const navGrid = document.getElementById("navGrid");
-
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    function renderQuestions() {
-      quizContainer.innerHTML = "";
-      navGrid.innerHTML = "";
-      shuffledQuestions = shuffle([...originalQuestions]);
-      Object.keys(validated).forEach(k => delete validated[k]);
-      Object.keys(answers).forEach(k => delete answers[k]);
-      shuffledQuestions.forEach((q, i) => {
-        // Card
-        const card = document.createElement("div");
-        card.className = "question-card";
-        card.id = `card${i}`;
-        if (i === 0) card.classList.add("active");
-
-        card.innerHTML = `
-          <p>${q.text}</p>
-          ${q.options.map(opt => `
-            <label>
-              <input type="radio" name="q${i}" value="${opt}">
-              ${opt}
-            </label>
-          `).join("")}
-          <div class="feedback" id="feedback${i}"></div>
-        `;
-        quizContainer.appendChild(card);
-
-        // Nav Button
-        const navBtn = document.createElement("button");
-        navBtn.textContent = i + 1;
-        navBtn.onclick = () => goToQuestion(i);
-        navBtn.id = `navBtn${i}`;
-        navGrid.appendChild(navBtn);
-      });
-      updateProgress();
-      highlightNav();
-      updateNavButtons();
-      updateCheckButton();
-    }
-
-    function checkAnswer(index) {
-      const radios = document.getElementsByName(`q${index}`);
-      let selected = null;
-      for (const radio of radios) {
-        if (radio.checked) selected = radio.value;
-      }
-      const feedback = document.getElementById(`feedback${index}`);
-      if (!selected) {
-        feedback.innerHTML = "❌ Please select an answer.";
-        feedback.className = "feedback";
-        return;
-      }
-      answers[`q${index}`] = selected;
-      if (selected === shuffledQuestions[index].answer) {
-        feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
-        feedback.className = "feedback correct";
-      } else {
-        feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
-        feedback.className = "feedback";
-      }
-      validated[index] = true;
-      document.getElementById(`navBtn${index}`).classList.add("answered");
-      if (index === shuffledQuestions.length - 1) {
-        document.getElementById("submitBtn").style.display = "inline-block";
-      }
-      updateProgress();
-      updateNavButtons();
-    }
-
-    function updateCheckButton() {
-      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
-    }
-
-    function updateNavButtons() {
-      document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
-      const nextBtn = document.getElementById("nextBtn");
-      if (currentQuestion === shuffledQuestions.length - 1) {
-        nextBtn.style.display = "none";
-      } else {
-        nextBtn.style.display = "inline-block";
-        nextBtn.disabled = !validated[currentQuestion];
-      }
-      document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
-      updateCheckButton();
-    }
-
-    function showQuestion(index) {
-      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
-      document.getElementById(`card${index}`).classList.add("active");
-      currentQuestion = index;
-      highlightNav();
-      updateNavButtons();
-    }
-
-    function goToQuestion(index) {
-      showQuestion(index);
-    }
-
-    function prevQuestion() {
-      if (currentQuestion > 0) showQuestion(currentQuestion - 1);
-    }
-
-    function nextQuestion() {
-      if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
-    }
-
-    function highlightNav() {
-      for (let i = 0; i < shuffledQuestions.length; i++) {
-        document.getElementById(`navBtn${i}`).classList.remove("active");
-      }
-      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
-    }
-
-    function updateProgress() {
-      const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
-      document.getElementById("progressBar").style.width = percent + "%";
-    }
-
-    function grade() {
-      let score = 0;
-      shuffledQuestions.forEach((q, i) => {
-        const userAnswer = answers[`q${i}`];
-        const feedback = document.getElementById(`feedback${i}`);
-        if (userAnswer !== q.answer) {
-          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
-          feedback.className = "feedback";
-        } else {
-          score++;
-          feedback.className = "feedback correct";
-        }
-      });
-      const percent = (score / shuffledQuestions.length) * 100;
-      document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
-      document.getElementById("summary").textContent = percent >= 50
-        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
-        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
-      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
-      document.getElementById("resetBtn").style.display = "inline-block";
-    }
-
-    function resetQuiz() {
-      currentQuestion = 0;
-      for (let key in answers) delete answers[key];
-      for (let key in validated) delete validated[key];
-      document.getElementById("result").textContent = "";
-      document.getElementById("summary").textContent = "";
-      document.getElementById("resetBtn").style.display = "none";
-      renderQuestions();
-      showQuestion(currentQuestion);
-    }
-
-    renderQuestions();
-    showQuestion(currentQuestion);
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Word Quiz</title>
-  <style>
-    body { background-color: #111; color: #f0f0f0; font-family: 'Arial Black', sans-serif; margin: 0; padding: 2rem; }
-    h1 { text-align: center; font-size: 3rem; color: #70c1b3; letter-spacing: 2px; }
-    .progress-container { width: 100%; max-width: 700px; height: 20px; background-color: #333; border-radius: 25px; overflow: hidden; margin: 1rem auto 1.5rem; }
-    .progress-bar { height: 100%; width: 0%; background-color: #70c1b3; transition: width 0.3s ease-in-out; }
-    .nav-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; max-width: 700px; margin: 0 auto 1.5rem; }
-    .nav-grid button { width: 40px; height: 40px; border-radius: 50%; font-weight: bold; border: none; cursor: pointer; background-color: #444; color: #fff; transition: background-color 0.3s; }
-    .nav-grid button.active { background-color: #70c1b3; color: #000; }
-    .nav-grid button.answered:not(.active) { background-color: #2b996e; }
-    .quiz-container { max-width: 700px; margin: 1rem auto; }
-    .question-card { background: #1c1c1c; padding: 1.5rem; border: 2px solid #444; border-radius: 8px; display: none; }
-    .question-card.active { display: block; }
-    .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
-    .question-card label { display: block; margin: 0.5rem 0; font-size: 1rem; font-weight: normal; cursor: pointer; }
-    .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
-    .correct { color: #8ef08e !important; }
-    .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
-    button { padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: bold; background-color: #70c1b3; border: none; border-radius: 6px; cursor: pointer; color: #000; transition: background-color 0.3s; }
-    button:hover { background-color: #59a499; }
-    #result, #summary { text-align: center; font-size: 1.3rem; margin-top: 1rem; }
-    #summary { font-weight: bold; }
-    #resetBtn { margin: 1rem auto; display: none; }
-    .check-btn[disabled], .nav-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
-  </style>
-</head>
-<body>
-  <h1>Quiz Pack 1</h1>
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
-  <div class="nav-grid" id="navGrid"></div>
-  <div class="quiz-container" id="quizContainer"></div>
-  <div class="nav-buttons">
-    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
-    <button class="check-btn" onclick="checkAnswer(currentQuestion)" id="checkBtn">Check</button>
-    <button onclick="nextQuestion()" id="nextBtn" disabled>Next</button>
-    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
-  </div>
-  <p id="result"></p>
-  <p id="summary"></p>
-  <div style="text-align: center;">
-    <button onclick="resetQuiz()" id="resetBtn">🔁 Reattempt Quiz</button>
-  </div>
-  <script>
-    const originalQuestions = [
-      {
-        text: "The beginning of the year according to the calendars of China, Vietnam, Korea, and some other East Asian countries",
-        options: ["Lunar New Year", "Golden Week", "Spring Festival"],
-        answer: "Lunar New Year",
-        explanation: "Lunar New Year marks the start of a new year on the lunar calendar and is celebrated in many East Asian countries.",
-        hint: "Think of the biggest holiday in East Asia, usually in January or February."
-      },
-      {
-        text: "An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha",
-        options: ["Vesak", "Christmas", "Easter"],
-        answer: "Vesak",
-        explanation: "Vesak, also known as Buddha Day, is the most significant Buddhist festival.",
-        hint: "This festival celebrates three major events in Buddha's life."
-      },
-      {
-        text: "An important celebration in Vietnamese culture that honors the nation’s ancient founders.",
-        options: ["Hung Kings’ Commemoration Day", "Tet Vu Lan", "Easter"],
-        answer: "Hung Kings’ Commemoration Day",
-        explanation: "This holiday pays respect to the legendary founders of Vietnam.",
-        hint: "It's about honoring the 'Hung Kings'."
-      },
-      {
-        text: "A traditional Buddhist festival celebrated primarily in Vietnam and parts of East Asia to show honor and gratitude to parents",
-        options: ["Vu Lan Festival", "Christmas Eve", "Parents' Day"],
-        answer: "Vu Lan Festival",
-        explanation: "Vu Lan Festival is dedicated to filial piety and honoring one’s parents.",
-        hint: "It's also called the Ghost Festival in some places."
-      },
-      {
-        text: "A national celebration in Vietnam held annually on November 20th, dedicated to honoring educators and recognizing their contributions",
-        options: ["Vietnamese Teachers’ Day", "Tet", "Parents' Day"],
-        answer: "Vietnamese Teachers’ Day",
-        explanation: "Vietnamese Teachers’ Day recognizes the hard work and dedication of educators.",
-        hint: "It is a day to give flowers and thanks to teachers."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on September 2nd to commemorate the day President Hồ Chí Minh declared independence",
-        options: ["Vietnamese National Day", "Unification Day", "Hung Kings' Anniversary"],
-        answer: "Vietnamese National Day",
-        explanation: "Vietnamese National Day marks the country's official declaration of independence.",
-        hint: "It's Vietnam's equivalent of the 4th of July."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on April 30th each year to commemorate the end of the Anti-American War of Resistance",
-        options: ["Reunification Day", "Tet", "Trung Thu Festival"],
-        answer: "Reunification Day",
-        explanation: "Reunification Day marks the fall of Saigon and the end of the Vietnam War.",
-        hint: "It celebrates the North and South becoming one country again."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on October 20th each year to honour the contributions of the fairer sex.",
-        options: ["Women’s Day", "Teachers' Day", "Vesak"],
-        answer: "Women’s Day",
-        explanation: "Vietnamese Women’s Day celebrates women and their achievements.",
-        hint: "It's a day for women, not teachers or monks."
-      }
-    ];
-
-    let shuffledQuestions = [];
-    let currentQuestion = 0;
-    const answers = {};
-    const validated = {};
-    const quizContainer = document.getElementById("quizContainer");
-    const navGrid = document.getElementById("navGrid");
-
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    function renderQuestions() {
-      quizContainer.innerHTML = "";
-      navGrid.innerHTML = "";
-      shuffledQuestions = shuffle([...originalQuestions]);
-      Object.keys(validated).forEach(k => delete validated[k]);
-      Object.keys(answers).forEach(k => delete answers[k]);
-      shuffledQuestions.forEach((q, i) => {
-        // Card
-        const card = document.createElement("div");
-        card.className = "question-card";
-        card.id = `card${i}`;
-        if (i === 0) card.classList.add("active");
-
-        card.innerHTML = `
-          <p>${q.text}</p>
-          ${q.options.map(opt => `
-            <label>
-              <input type="radio" name="q${i}" value="${opt}">
-              ${opt}
-            </label>
-          `).join("")}
-          <div class="feedback" id="feedback${i}"></div>
-        `;
-        quizContainer.appendChild(card);
-
-        // Nav Button
-        const navBtn = document.createElement("button");
-        navBtn.textContent = i + 1;
-        navBtn.onclick = () => goToQuestion(i);
-        navBtn.id = `navBtn${i}`;
-        navGrid.appendChild(navBtn);
-      });
-      updateProgress();
-      highlightNav();
-      updateNavButtons();
-      updateCheckButton();
-    }
-
-    function checkAnswer(index) {
-      const radios = document.getElementsByName(`q${index}`);
-      let selected = null;
-      for (const radio of radios) {
-        if (radio.checked) selected = radio.value;
-      }
-      const feedback = document.getElementById(`feedback${index}`);
-      if (!selected) {
-        feedback.innerHTML = "❌ Please select an answer.";
-        feedback.className = "feedback";
-        return;
-      }
-      answers[`q${index}`] = selected;
-      if (selected === shuffledQuestions[index].answer) {
-        feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
-        feedback.className = "feedback correct";
-      } else {
-        feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
-        feedback.className = "feedback";
-      }
-      validated[index] = true;
-      document.getElementById(`navBtn${index}`).classList.add("answered");
-      if (index === shuffledQuestions.length - 1) {
-        document.getElementById("submitBtn").style.display = "inline-block";
-      }
-      updateProgress();
-      updateNavButtons();
-    }
-
-    function updateCheckButton() {
-      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
-    }
-
-    function updateNavButtons() {
-      document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
-      const nextBtn = document.getElementById("nextBtn");
-      if (currentQuestion === shuffledQuestions.length - 1) {
-        nextBtn.style.display = "none";
-      } else {
-        nextBtn.style.display = "inline-block";
-        nextBtn.disabled = !validated[currentQuestion];
-      }
-      document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
-      updateCheckButton();
-    }
-
-    function showQuestion(index) {
-      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
-      document.getElementById(`card${index}`).classList.add("active");
-      currentQuestion = index;
-      highlightNav();
-      updateNavButtons();
-    }
-
-    function goToQuestion(index) {
-      showQuestion(index);
-    }
-
-    function prevQuestion() {
-      if (currentQuestion > 0) showQuestion(currentQuestion - 1);
-    }
-
-    function nextQuestion() {
-      if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
-    }
-
-    function highlightNav() {
-      for (let i = 0; i < shuffledQuestions.length; i++) {
-        document.getElementById(`navBtn${i}`).classList.remove("active");
-      }
-      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
-    }
-
-    function updateProgress() {
-      const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
-      document.getElementById("progressBar").style.width = percent + "%";
-    }
-
-    function grade() {
-      let score = 0;
-      shuffledQuestions.forEach((q, i) => {
-        const userAnswer = answers[`q${i}`];
-        const feedback = document.getElementById(`feedback${i}`);
-        if (userAnswer !== q.answer) {
-          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
-          feedback.className = "feedback";
-        } else {
-          score++;
-          feedback.className = "feedback correct";
-        }
-      });
-      const percent = (score / shuffledQuestions.length) * 100;
-      document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
-      document.getElementById("summary").textContent = percent >= 50
-        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
-        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
-      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
-      document.getElementById("resetBtn").style.display = "inline-block";
-    }
-
-    function resetQuiz() {
-      currentQuestion = 0;
-      for (let key in answers) delete answers[key];
-      for (let key in validated) delete validated[key];
-      document.getElementById("result").textContent = "";
-      document.getElementById("summary").textContent = "";
-      document.getElementById("resetBtn").style.display = "none";
-      renderQuestions();
-      showQuestion(currentQuestion);
-    }
-
-    renderQuestions();
-    showQuestion(currentQuestion);
-  </script>
+// Initial load
+shuffledQuestions = shuffle([...originalQuestions]);
+renderQuestions();
+showQuestion(currentQuestion);
+updateProgress();
+</script>
 </body>
 </html>
