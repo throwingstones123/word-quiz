@@ -18,14 +18,12 @@
     .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
     .question-card label { display: block; margin: 0.5rem 0; font-size: 1rem; font-weight: normal; cursor: pointer; }
     .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
-    .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; }
+    .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
     button { padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: bold; background-color: #70c1b3; border: none; border-radius: 6px; cursor: pointer; color: #000; transition: background-color 0.3s; }
     button:hover { background-color: #59a499; }
     #result, #summary { text-align: center; font-size: 1.3rem; margin-top: 1rem; }
     #summary { font-weight: bold; }
     #resetBtn { margin: 1rem auto; display: none; }
-    .check-btn { margin-top: 1rem; }
-    .nav-btn { margin-top: 1rem; }
     .check-btn[disabled], .nav-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
@@ -38,6 +36,7 @@
   <div class="quiz-container" id="quizContainer"></div>
   <div class="nav-buttons">
     <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button class="check-btn" onclick="checkAnswer(currentQuestion)" id="checkBtn">Check</button>
     <button onclick="nextQuestion()" id="nextBtn" disabled>Next</button>
     <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
   </div>
@@ -105,11 +104,11 @@
         hint: "It's bigger than a buffalo and is rarely seen in the wild."
       },
       {
-        text: "The process of water turning into vapor is called?",
-        options: ["Condensation", "Evaporation", "Freezing"],
-        answer: "Evaporation",
-        explanation: "Evaporation is the process where water changes into gas.",
-        hint: "It happens when water gets heated by the sun."
+        text: "Which rare and mysterious animal, sometimes called the 'Asian unicorn', was discovered in Vietnam in the 1990s?",
+        options: ["Saola", "Gaur", "Sun Bear"],
+        answer: "Saola",
+        explanation: "The Saola, discovered in Vietnam in 1992, is one of the world's rarest mammals and is found only in Vietnam and Laos.",
+        hint: "It has long, straight horns and is sometimes called the 'Asian unicorn'."
       },
       {
         text: "Largest mammal on Earth",
@@ -157,7 +156,6 @@
             </label>
           `).join("")}
           <div class="feedback" id="feedback${i}"></div>
-          <button class="check-btn" onclick="checkAnswer(${i})" id="checkBtn${i}">Check</button>
         `;
         quizContainer.appendChild(card);
 
@@ -171,6 +169,7 @@
       updateProgress();
       highlightNav();
       updateNavButtons();
+      updateCheckButton();
     }
 
     function checkAnswer(index) {
@@ -199,6 +198,12 @@
       updateNavButtons();
     }
 
+    function updateCheckButton() {
+      // Move "Check" button to match the current question
+      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
+      document.getElementById('checkBtn').disabled = validated[currentQuestion] || false;
+    }
+
     function updateNavButtons() {
       document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
       const nextBtn = document.getElementById("nextBtn");
@@ -209,6 +214,7 @@
         nextBtn.disabled = !validated[currentQuestion];
       }
       document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
+      updateCheckButton();
     }
 
     function showQuestion(index) {
