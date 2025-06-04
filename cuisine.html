@@ -1,346 +1,200 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Interactive Gap Fill Quiz</title>
-  <style>
-    body {
-      background-color: #111;
-      color: #fff;
-      font-family: 'Arial', sans-serif;
-      padding: 2rem;
-      text-align: center;
-    }
-
-    h1 {
-      color: #7ad1d4;
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .progress-container {
-      width: 100%;
-      max-width: 700px;
-      height: 20px;
-      background-color: #333;
-      border-radius: 25px;
-      overflow: hidden;
-      margin: 1rem auto 2rem;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #7ad1d4;
-      transition: width 0.4s ease;
-    }
-
-    .conversation {
-      max-width: 700px;
-      margin: 0 auto;
-      font-size: 1.2rem;
-      line-height: 1.6;
-      text-align: left;
-      background-color: #000;
-      padding: 1.5rem;
-      border-radius: 10px;
-      border: 1px solid #444;
-      display: none;
-    }
-
-    .conversation.active {
-      display: block;
-    }
-
-    select {
-      background: #222;
-      color: white;
-      padding: 0.4rem;
-      font-weight: bold;
-      border-radius: 4px;
-      border: 1px solid #555;
-      margin-left: 0.4rem;
-    }
-
-    select:hover {
-      background-color: #7ad1d4;
-      color: black;
-      cursor: pointer;
-    }
-
-    .controls {
-      margin-top: 1.5rem;
-    }
-
-    button {
-      margin: 0 0.5rem;
-      padding: 10px 20px;
-      font-weight: bold;
-      background-color: #7ad1d4;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .feedback {
-      margin-top: 1rem;
-      font-size: 1.1rem;
-    }
-
-    .correct {
-      color: lightgreen;
-    }
-
-    .incorrect {
-      color: #ff4c4c;
-    }
-
-    #summary {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-  </style>
-</head>
 <body>
-
-  <h1>Fill in the Missing Word</h1>
+  <h1>Vietnamese Cuisine Quiz</h1>
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-
-  <!-- Question 1 -->
-  <div class="conversation active" id="step0">
-    <p><strong>Alex:</strong> I'm down for something protein tonight! What should we be having?</p>
-    <p><strong>Jamie:</strong> Protein, huh? Well, we can order some
-      <select id="q0">
-        <option value="">--select--</option>
-        <option value="complain">Lolot Beef</option>
-        <option value="hide">Pho</option>
-        <option value="speak up">Spring Rolls</option>
-      </select> for your enjoyment.
-    </p>
-    <div class="feedback" id="feedback0"></div>
+  <div class="nav-grid" id="navGrid"></div>
+  <div class="quiz-container" id="quizContainer"></div>
+  <div class="nav-buttons">
+    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button class="check-btn" onclick="checkAnswer(currentQuestion)" id="checkBtn">Check</button>
+    <button onclick="nextQuestion()" id="nextBtn" disabled>Next</button>
+    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
   </div>
-
-  <!-- Question 2 -->
-  <div class="conversation" id="step1">
-    <p><strong>Question:</strong> What sort of dish are they ordering?</p>
-    <p><strong>Kyle:</strong> We'll take it with eggs and smoked pork, please</p>
-    <p><strong>Dan:</strong> They do smoked pork here too? First I've heard of that</p>
-    <p><strong>Kyle:</strong> It's been there for a long time, you have to ask for it!
-      <select id="q1">
-        <option value="">--select--</option>
-        <option value="courage">Nem</option>
-        <option value="luck">Broken Rice</option>
-        <option value="time">Sizzling Cake</option>
-      </select>
-    </p>
-    <div class="feedback" id="feedback1"></div>
+  <p id="result"></p>
+  <p id="summary"></p>
+  <div style="text-align: center;">
+    <button onclick="resetQuiz()" id="resetBtn" style="display: none;">🔁 Reattempt Quiz</button>
   </div>
-
-  <!-- Question 3 -->
-  <div class="conversation" id="step2">
-    <p><strong>Mai:</strong> We should definitely get something soft, light, and cute-looking.</p>
-    <p><strong>Linh:</strong> Like something topped with shrimp and scallions? Maybe some
-      <select id="q2">
-        <option value="">--select--</option>
-        <option value="banh beo">Water Fern Cake</option>
-        <option value="banh gio">Pyramidal Dumpling</option>
-        <option value="bun cha">Grilled Pork Noodles</option>
-      </select> — it's the kind you eat with a spoon.
-    </p>
-    <div class="feedback" id="feedback2"></div>
-  </div>
-
-  <!-- Question 4 -->
-  <div class="conversation" id="step3">
-    <p><strong>Lan:</strong> We can end the meal with something sweet.</p>
-    <p><strong>Thu:</strong> I know! Let’s get the one that’s made from mung bean paste and sticky rice — that green one, remember?</p>
-    <p><strong>Lan:</strong> Oh yes, it’s
-      <select id="q3">
-        <option value="">--select--</option>
-        <option value="banh com">Green Sticky Rice Cake</option>
-        <option value="banh xeo">Sizzling Cake</option>
-        <option value="nem chua">Fermented Pork Roll</option>
-      </select> – I love how chewy it is!
-    </p>
-    <div class="feedback" id="feedback3"></div>
-  </div>
-
-  <!-- Question 5 -->
-  <div class="conversation" id="step4">
-    <p><strong>Nam:</strong> I want something crunchy and savory. Got any ideas?</p>
-    <p><strong>Tam:</strong> Totally! Let’s get the one that crackles in the pan — it’s got shrimp, pork, and mung beans!</p>
-    <p><strong>Nam:</strong> Ah yeah, nothing beats a good
-      <select id="q4">
-        <option value="">--select--</option>
-        <option value="banh xeo">Sizzling Cake</option>
-        <option value="banh khot">Mini Pancake</option>
-        <option value="banh gio">Pyramidal Dumpling</option>
-      </select>
-      to satisfy the crunch cravings.
-    </p>
-    <div class="feedback" id="feedback4"></div>
-  </div>
-
-  <!-- Question 6 -->
-  <div class="conversation" id="step5">
-    <p><strong>Phuc:</strong> Let's try something tangy and fermented. It’s got that chewy texture and comes wrapped in banana leaves.</p>
-    <p><strong>Yen:</strong> You’re talking about
-      <select id="q5">
-        <option value="">--select--</option>
-        <option value="nem chua">Fermented Pork Roll</option>
-        <option value="banh com">Green Sticky Rice Cake</option>
-        <option value="cha gio">Fried Spring Roll</option>
-      </select>, right? It's kinda addictive.
-    </p>
-    <div class="feedback" id="feedback5"></div>
-  </div>
-
-  <!-- Question 7 -->
-  <div class="conversation" id="step6">
-    <p><strong>Minh:</strong> What about something savory and soft you can eat with a spoon?</p>
-    <p><strong>Tram:</strong> Oh yes, that pyramid-shaped snack with minced pork inside!</p>
-    <p><strong>Minh:</strong> Ah, you mean
-      <select id="q6">
-        <option value="">--select--</option>
-        <option value="banh gio">Pyramidal Dumpling</option>
-        <option value="banh xeo">Sizzling Cake</option>
-        <option value="banh beo">Water Fern Cake</option>
-      </select>. I could eat five of those!
-    </p>
-    <div class="feedback" id="feedback6"></div>
-  </div>
-
-  <!-- Question 8 -->
-  <div class="conversation" id="step7">
-    <p><strong>Quang:</strong> Wanna go mini with your bites today?</p>
-    <p><strong>Hoa:</strong> I love the crispy bottom and coconut milk drizzle on
-      <select id="q7">
-        <option value="">--select--</option>
-        <option value="banh khot">Mini Pancake</option>
-        <option value="banh gio">Pyramidal Dumpling</option>
-        <option value="bun rieu">Crab Noodle Soup</option>
-      </select> — so cute and tasty!
-    </p>
-    <div class="feedback" id="feedback7"></div>
-  </div>
-
-  <!-- Question 9 -->
-  <div class="conversation" id="step8">
-    <p><strong>Tuan:</strong> I need something grilled with rice noodles. Fresh herbs too.</p>
-    <p><strong>Hanh:</strong> That’s gotta be
-      <select id="q8">
-        <option value="">--select--</option>
-        <option value="bun cha">Kebab Rice Noodles</option>
-        <option value="bun bo hue">Hue Beef Noodles</option>
-        <option value="pho">Pho</option>
-      </select>. And don't skip the dipping sauce!
-    </p>
-    <div class="feedback" id="feedback8"></div>
-  </div>
-
-  <!-- Question 10 -->
-  <div class="conversation" id="step9">
-    <p><strong>My:</strong> I need something iconic, you know? Golden, crepe-like, and bursting with veggies and meat.</p>
-    <p><strong>Hieu:</strong> You're describing
-      <select id="q9">
-        <option value="">--select--</option>
-        <option value="banh xeo">Sizzling Cake</option>
-        <option value="banh khot">Mini Pancake</option>
-        <option value="cha ca">Grilled Turmeric Fish</option>
-      </select> to a T!
-    </p>
-    <div class="feedback" id="feedback9"></div>
-  </div>
-
-  <div class="controls">
-    <button onclick="prevStep()">Back</button>
-    <button onclick="validateStep()">Check</button>
-    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
-  </div>
-
-  <div id="summary"></div>
-
   <script>
-    const totalQuestions = 10;
-    const correctAnswers = [
-      "complain", "luck", "banh beo", "banh com", "banh xeo",
-      "nem chua", "banh gio", "banh khot", "bun cha", "banh xeo"
+    const originalQuestions = [
+      {
+        text: "I'm down for something protein tonight! What should we be having? (Hint: Vietnamese grilled beef in lolot leaves)",
+        answer: "Lolot Beef",
+        explanation: "Lolot Beef (Bò lá lốt) is a traditional Vietnamese dish of grilled beef wrapped in lolot leaves.",
+        hint: "It's a grilled beef dish wrapped in leaves."
+      },
+      {
+        text: "What rice-based dish comes with eggs and smoked pork, common in the south? (Hint: Popular street breakfast)",
+        answer: "Broken Rice",
+        explanation: "Broken Rice (Cơm tấm) is a Vietnamese dish made from fractured rice grains, usually served with grilled meats, eggs, and smoked pork.",
+        hint: "Rice grains are not whole; popular in Saigon."
+      },
+      // ... Add more question objects in this format (text, answer, explanation, hint)
     ];
-    let currentStep = 0;
-    let score = 0;
-    const userAnswers = Array(totalQuestions).fill(null);
-    const validatedSteps = Array(totalQuestions).fill(false);
 
-    function updateProgress() {
-      const progress = (currentStep / totalQuestions) * 100;
-      document.getElementById("progressBar").style.width = progress + "%";
+    let shuffledQuestions = [];
+    let currentQuestion = 0;
+    const answers = {};
+    const validated = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
     }
 
-    function showStep(index) {
-      document.querySelectorAll('.conversation').forEach((el, i) => {
-        el.classList.toggle('active', i === index);
+    function renderQuestions() {
+      quizContainer.innerHTML = "";
+      navGrid.innerHTML = "";
+      shuffledQuestions = shuffle([...originalQuestions]);
+      Object.keys(validated).forEach(k => delete validated[k]);
+      Object.keys(answers).forEach(k => delete answers[k]);
+      shuffledQuestions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+        card.innerHTML = `
+          <p>${q.text}</p>
+          <input type="text" id="q${i}" autocomplete="off" placeholder="Type your answer here">
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+        quizContainer.appendChild(card);
+
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.onclick = () => goToQuestion(i);
+        navBtn.id = `navBtn${i}`;
+        navGrid.appendChild(navBtn);
       });
-      document.getElementById("nextBtn").disabled = !validatedSteps[index];
       updateProgress();
+      highlightNav();
+      updateNavButtons();
+      updateCheckButton();
     }
 
-    function nextStep() {
-      if (currentStep < totalQuestions - 1) {
-        currentStep++;
-        showStep(currentStep);
-      } else {
-        showSummary();
-      }
+    function normalize(str) {
+      return str.trim().toLowerCase();
     }
 
-    function prevStep() {
-      if (currentStep > 0) {
-        currentStep--;
-        showStep(currentStep);
-      }
-    }
+    function checkAnswer(index) {
+      const input = document.getElementById(`q${index}`);
+      const userInput = normalize(input.value);
+      const correctAnswer = normalize(shuffledQuestions[index].answer);
+      const feedback = document.getElementById(`feedback${index}`);
 
-    function validateStep() {
-      const select = document.getElementById(`q${currentStep}`);
-      const feedback = document.getElementById(`feedback${currentStep}`);
-      const answer = select.value;
-
-      if (!answer) {
-        feedback.innerHTML = `<span class="incorrect">❌ Please select an answer.</span>`;
+      if (!userInput) {
+        feedback.innerHTML = "❌ Please type your answer.";
+        feedback.className = "feedback";
         return;
       }
 
-      userAnswers[currentStep] = answer;
-      if (answer === correctAnswers[currentStep]) {
-        if (!validatedSteps[currentStep]) score++;
-        feedback.innerHTML = `<span class="correct">✅ Correct!</span>`;
+      answers[`q${index}`] = input.value;
+      if (userInput === correctAnswer) {
+        feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
+        feedback.className = "feedback correct";
       } else {
-        feedback.innerHTML = `<span class="incorrect">❌ Incorrect. Try again or proceed to review.</span>`;
+        feedback.innerHTML = `❌ Incorrect. Hint: ${shuffledQuestions[index].hint}`;
+        feedback.className = "feedback";
       }
-
-      validatedSteps[currentStep] = true;
-      document.getElementById("nextBtn").disabled = false;
+      validated[index] = true;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      if (index === shuffledQuestions.length - 1) {
+        document.getElementById("submitBtn").style.display = "inline-block";
+      }
+      updateProgress();
+      updateNavButtons();
     }
 
-    function showSummary() {
-      const percent = (score / totalQuestions) * 100;
-      const summary = document.getElementById("summary");
-      if (percent >= 50) {
-        summary.innerHTML = `✅ You passed with ${percent}% (${score}/${totalQuestions})`;
-        summary.style.color = "lightgreen";
-      } else {
-        summary.innerHTML = `❌ You scored ${percent}%. Keep practicing! (${score}/${totalQuestions})`;
-        summary.style.color = "#ff4c4c";
-      }
-      document.querySelector(".controls").style.display = "none";
+    function updateCheckButton() {
+      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
     }
 
-    showStep(0);
+    function updateNavButtons() {
+      document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
+      const nextBtn = document.getElementById("nextBtn");
+      if (currentQuestion === shuffledQuestions.length - 1) {
+        nextBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "inline-block";
+        nextBtn.disabled = !validated[currentQuestion];
+      }
+      document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
+      updateCheckButton();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+      currentQuestion = index;
+      highlightNav();
+      updateNavButtons();
+    }
+
+    function goToQuestion(index) {
+      showQuestion(index);
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
+    }
+
+    function highlightNav() {
+      for (let i = 0; i < shuffledQuestions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function grade() {
+      let score = 0;
+      shuffledQuestions.forEach((q, i) => {
+        const userInput = normalize(answers[`q${i}`] || "");
+        const correctAnswer = normalize(q.answer);
+        const feedback = document.getElementById(`feedback${i}`);
+        if (userInput === correctAnswer) {
+          score++;
+          feedback.className = "feedback correct";
+        } else {
+          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
+        }
+      });
+      const percent = (score / shuffledQuestions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
+      document.getElementById("summary").textContent = percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+      document.getElementById("resetBtn").style.display = "inline-block";
+    }
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      for (let key in answers) delete answers[key];
+      for (let key in validated) delete validated[key];
+      document.getElementById("result").textContent = "";
+      document.getElementById("summary").textContent = "";
+      document.getElementById("resetBtn").style.display = "none";
+      renderQuestions();
+      showQuestion(currentQuestion);
+    }
+
+    renderQuestions();
+    showQuestion(currentQuestion);
   </script>
-
 </body>
-</html>
