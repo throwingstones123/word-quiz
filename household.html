@@ -113,6 +113,10 @@
       color: #00ffaa;
       display: none;
     }
+    table { background: #222; margin: 2rem auto; border-collapse:collapse; color:#fff; }
+    th, td { border:1px solid #444; padding:6px; }
+    th { background: #333; }
+    a { color: #7ad1d4; }
   </style>
 </head>
 <body>
@@ -138,18 +142,18 @@
 
   <script>
     const originalData = [
-      { id: "Altar", text: "Ancestor Altar", def: "A dedicated shrine or space in a household", hint: "Hint: It’s often used for honoring ancestors." },
-      { id: "Pot", text: "Earthenware Pot", def: "A cooking utensil made from baked clay", hint: "Hint: Think of traditional cookware made from clay." },
-      { id: "Mat", text: "Straw Mat", def: "Made from dried reeds, rushes, or straw, woven together, commonly used in Southeast Asian homes", hint: "Hint: These are commonly found on the floors of traditional homes." },
-      { id: "Lantern", text: "Silk Lantern", def: "Used for decoration and lighting, especially during festivals", hint: "Hint: A colorful item seen hanging during celebrations." },
-      { id: "Broom", text: "Coconut Broom", def: "Traditional household cleaning tool made from coconut fibers", hint: "Hint: A sweeping device made from natural materials." },
-      { id: "Pestle", text: "Pestle", def: "A heavy stick made of clay, stone, or metal with a thick, rounded end", hint: "Hint: Often used for crushing substances in a small, strong bowl." },
-      { id: "Mortar", text: "Mortar", def: "A strong bowl in which substances are crushed", hint: "Hint: Often used with a pestle." },
-      { id: "Fan", text: "Palm-leaf Fan", def: "Commonly used in Vietnamese households to cool off during hot weather.", hint: "Hint: Often associated with countryside life." },
-      { id: "Duster", text: "Feather Duster", def: "A traditional Vietnamese cleaning tool made by tying animal fur onto a bamboo stick", hint: "Hint: Light, flexible, and very effective in delicate areas." },
-      { id: "Pole", text: "Carrying Pole", def: "A long, flexible wooden or bamboo holding stick carried across the shoulders, used by Vietnamese people", hint: "Hint: Symbolizing hard work and balance." },
-      { id: "Stove", text: "Honeycomb Stove", def: "A compact, cylindrical charcoal stove commonly used in Vietnamese households", hint: "Hint: Small and portable, perfect for traditional cooking." },
-      { id: "Plow", text: "Plow", def: "A farming tool with a curved blade pulled by animals or machines", hint: "Hint: A vital tool in Vietnamese agriculture, especially in wet rice farming." }
+      { id: "Altar", text: "Ancestor Altar", def: "A dedicated shrine or space in a household", hint: "Hint: It’s often used for honoring ancestors.", revisionLink: "https://en.wikipedia.org/wiki/Ancestor_veneration_in_Vietnam" },
+      { id: "Pot", text: "Earthenware Pot", def: "A cooking utensil made from baked clay", hint: "Hint: Think of traditional cookware made from clay.", revisionLink: "https://en.wikipedia.org/wiki/Earthenware" },
+      { id: "Mat", text: "Straw Mat", def: "Made from dried reeds, rushes, or straw, woven together, commonly used in Southeast Asian homes", hint: "Hint: These are commonly found on the floors of traditional homes.", revisionLink: "https://en.wikipedia.org/wiki/Mat_(bed)" },
+      { id: "Lantern", text: "Silk Lantern", def: "Used for decoration and lighting, especially during festivals", hint: "Hint: A colorful item seen hanging during celebrations.", revisionLink: "https://en.wikipedia.org/wiki/Lantern" },
+      { id: "Broom", text: "Coconut Broom", def: "Traditional household cleaning tool made from coconut fibers", hint: "Hint: A sweeping device made from natural materials.", revisionLink: "https://en.wikipedia.org/wiki/Broom" },
+      { id: "Pestle", text: "Pestle", def: "A heavy stick made of clay, stone, or metal with a thick, rounded end", hint: "Hint: Often used for crushing substances in a small, strong bowl.", revisionLink: "https://en.wikipedia.org/wiki/Pestle_and_mortar" },
+      { id: "Mortar", text: "Mortar", def: "A strong bowl in which substances are crushed", hint: "Hint: Often used with a pestle.", revisionLink: "https://en.wikipedia.org/wiki/Pestle_and_mortar" },
+      { id: "Fan", text: "Palm-leaf Fan", def: "Commonly used in Vietnamese households to cool off during hot weather.", hint: "Hint: Often associated with countryside life.", revisionLink: "https://en.wikipedia.org/wiki/Fan_(implement)" },
+      { id: "Duster", text: "Feather Duster", def: "A traditional Vietnamese cleaning tool made by tying animal fur onto a bamboo stick", hint: "Hint: Light, flexible, and very effective in delicate areas.", revisionLink: "https://en.wikipedia.org/wiki/Duster" },
+      { id: "Pole", text: "Carrying Pole", def: "A long, flexible wooden or bamboo holding stick carried across the shoulders, used by Vietnamese people", hint: "Hint: Symbolizing hard work and balance.", revisionLink: "https://en.wikipedia.org/wiki/Yoke" },
+      { id: "Stove", text: "Honeycomb Stove", def: "A compact, cylindrical charcoal stove commonly used in Vietnamese households", hint: "Hint: Small and portable, perfect for traditional cooking.", revisionLink: "https://vi.wikipedia.org/wiki/B%E1%BA%BFp_ong" },
+      { id: "Plow", text: "Plow", def: "A farming tool with a curved blade pulled by animals or machines", hint: "Hint: A vital tool in Vietnamese agriculture, especially in wet rice farming.", revisionLink: "https://en.wikipedia.org/wiki/Plough" }
     ];
 
     let data = [];
@@ -160,6 +164,7 @@
     let sectionCompletedFlags = [];
     let sectionCorrectFlags = [];
     let firstAttemptFlags = [];
+    let globalFirstAttemptCorrect = []; // Array matching data indices for first attempt correctness
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -177,6 +182,7 @@
       sectionCompletedFlags = [];
       sectionCorrectFlags = [];
       firstAttemptFlags = [];
+      globalFirstAttemptCorrect = Array(data.length).fill(undefined);
       document.getElementById("score").textContent = '';
       document.getElementById("summary").textContent = '';
       document.getElementById("completedBanner").style.display = "none";
@@ -204,6 +210,7 @@
         const def = document.createElement("div");
         def.className = "definition";
         def.setAttribute("data-answer", item.id);
+        def.setAttribute("data-global-idx", data.indexOf(item));
         def.innerHTML = `
           ${item.def}
           <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
@@ -285,6 +292,7 @@
 
       defs.forEach((def, idx) => {
         const answer = def.getAttribute('data-answer');
+        const globalIdx = parseInt(def.getAttribute('data-global-idx'));
         const drop = def.querySelector('.drop-zone');
         const word = drop.children[0]?.id || "";
         const hint = def.querySelector('.hint');
@@ -292,12 +300,20 @@
         if (word.toLowerCase() === answer.toLowerCase()) {
           drop.style.borderColor = 'green';
           correctThisAttempt++;
+          // Track first attempt correctness for this definition globally
+          if (globalFirstAttemptCorrect[globalIdx] === undefined) {
+            globalFirstAttemptCorrect[globalIdx] = true;
+          }
         } else {
           if (drop.children.length > 0) {
             wordBank.appendChild(drop.children[0]);
           }
           drop.style.borderColor = 'red';
           hint.textContent = getHint(answer);
+          // Only set to false if not already true
+          if (globalFirstAttemptCorrect[globalIdx] === undefined) {
+            globalFirstAttemptCorrect[globalIdx] = false;
+          }
         }
       });
 
@@ -326,14 +342,11 @@
           const percent = (scoreCount / data.length) * 100;
           if ((currentSet + 1) * groupSize >= data.length) {
             // Finished all sets
-            document.getElementById("summary").textContent = percent >= 50
-              ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
-              : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
-            document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
-            completed = true;
-            document.getElementById("restartBtn").style.display = 'inline-block';
             document.getElementById("checkBtn").style.display = 'none';
             document.getElementById("completedBanner").style.display = "block";
+            document.getElementById("restartBtn").style.display = 'inline-block';
+            document.getElementById("summary").innerHTML = buildSummaryTable(percent);
+            completed = true;
             updateProgress(100);
           } else {
             currentSet++;
@@ -344,6 +357,36 @@
           document.getElementById("score").textContent = `Section already completed! You got ${scoreCount} out of ${data.length} correct.`;
         }
       }
+    }
+
+    function buildSummaryTable(percent) {
+      let res = '';
+      res += percent >= 50
+        ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
+        : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
+      res += `<table>
+        <tr>
+          <th>#</th>
+          <th>Definition</th>
+          <th>First Attempt</th>
+          <th>Suggested Revision</th>
+        </tr>`;
+      data.forEach((item, i) => {
+        res += `<tr>
+          <td>${i + 1}</td>
+          <td>${item.def}</td>
+          <td>${globalFirstAttemptCorrect[i] ? "✅ Correct" : "❌ Wrong"}</td>
+          <td>`;
+        if (!globalFirstAttemptCorrect[i]) {
+          res += `Question - ${item.text}`;
+          if (item.revisionLink) {
+            res += ` <a href="${item.revisionLink}" target="_blank" style="color:#7ad1d4;">(Review Here)</a>`;
+          }
+        }
+        res += `</td></tr>`;
+      });
+      res += `</table>`;
+      return res;
     }
 
     // Launch
