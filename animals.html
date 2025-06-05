@@ -57,70 +57,80 @@
         options: ["Dog", "Buffalo", "Horses"],
         answer: "Buffalo",
         explanation: "Buffalo are traditionally used for plowing and pulling carts in Vietnam.",
-        hint: "Think of a large animal commonly seen in rice fields."
+        hint: "Think of a large animal commonly seen in rice fields.",
+        revisionLink: "https://en.wikipedia.org/wiki/Water_buffalo"
       },
       {
         text: "A large bird with long legs, a long neck and grey or white feathers that lives near water",
         options: ["Heron", "Crane", "Flamingo"],
         answer: "Heron",
         explanation: "Herons symbolize longevity and purity in Vietnamese culture.",
-        hint: "It's a wading bird with a long neck and often seen near lakes and rivers."
+        hint: "It's a wading bird with a long neck and often seen near lakes and rivers.",
+        revisionLink: "https://en.wikipedia.org/wiki/Heron"
       },
       {
         text: "A large Asian animal with four legs and horns that curve backwards",
         options: ["Buffalo", "Bison", "Cows"],
         answer: "Buffalo",
         explanation: "The water buffalo is a living embodiment of Vietnam's agricultural heritage.",
-        hint: "It's not a bison, but very important in Asian farming."
+        hint: "It's not a bison, but very important in Asian farming.",
+        revisionLink: "https://en.wikipedia.org/wiki/Water_buffalo"
       },
       {
         text: "A small, brown animal, similar to a frog, that has big eyes and long back legs",
         options: ["Toad", "Tadpoles", "Crickets"],
         answer: "Toad",
         explanation: "The toad is often seen as a humble, even homely creature.",
-        hint: "It can live on land and is considered lucky in Vietnamese folklore."
+        hint: "It can live on land and is considered lucky in Vietnamese folklore.",
+        revisionLink: "https://en.wikipedia.org/wiki/Toad"
       },
       {
         text: "A large fish that lives in lakes and rivers and can be eaten",
         options: ["Carp", "Goldfish", "Sharks"],
         answer: "Carp",
         explanation: "Carp symbolizes perseverance and success through the Carp Turning into a Dragon legend.",
-        hint: "This fish is famous for its role in a legend about turning into a dragon."
+        hint: "This fish is famous for its role in a legend about turning into a dragon.",
+        revisionLink: "https://en.wikipedia.org/wiki/Carp"
       },
       {
         text: "A water animal that has a thick shell covering its body",
         options: ["Turtle", "Beetle", "Snails"],
         answer: "Turtle",
         explanation: "Turtles are sacred creatures symbolizing longevity, wisdom, and good fortune.",
-        hint: "It moves slowly and is often seen in Vietnamese legends about the sword lake."
+        hint: "It moves slowly and is often seen in Vietnamese legends about the sword lake.",
+        revisionLink: "https://en.wikipedia.org/wiki/Turtle"
       },
       {
         text: "What is the only freshwater dolphin species found in Vietnam's Mekong River?",
         options: ["Irrawaddy Dolphin", "Bottlenose Dolphin", "Spinner Dolphin"],
         answer: "Irrawaddy Dolphin",
         explanation: "Irrawaddy Dolphins are found in the Mekong River and are a rare and threatened species in Vietnam.",
-        hint: "This dolphin is named after a river in Myanmar but lives in Vietnam's Mekong."
+        hint: "This dolphin is named after a river in Myanmar but lives in Vietnam's Mekong.",
+        revisionLink: "https://en.wikipedia.org/wiki/Irrawaddy_dolphin"
       },
       {
         text: "Which large wild cattle species, native to Vietnam, is considered one of the world's rarest?",
         options: ["Saola", "Gaur", "Water Buffalo"],
         answer: "Gaur",
         explanation: "Gaurs, sometimes called Indian bison, are native to Vietnam’s forests and are endangered.",
-        hint: "It's bigger than a buffalo and is rarely seen in the wild."
+        hint: "It's bigger than a buffalo and is rarely seen in the wild.",
+        revisionLink: "https://en.wikipedia.org/wiki/Gaur"
       },
       {
         text: "Which rare and mysterious animal, sometimes called the 'Asian unicorn', was discovered in Vietnam in the 1990s?",
         options: ["Saola", "Gaur", "Sun Bear"],
         answer: "Saola",
         explanation: "The Saola, discovered in Vietnam in 1992, is one of the world's rarest mammals and is found only in Vietnam and Laos.",
-        hint: "It has long, straight horns and is sometimes called the 'Asian unicorn'."
+        hint: "It has long, straight horns and is sometimes called the 'Asian unicorn'.",
+        revisionLink: "https://en.wikipedia.org/wiki/Saola"
       },
       {
         text: "Largest mammal on Earth",
         options: ["Elephant", "Blue Whale", "Giraffe"],
         answer: "Blue Whale",
         explanation: "The Blue Whale is the heaviest and longest known animal.",
-        hint: "This animal lives in the ocean and is bigger than any dinosaur."
+        hint: "This animal lives in the ocean and is bigger than any dinosaur.",
+        revisionLink: "https://en.wikipedia.org/wiki/Blue_whale"
       }
     ];
 
@@ -155,6 +165,7 @@
         if (i === 0) card.classList.add("active");
 
         card.innerHTML = `
+          <p>Question - ${q.answer}</p>
           <p>${q.text}</p>
           ${q.options.map(opt => `
             <label>
@@ -215,7 +226,6 @@
     function updateCheckButton() {
       // Move "Check" button to match the current question
       document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
-      // The "Check" button is always enabled, so no disabling here.
     }
 
     function updateNavButtons() {
@@ -300,8 +310,11 @@
           <td style="border:1px solid #444;padding:6px;">${correct ? "✅ Correct" : "❌ Wrong"}</td>
           <td style="border:1px solid #444;padding:6px;">`;
         if (!correct) {
-          tableHtml += `Suggested Revision for Question No ${i + 1}: 
-            <a href="https://www.google.com/search?q=${encodeURIComponent(q.text)}" target="_blank" style="color:#70c1b3;">(Tested Here)</a>`;
+          if (q.revisionLink) {
+            tableHtml += `<a href="${q.revisionLink}" target="_blank" style="color:#70c1b3;">(Review Here)</a>`;
+          } else {
+            tableHtml += `No link provided.`;
+          }
         }
         tableHtml += `</td></tr>`;
       });
