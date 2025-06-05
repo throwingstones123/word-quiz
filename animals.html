@@ -26,6 +26,10 @@
     #summary { font-weight: bold; }
     #resetBtn { margin: 1rem auto; display: none; }
     .check-btn[disabled], .nav-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+    table { background: #222; }
+    th, td { border:1px solid #444; padding:6px; }
+    th { background: #333; }
+    a { color: #70c1b3; }
   </style>
 </head>
 <body>
@@ -124,6 +128,7 @@
     let currentQuestion = 0;
     const answers = {};
     const validated = {};
+    const firstAttemptCorrect = {};
     const quizContainer = document.getElementById("quizContainer");
     const navGrid = document.getElementById("navGrid");
 
@@ -141,6 +146,7 @@
       shuffledQuestions = shuffle([...originalQuestions]);
       Object.keys(validated).forEach(k => delete validated[k]);
       Object.keys(answers).forEach(k => delete answers[k]);
+      Object.keys(firstAttemptCorrect).forEach(k => delete firstAttemptCorrect[k]);
       shuffledQuestions.forEach((q, i) => {
         // Card
         const card = document.createElement("div");
@@ -186,6 +192,10 @@
         return;
       }
       answers[`q${index}`] = selected;
+      // Track first attempt result
+      if (firstAttemptCorrect[index] === undefined) {
+        firstAttemptCorrect[index] = (selected === shuffledQuestions[index].answer);
+      }
       if (selected === shuffledQuestions[index].answer) {
         feedback.innerHTML = `✅ Correct! ${shuffledQuestions[index].explanation}`;
         feedback.className = "feedback correct";
@@ -273,14 +283,40 @@
         : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
       document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
       document.getElementById("resetBtn").style.display = "inline-block";
+
+      // Build summary table of first attempts
+      let tableHtml = `<table style="margin:2rem auto;border-collapse:collapse;color:#fff;background:#222;">
+        <tr>
+          <th style="border:1px solid #444;padding:6px;">#</th>
+          <th style="border:1px solid #444;padding:6px;">Question</th>
+          <th style="border:1px solid #444;padding:6px;">First Attempt</th>
+          <th style="border:1px solid #444;padding:6px;">Suggested Revision</th>
+        </tr>`;
+      shuffledQuestions.forEach((q, i) => {
+        const correct = firstAttemptCorrect[i];
+        tableHtml += `<tr>
+          <td style="border:1px solid #444;padding:6px;">${i + 1}</td>
+          <td style="border:1px solid #444;padding:6px;">${q.text}</td>
+          <td style="border:1px solid #444;padding:6px;">${correct ? "✅ Correct" : "❌ Wrong"}</td>
+          <td style="border:1px solid #444;padding:6px;">`;
+        if (!correct) {
+          tableHtml += `Suggested Revision for Question No ${i + 1}: 
+            <a href="https://www.google.com/search?q=${encodeURIComponent(q.text)}" target="_blank" style="color:#70c1b3;">(Tested Here)</a>`;
+        }
+        tableHtml += `</td></tr>`;
+      });
+      tableHtml += `</table>`;
+      document.getElementById("summary").innerHTML += tableHtml;
     }
 
     function resetQuiz() {
       currentQuestion = 0;
       for (let key in answers) delete answers[key];
       for (let key in validated) delete validated[key];
+      for (let key in firstAttemptCorrect) delete firstAttemptCorrect[key];
       document.getElementById("result").textContent = "";
       document.getElementById("summary").textContent = "";
+      document.getElementById("summary").innerHTML = "";
       document.getElementById("resetBtn").style.display = "none";
       renderQuestions();
       showQuestion(currentQuestion);
