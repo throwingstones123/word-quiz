@@ -254,5 +254,98 @@
     }
 
     function updateProgress(percent) {
-      document.getElementById`*
-
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function checkAnswers() {
+      if (completed) return;
+
+      const defs = document.querySelectorAll('.definition');
+      let incomplete = false;
+      const wordBank = document.getElementById('words');
+      const start = currentSet * groupSize;
+
+      defs.forEach(def => {
+        const drop = def.querySelector('.drop-zone');
+        const hint = def.querySelector('.hint');
+        hint.textContent = '';
+
+        if (!drop.children.length) {
+          drop.style.borderColor = 'orange';
+          hint.textContent = "Please match a word before checking.";
+          incomplete = true;
+        }
+      });
+
+      if (incomplete) return;
+
+      let correctThisAttempt = 0;
+
+      defs.forEach((def, idx) => {
+        const answer = def.getAttribute('data-answer');
+        const drop = def.querySelector('.drop-zone');
+        const word = drop.children[0]?.id || "";
+        const hint = def.querySelector('.hint');
+
+        if (word.toLowerCase() === answer.toLowerCase()) {
+          drop.style.borderColor = 'green';
+          correctThisAttempt++;
+        } else {
+          if (drop.children.length > 0) {
+            wordBank.appendChild(drop.children[0]);
+          }
+          drop.style.borderColor = 'red';
+          hint.textContent = getHint(answer);
+        }
+      });
+
+      // Only add score for the first attempt on this section
+      if (firstAttemptFlags[currentSet] === undefined) {
+        scoreCount += correctThisAttempt;
+        firstAttemptFlags[currentSet] = true;
+      }
+
+      document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
+
+      // Check if all are correct now (across current attempt)
+      let allCorrect = true;
+      defs.forEach(def => {
+        const answer = def.getAttribute('data-answer');
+        const drop = def.querySelector('.drop-zone');
+        const word = drop.children[0]?.id || "";
+        if (word.toLowerCase() !== answer.toLowerCase()) {
+          allCorrect = false;
+        }
+      });
+
+      if (allCorrect) {
+        if (!sectionCompletedFlags[currentSet]) {
+          sectionCompletedFlags[currentSet] = true;
+          const percent = (scoreCount / data.length) * 100;
+          if ((currentSet + 1) * groupSize >= data.length) {
+            // Finished all sets
+            document.getElementById("summary").textContent = percent >= 50
+              ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
+              : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
+            document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+            completed = true;
+            document.getElementById("restartBtn").style.display = 'inline-block';
+            document.getElementById("checkBtn").style.display = 'none';
+            document.getElementById("completedBanner").style.display = "block";
+            updateProgress(100);
+          } else {
+            currentSet++;
+            loadSet();
+            updateProgress((scoreCount / data.length) * 100);
+          }
+        } else {
+          document.getElementById("score").textContent = `Section already completed! You got ${scoreCount} out of ${data.length} correct.`;
+        }
+      }
+    }
+
+    // Launch
+    restartQuiz();
+  </script>
+</body>
+</html>
