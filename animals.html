@@ -165,7 +165,6 @@
         if (i === 0) card.classList.add("active");
 
         card.innerHTML = `
-          <p>Question - ${q.answer}</p>
           <p>${q.text}</p>
           ${q.options.map(opt => `
             <label>
@@ -224,7 +223,6 @@
     }
 
     function updateCheckButton() {
-      // Move "Check" button to match the current question
       document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
     }
 
@@ -310,10 +308,9 @@
           <td style="border:1px solid #444;padding:6px;">${correct ? "✅ Correct" : "❌ Wrong"}</td>
           <td style="border:1px solid #444;padding:6px;">`;
         if (!correct) {
+          tableHtml += `Question - ${q.answer}`;
           if (q.revisionLink) {
-            tableHtml += `<a href="${q.revisionLink}" target="_blank" style="color:#70c1b3;">(Review Here)</a>`;
-          } else {
-            tableHtml += `No link provided.`;
+            tableHtml += ` <a href="${q.revisionLink}" target="_blank" style="color:#70c1b3;">(Review Here)</a>`;
           }
         }
         tableHtml += `</td></tr>`;
