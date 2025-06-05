@@ -156,7 +156,7 @@
     let scoreCount = 0;
     let completed = false;
     let sectionCompletedFlags = [];
-    let sectionCorrectFlags = []; // <--- NEW: track correct per-question in each section
+    let sectionCorrectFlags = [];
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -189,7 +189,6 @@
       if (sectionCompletedFlags.length <= currentSet) {
         sectionCompletedFlags[currentSet] = false;
       }
-      // Initialize correct flags for this section (false for each question)
       sectionCorrectFlags[currentSet] = Array(set.length).fill(false);
 
       const defBox = document.getElementById("definitionBox");
@@ -235,9 +234,7 @@
       const dataId = ev.dataTransfer.getData("text");
       const wordElement = document.getElementById(dataId);
       const wordBank = document.getElementById('words');
-
       if (!ev.target.classList.contains('drop-zone') && !ev.target.classList.contains('word-bank')) return;
-
       if (ev.target.classList.contains('drop-zone')) {
         if (ev.target.children.length > 0) {
           const existingWord = ev.target.children[0];
@@ -259,81 +256,86 @@
     }
 
     function checkAnswers() {
-  if (completed) return;
+      if (completed) return;
 
-  const defs = document.querySelectorAll('.definition');
-  let incomplete = false;
-  const start = currentSet * groupSize;
+      const defs = document.querySelectorAll('.definition');
+      let incomplete = false;
+      const wordBank = document.getElementById('words');
+      const start = currentSet * groupSize;
 
-  defs.forEach(def => {
-    const drop = def.querySelector('.drop-zone');
-    const hint = def.querySelector('.hint');
-    hint.textContent = '';
+      defs.forEach(def => {
+        const drop = def.querySelector('.drop-zone');
+        const hint = def.querySelector('.hint');
+        hint.textContent = '';
 
-    if (!drop.children.length) {
-      drop.style.borderColor = 'orange';
-      hint.textContent = "Please match a word before checking.";
-      incomplete = true;
-    }
-  });
+        if (!drop.children.length) {
+          drop.style.borderColor = 'orange';
+          hint.textContent = "Please match a word before checking.";
+          incomplete = true;
+        }
+      });
 
-  if (incomplete) return;
+      if (incomplete) return;
 
-  let newlyCorrect = 0;
+      let newlyCorrect = 0;
 
-  defs.forEach((def, idx) => {
-    const answer = def.getAttribute('data-answer');
-    const drop = def.querySelector('.drop-zone');
-    const word = drop.children[0]?.id || "";
-    const hint = def.querySelector('.hint');
+      defs.forEach((def, idx) => {
+        const answer = def.getAttribute('data-answer');
+        const drop = def.querySelector('.drop-zone');
+        const word = drop.children[0]?.id || "";
+        const hint = def.querySelector('.hint');
 
-    if (word.toLowerCase() === answer.toLowerCase()) {
-      drop.style.borderColor = 'green';
-      if (!sectionCorrectFlags[currentSet][idx]) {
-        sectionCorrectFlags[currentSet][idx] = true;
-        scoreCount += 1;
-        newlyCorrect += 1;
-      }
-    } else {
-      drop.style.borderColor = 'red';
-      hint.textContent = getHint(answer);
-    }
-  });
+        if (word.toLowerCase() === answer.toLowerCase()) {
+          drop.style.borderColor = 'green';
+          if (!sectionCorrectFlags[currentSet][idx]) {
+            sectionCorrectFlags[currentSet][idx] = true;
+            scoreCount += 1;
+            newlyCorrect += 1;
+          }
+        } else {
+          if (drop.children.length > 0) {
+            // Move the wrong word back to the word bank
+            wordBank.appendChild(drop.children[0]);
+          }
+          drop.style.borderColor = 'red';
+          hint.textContent = getHint(answer);
+        }
+      });
 
-  document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
+      document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
 
-  // --- NEW: Check if all items in sectionCorrectFlags[currentSet] are true ---
-  const allCorrect = sectionCorrectFlags[currentSet].every(flag => flag);
+      // Check if all items in sectionCorrectFlags[currentSet] are true
+      const allCorrect = sectionCorrectFlags[currentSet].every(flag => flag);
 
-  if (allCorrect) {
-    if (!sectionCompletedFlags[currentSet]) {
-      sectionCompletedFlags[currentSet] = true;
-      const percent = (scoreCount / data.length) * 100;
-      if ((currentSet + 1) * groupSize >= data.length) {
-        // Finished all sets
-        document.getElementById("summary").textContent = percent >= 50
-          ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
-          : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
-        document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
-        completed = true;
-        document.getElementById("restartBtn").style.display = 'inline-block';
-        document.getElementById("checkBtn").style.display = 'none';
-        document.getElementById("completedBanner").style.display = "block";
-        updateProgress(100);
+      if (allCorrect) {
+        if (!sectionCompletedFlags[currentSet]) {
+          sectionCompletedFlags[currentSet] = true;
+          const percent = (scoreCount / data.length) * 100;
+          if ((currentSet + 1) * groupSize >= data.length) {
+            // Finished all sets
+            document.getElementById("summary").textContent = percent >= 50
+              ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
+              : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
+            document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+            completed = true;
+            document.getElementById("restartBtn").style.display = 'inline-block';
+            document.getElementById("checkBtn").style.display = 'none';
+            document.getElementById("completedBanner").style.display = "block";
+            updateProgress(100);
+          } else {
+            currentSet++;
+            loadSet();
+            updateProgress((scoreCount / data.length) * 100);
+          }
+        } else {
+          document.getElementById("score").textContent = `Section already completed! You got ${scoreCount} out of ${data.length} correct.`;
+        }
       } else {
-        currentSet++;
-        loadSet();
-        updateProgress((scoreCount / data.length) * 100);
+        if (newlyCorrect > 0) {
+          document.getElementById("score").textContent += ` (+${newlyCorrect} new correct this round)`;
+        }
       }
-    } else {
-      document.getElementById("score").textContent = `Section already completed! You got ${scoreCount} out of ${data.length} correct.`;
     }
-  } else {
-    if (newlyCorrect > 0) {
-      document.getElementById("score").textContent += ` (+${newlyCorrect} new correct this round)`;
-    }
-  }
-}
 
     // Launch
     restartQuiz();
