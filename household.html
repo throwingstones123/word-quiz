@@ -113,6 +113,9 @@
       color: #00ffaa;
       display: none;
     }
+    #restartBtn {
+      margin-top: 2rem;
+    }
     table { background: #222; margin: 2rem auto; border-collapse:collapse; color:#fff; }
     th, td { border:1px solid #444; padding:6px; }
     th { background: #333; }
@@ -143,16 +146,16 @@
   <script>
     const originalData = [
       { id: "Altar", text: "Ancestor Altar", def: "A dedicated shrine or space in a household", hint: "Hint: It’s often used for honoring ancestors.", revisionLink: "https://en.wikipedia.org/wiki/Ancestor_veneration_in_Vietnam" },
-      { id: "Pot", text: "Earthenware Pot", def: "A cooking utensil made from baked clay", hint: "Hint: Think of traditional cookware made from clay.", revisionLink: "https://en.wikipedia.org/wiki/Earthenware" },
-      { id: "Mat", text: "Straw Mat", def: "Made from dried reeds, rushes, or straw, woven together, commonly used in Southeast Asian homes", hint: "Hint: These are commonly found on the floors of traditional homes.", revisionLink: "https://en.wikipedia.org/wiki/Mat_(bed)" },
-      { id: "Lantern", text: "Silk Lantern", def: "Used for decoration and lighting, especially during festivals", hint: "Hint: A colorful item seen hanging during celebrations.", revisionLink: "https://en.wikipedia.org/wiki/Lantern" },
+      { id: "Pot", text: "Earthenware Pot", def: "A cooking utensil made from baked clay", hint: "Hint: Think of traditional cookware made from clay.", revisionLink: "https://en.wikipedia.org/wiki/Cookware_and_bakeware" },
+      { id: "Mat", text: "Straw Mat", def: "Made from dried reeds, rushes, or straw, woven together, commonly used in Southeast Asian homes", hint: "Hint: These are commonly found on the floors of traditional homes.", revisionLink: "https://en.wikipedia.org/wiki/Mat" },
+      { id: "Lantern", text: "Silk Lantern", def: "Used for decoration and lighting, especially during festivals", hint: "Hint: A colorful item seen hanging during celebrations.", revisionLink: "https://en.wikipedia.org/wiki/Lantern_Festival" },
       { id: "Broom", text: "Coconut Broom", def: "Traditional household cleaning tool made from coconut fibers", hint: "Hint: A sweeping device made from natural materials.", revisionLink: "https://en.wikipedia.org/wiki/Broom" },
       { id: "Pestle", text: "Pestle", def: "A heavy stick made of clay, stone, or metal with a thick, rounded end", hint: "Hint: Often used for crushing substances in a small, strong bowl.", revisionLink: "https://en.wikipedia.org/wiki/Pestle_and_mortar" },
       { id: "Mortar", text: "Mortar", def: "A strong bowl in which substances are crushed", hint: "Hint: Often used with a pestle.", revisionLink: "https://en.wikipedia.org/wiki/Pestle_and_mortar" },
-      { id: "Fan", text: "Palm-leaf Fan", def: "Commonly used in Vietnamese households to cool off during hot weather.", hint: "Hint: Often associated with countryside life.", revisionLink: "https://en.wikipedia.org/wiki/Fan_(implement)" },
-      { id: "Duster", text: "Feather Duster", def: "A traditional Vietnamese cleaning tool made by tying animal fur onto a bamboo stick", hint: "Hint: Light, flexible, and very effective in delicate areas.", revisionLink: "https://en.wikipedia.org/wiki/Duster" },
-      { id: "Pole", text: "Carrying Pole", def: "A long, flexible wooden or bamboo holding stick carried across the shoulders, used by Vietnamese people", hint: "Hint: Symbolizing hard work and balance.", revisionLink: "https://en.wikipedia.org/wiki/Yoke" },
-      { id: "Stove", text: "Honeycomb Stove", def: "A compact, cylindrical charcoal stove commonly used in Vietnamese households", hint: "Hint: Small and portable, perfect for traditional cooking.", revisionLink: "https://vi.wikipedia.org/wiki/B%E1%BA%BFp_ong" },
+      { id: "Fan", text: "Palm-leaf Fan", def: "Commonly used in Vietnamese households to cool off during hot weather.", hint: "Hint: Often associated with countryside life.", revisionLink: "https://en.wikipedia.org/wiki/Hand_fan" },
+      { id: "Duster", text: "Feather Duster", def: "A traditional Vietnamese cleaning tool made by tying animal fur onto a bamboo stick", hint: "Hint: Light, flexible, and very effective in delicate cleaning.", revisionLink: "https://en.wikipedia.org/wiki/Duster" },
+      { id: "Pole", text: "Carrying Pole", def: "A long, flexible wooden or bamboo holding stick carried across the shoulders, used by Vietnamese people", hint: "Hint: Symbolizing hard work and balance.", revisionLink: "https://en.wikipedia.org/wiki/Yoke_(carrying)" },
+      { id: "Stove", text: "Honeycomb Stove", def: "A compact, cylindrical charcoal stove commonly used in Vietnamese households", hint: "Hint: Small and portable, perfect for traditional cooking.", revisionLink: "https://en.wikipedia.org/wiki/Stove" },
       { id: "Plow", text: "Plow", def: "A farming tool with a curved blade pulled by animals or machines", hint: "Hint: A vital tool in Vietnamese agriculture, especially in wet rice farming.", revisionLink: "https://en.wikipedia.org/wiki/Plough" }
     ];
 
@@ -164,7 +167,7 @@
     let sectionCompletedFlags = [];
     let sectionCorrectFlags = [];
     let firstAttemptFlags = [];
-    let globalFirstAttemptCorrect = []; // Array matching data indices for first attempt correctness
+    let globalFirstAttemptCorrect = [];
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -185,6 +188,7 @@
       globalFirstAttemptCorrect = Array(data.length).fill(undefined);
       document.getElementById("score").textContent = '';
       document.getElementById("summary").textContent = '';
+      document.getElementById("summary").innerHTML = '';
       document.getElementById("completedBanner").style.display = "none";
       document.getElementById("restartBtn").style.display = "none";
       document.getElementById("checkBtn").style.display = "inline-block";
@@ -362,12 +366,12 @@
     function buildSummaryTable(percent) {
       let res = '';
       res += percent >= 50
-        ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
-        : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
       res += `<table>
         <tr>
           <th>#</th>
-          <th>Definition</th>
+          <th>Question</th>
           <th>First Attempt</th>
           <th>Suggested Revision</th>
         </tr>`;
