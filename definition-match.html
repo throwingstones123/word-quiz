@@ -113,6 +113,13 @@
       color: #00ffaa;
       display: none;
     }
+    #restartBtn {
+      margin-top: 2rem;
+    }
+    table { background: #222; margin: 2rem auto; border-collapse:collapse; color:#fff; }
+    th, td { border:1px solid #444; padding:6px; }
+    th { background: #333; }
+    a { color: #7ad1d4; }
   </style>
 </head>
 <body>
@@ -139,14 +146,14 @@
   <script>
     const originalData = [
       { id: "hat", text: "Conical Hat", def: "A large piece of headwear popular in some Asian countries, made of bamboo or straw", hint: "Hint: Often seen in rice paddies or markets" },
-      { id: "dress", text: "Five-part Dress", def: "A traditional garment worn in Vietnam, particularly during the 18th century. It's considered the predecessor to the more modern áo dài", hint: "Hint: Worn by Vietnamese women in the past" },
+      { id: "dress", text: "Five-part Dress", def: "A traditional garment worn in Vietnam, particularly during the 18th century. It's considered the predecessor to the more modern áo dài", hint: "Hint: Historic Vietnamese formalwear" },
       { id: "turban", text: "Turban", def: "A piece of headscarf worn by Vietnamese men, particularly in historical or ceremonial contexts.", hint: "Hint: Often worn on formal occasions" },
       { id: "4dress", text: "Four-Flapped Dress", def: "a Vietnamese garment which consists of a four-part layered design", hint: "Hint: Signifies the importance of family in Vietnamese culture." },
-      { id: "Blouse", text: "Loose-Fitting Blouse", def: "A traditional Vietnamese garment, typically worn in Southern Vietnam, particularly the Mekong Delta region.", hint: "Hint: Reflects a harmony with the river region." },
-      { id: "Bodice", text: "Bodice", def: "The upper part of a woman’s or child’s dress", hint: "Hint: Represents a distinct sartorial heritage that resisted full assimilation by neighboring cultures." },
+      { id: "Blouse", text: "Loose-Fitting Blouse", def: "A traditional Vietnamese garment, typically worn in Southern Vietnam, particularly the Mekong Delta region.", hint: "Hint: Reflects a harmony with the tropical climate" },
+      { id: "Bodice", text: "Bodice", def: "The upper part of a woman’s or child’s dress", hint: "Hint: Represents a distinct sartorial heritage that resisted full assimilation by neighboring cultures" },
       { id: "SquareRobe", text: "Square-collared Robe", def: "A traditional outfit for women during the Nguyen Dynasty", hint: "Hint: Typically worn by Empresses, Princesses, and imperial concubines." },
-      { id: "CrossRobe", text: "Cross-collared Robe", def: "A traditional robe worn by Vietnamese before the 19th century, often worn by elites", hint: "Hint: Once the dominant form of attire, it was replaced by other styles." },
-      { id: "palmhat", text: "Flat Palm Hat With Fringes", def: "A hat with a flat top, with a cone diameter of about 70–80 cm and a brim that is 10–12 cm high", hint: "Hint: Considered a marker of Vietnamese identity in some regions." },
+      { id: "CrossRobe", text: "Cross-collared Robe", def: "A traditional robe worn by Vietnamese before the 19th century, often worn by elites", hint: "Hint: Once the dominant form of attire, it was later replaced by the áo dài" },
+      { id: "palmhat", text: "Flat Palm Hat With Fringes", def: "A hat with a flat top, with a cone diameter of about 70–80 cm and a brim that is 10–12 cm high", hint: "Hint: Considered a marker of femininity and beauty" },
       { id: "aodai", text: "Ao Dai", def: " A Vietnamese woman's high-necked tunic with ankle-length panels", hint: "Some claim that the dress first appeared as early as AD 38-42" }
     ];
 
@@ -158,6 +165,7 @@
     let sectionCompletedFlags = [];
     let sectionCorrectFlags = [];
     let firstAttemptFlags = [];
+    let globalFirstAttemptCorrect = [];
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -175,8 +183,10 @@
       sectionCompletedFlags = [];
       sectionCorrectFlags = [];
       firstAttemptFlags = [];
+      globalFirstAttemptCorrect = Array(data.length).fill(undefined);
       document.getElementById("score").textContent = '';
       document.getElementById("summary").textContent = '';
+      document.getElementById("summary").innerHTML = '';
       document.getElementById("completedBanner").style.display = "none";
       document.getElementById("restartBtn").style.display = "none";
       document.getElementById("checkBtn").style.display = "inline-block";
@@ -202,6 +212,7 @@
         const def = document.createElement("div");
         def.className = "definition";
         def.setAttribute("data-answer", item.id);
+        def.setAttribute("data-global-idx", data.indexOf(item));
         def.innerHTML = `
           ${item.def}
           <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
@@ -283,6 +294,7 @@
 
       defs.forEach((def, idx) => {
         const answer = def.getAttribute('data-answer');
+        const globalIdx = parseInt(def.getAttribute('data-global-idx'));
         const drop = def.querySelector('.drop-zone');
         const word = drop.children[0]?.id || "";
         const hint = def.querySelector('.hint');
@@ -290,12 +302,18 @@
         if (word.toLowerCase() === answer.toLowerCase()) {
           drop.style.borderColor = 'green';
           correctThisAttempt++;
+          if (globalFirstAttemptCorrect[globalIdx] === undefined) {
+            globalFirstAttemptCorrect[globalIdx] = true;
+          }
         } else {
           if (drop.children.length > 0) {
             wordBank.appendChild(drop.children[0]);
           }
           drop.style.borderColor = 'red';
           hint.textContent = getHint(answer);
+          if (globalFirstAttemptCorrect[globalIdx] === undefined) {
+            globalFirstAttemptCorrect[globalIdx] = false;
+          }
         }
       });
 
@@ -324,14 +342,11 @@
           const percent = (scoreCount / data.length) * 100;
           if ((currentSet + 1) * groupSize >= data.length) {
             // Finished all sets
-            document.getElementById("summary").textContent = percent >= 50
-              ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
-              : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
-            document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
-            completed = true;
-            document.getElementById("restartBtn").style.display = 'inline-block';
             document.getElementById("checkBtn").style.display = 'none';
             document.getElementById("completedBanner").style.display = "block";
+            document.getElementById("restartBtn").style.display = 'inline-block';
+            document.getElementById("summary").innerHTML = buildSummaryTable(percent);
+            completed = true;
             updateProgress(100);
           } else {
             currentSet++;
@@ -342,6 +357,30 @@
           document.getElementById("score").textContent = `Section already completed! You got ${scoreCount} out of ${data.length} correct.`;
         }
       }
+    }
+
+    function buildSummaryTable(percent) {
+      let res = '';
+      res += percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      res += `<table>
+        <tr>
+          <th>#</th>
+          <th>Question</th>
+          <th>First Attempt</th>
+          <th>Suggested Revision</th>
+        </tr>`;
+      data.forEach((item, i) => {
+        res += `<tr>
+          <td>${i + 1}</td>
+          <td>${item.def}</td>
+          <td>${globalFirstAttemptCorrect[i] ? "✅ Correct" : "❌ Wrong"}</td>
+          <td></td>
+        </tr>`;
+      });
+      res += `</table>`;
+      return res;
     }
 
     // Launch
