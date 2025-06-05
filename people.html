@@ -84,6 +84,10 @@
       font-size: 1.2rem;
       font-weight: bold;
     }
+    table { background: #222; margin: 2rem auto; border-collapse:collapse; color:#fff; }
+    th, td { border:1px solid #444; padding:6px; }
+    th { background: #333; }
+    a { color: #7ad1d4; }
   </style>
 </head>
 <body>
@@ -111,56 +115,64 @@
                    <strong>Jamie:</strong> Oh, that'd be the`,
         answer: "Cham",
         feedbackCorrect: "✅ Correct! The Cham built many Hindu-style towers.",
-        feedbackIncorrect: "❌ Incorrect. Think about Hindu influence."
+        feedbackIncorrect: "❌ Incorrect. Think about Hindu influence.",
+        revisionLink: "https://en.wikipedia.org/wiki/Champa"
       },
       {
         dialogue: `<strong>Alex:</strong> That lady with large bone earrings - what's her ethnic group again?<br>
                    <strong>Jamie:</strong> Oh, she'd be`,
         answer: "Stieng",
         feedbackCorrect: "✅ Correct! Stieng people wear traditional bone earrings.",
-        feedbackIncorrect: "❌ Incorrect. Look for distinctive traditions."
+        feedbackIncorrect: "❌ Incorrect. Look for distinctive traditions.",
+        revisionLink: "https://en.wikipedia.org/wiki/Stieng_people"
       },
       {
         dialogue: `<strong>Jamie:</strong> These vibrant performances with huge drums and fans—what ethnic group are they from again?<br>
                    <strong>Paul:</strong> Ah, you're talking about the`,
         answer: "Kinh",
         feedbackCorrect: "✅ Correct! Kinh people have strong ties to Vietnamese traditional theatre and music.",
-        feedbackIncorrect: "❌ Not quite. Think of the majority ethnic group in Vietnam."
+        feedbackIncorrect: "❌ Not quite. Think of the majority ethnic group in Vietnam.",
+        revisionLink: "https://en.wikipedia.org/wiki/Kinh_people"
       },
       {
         dialogue: `<strong>Alex:</strong> I saw those towering wooden graves decorated with figures and buffalo—who does that?<br>
                    <strong>Quỳnh:</strong> That’s a tradition of the`,
         answer: "Jarai",
         feedbackCorrect: "✅ Correct! Jarai people are known for their unique grave statues and house-on-stilts culture.",
-        feedbackIncorrect: "❌ Nope. Think highlands and wooden sculptures."
+        feedbackIncorrect: "❌ Nope. Think highlands and wooden sculptures.",
+        revisionLink: "https://en.wikipedia.org/wiki/Jarai_people"
       },
       {
         dialogue: `<strong>Jamie:</strong> These folks wear that long indigo outfit with the distinctive red scarf—who are they?<br>
                    <strong>Paul:</strong> Sounds like the`,
         answer: "Tay",
         feedbackCorrect: "✅ Correct! Tay people wear long indigo outfits, often with red scarves or headdresses.",
-        feedbackIncorrect: "❌ Try again. Focus on traditional clothing."
+        feedbackIncorrect: "❌ Try again. Focus on traditional clothing.",
+        revisionLink: "https://en.wikipedia.org/wiki/Tay_people_(Vietnam)"
       },
       {
         dialogue: `<strong>Quỳnh:</strong> Who are those women with those colorful skirts and silver jewelry?<br>
                    <strong>Kyle:</strong> That’s classic`,
         answer: "Hmong",
         feedbackCorrect: "✅ Correct! The Hmong are known for their bright embroidery and silver adornments.",
-        feedbackIncorrect: "❌ Not quite. Think high mountains and colorful clothes."
+        feedbackIncorrect: "❌ Not quite. Think high mountains and colorful clothes.",
+        revisionLink: "https://en.wikipedia.org/wiki/Hmong_people"
       },
       {
         dialogue: `<strong>Alex:</strong> These people sing while farming and wear those black jackets—who are they?<br>
                    <strong>Jamie:</strong> That would be the`,
         answer: "Muong",
         feedbackCorrect: "✅ Correct! The Muong are famous for their folk songs during daily labor and black jackets.",
-        feedbackIncorrect: "❌ Think mountainous midland traditions."
+        feedbackIncorrect: "❌ Think mountainous midland traditions.",
+        revisionLink: "https://en.wikipedia.org/wiki/Muong_people"
       },
       {
         dialogue: `<strong>Kyle:</strong> Who celebrates Lunar New Year with lion dances and vibrant paper masks?<br>
                    <strong>Ash:</strong> That’s a strong tradition in the`,
         answer: "Nung",
         feedbackCorrect: "✅ Correct! Nung people have joyful Tet dances and vibrant masks.",
-        feedbackIncorrect: "❌ Think northern ethnic groups with festive dances."
+        feedbackIncorrect: "❌ Think northern ethnic groups with festive dances.",
+        revisionLink: "https://en.wikipedia.org/wiki/Nung_people"
       }
     ];
 
@@ -169,6 +181,7 @@
     let score = 0;
     const userAnswers = Array(totalQuestions).fill("");
     const validatedSteps = Array(totalQuestions).fill(false);
+    const firstAttemptCorrect = Array(totalQuestions).fill(undefined);
 
     function normalize(str) {
       return (str || "").trim().toLowerCase();
@@ -234,6 +247,9 @@
       }
 
       userAnswers[currentStep] = input.value;
+      if (firstAttemptCorrect[currentStep] === undefined) {
+        firstAttemptCorrect[currentStep] = (answer === correct);
+      }
       if (answer === correct) {
         if (!validatedSteps[currentStep]) score++;
         feedback.innerHTML = `<span class="correct">${questions[currentStep].feedbackCorrect}</span>`;
@@ -255,6 +271,31 @@
         summary.innerHTML = `❌ You scored ${percent.toFixed(0)}%. Keep practicing! (${score}/${totalQuestions})`;
         summary.style.color = "#ff4c4c";
       }
+      // Add feedback table
+      let tableHtml = `<table>
+        <tr>
+          <th>#</th>
+          <th>Question</th>
+          <th>First Attempt</th>
+          <th>Suggested Revision</th>
+        </tr>`;
+      questions.forEach((q, i) => {
+        tableHtml += `<tr>
+          <td>${i + 1}</td>
+          <td>${q.dialogue.replace(/<br>/g, " ")}</td>
+          <td>${firstAttemptCorrect[i] ? "✅ Correct" : "❌ Wrong"}</td>
+          <td>`;
+        if (!firstAttemptCorrect[i]) {
+          tableHtml += `Question - ${q.answer}`;
+          if (q.revisionLink) {
+            tableHtml += ` <a href="${q.revisionLink}" target="_blank" style="color:#7ad1d4;">(Review Here)</a>`;
+          }
+        }
+        tableHtml += `</td></tr>`;
+      });
+      tableHtml += `</table>`;
+      summary.innerHTML += tableHtml;
+
       document.getElementById("controls").style.display = "none";
       document.getElementById("resetBtn").style.display = "inline-block";
     }
@@ -265,6 +306,7 @@
       for (let i = 0; i < userAnswers.length; i++) {
         userAnswers[i] = "";
         validatedSteps[i] = false;
+        firstAttemptCorrect[i] = undefined;
       }
       document.getElementById("summary").innerHTML = "";
       document.getElementById("resetBtn").style.display = "none";
