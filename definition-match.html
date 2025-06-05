@@ -156,6 +156,7 @@
     let scoreCount = 0;
     let completed = false;
     let sectionCompletedFlags = [];
+    let sectionCorrectFlags = []; // <--- NEW: track correct per-question in each section
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -171,6 +172,7 @@
       scoreCount = 0;
       completed = false;
       sectionCompletedFlags = [];
+      sectionCorrectFlags = [];
       document.getElementById("score").textContent = '';
       document.getElementById("summary").textContent = '';
       document.getElementById("completedBanner").style.display = "none";
@@ -184,10 +186,11 @@
       const start = currentSet * groupSize;
       const set = data.slice(start, start + groupSize);
 
-      // If sectionCompletedFlags hasn't been initialized for this set, do so
       if (sectionCompletedFlags.length <= currentSet) {
         sectionCompletedFlags[currentSet] = false;
       }
+      // Initialize correct flags for this section (false for each question)
+      sectionCorrectFlags[currentSet] = Array(set.length).fill(false);
 
       const defBox = document.getElementById("definitionBox");
       const wordBank = document.getElementById("words");
@@ -255,12 +258,12 @@
       document.getElementById("progressBar").style.width = percent + "%";
     }
 
-    // --- REPLACE LINES 251-314 WITH THIS FUNCTION ---
     function checkAnswers() {
       if (completed) return;
 
       const defs = document.querySelectorAll('.definition');
       let incomplete = false;
+      const start = currentSet * groupSize;
 
       defs.forEach(def => {
         const drop = def.querySelector('.drop-zone');
@@ -276,9 +279,10 @@
 
       if (incomplete) return;
 
-      let correct = 0;
+      let newlyCorrect = 0;
+      let totalCorrectInSection = 0;
 
-      defs.forEach(def => {
+      defs.forEach((def, idx) => {
         const answer = def.getAttribute('data-answer');
         const drop = def.querySelector('.drop-zone');
         const word = drop.children[0]?.id || "";
@@ -286,21 +290,25 @@
 
         if (word.toLowerCase() === answer.toLowerCase()) {
           drop.style.borderColor = 'green';
-          correct++;
+          if (!sectionCorrectFlags[currentSet][idx]) {
+            sectionCorrectFlags[currentSet][idx] = true;
+            scoreCount += 1;
+            newlyCorrect += 1;
+          }
+          totalCorrectInSection += 1;
         } else {
           drop.style.borderColor = 'red';
           hint.textContent = getHint(answer);
         }
       });
 
-      // Always give feedback, but only increment score and advance the first time all are correct in the section
-      if (correct === defs.length) {
+      document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
+
+      // If all are correct in this section, advance to the next section only once
+      if (totalCorrectInSection === defs.length) {
         if (!sectionCompletedFlags[currentSet]) {
-          scoreCount += correct;
           sectionCompletedFlags[currentSet] = true;
           const percent = (scoreCount / data.length) * 100;
-          document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
-
           if ((currentSet + 1) * groupSize >= data.length) {
             // Finished all sets
             document.getElementById("summary").textContent = percent >= 50
@@ -322,15 +330,15 @@
           document.getElementById("score").textContent = `Section already completed! You got ${scoreCount} out of ${data.length} correct.`;
         }
       } else {
-        // Don't advance, don't update score, let user try again
-        document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct. Try again!`;
+        // Don't advance, let user try again
+        if (newlyCorrect > 0) {
+          document.getElementById("score").textContent += ` (+${newlyCorrect} new correct this round)`;
+        }
       }
     }
-    // --- END OF REPLACEMENT ---
 
     // Launch
     restartQuiz();
   </script>
-
 </body>
 </html>
