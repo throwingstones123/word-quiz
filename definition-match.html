@@ -139,14 +139,14 @@
   <script>
     const originalData = [
       { id: "hat", text: "Conical Hat", def: "A large piece of headwear popular in some Asian countries, made of bamboo or straw", hint: "Hint: Often seen in rice paddies or markets" },
-      { id: "dress", text: "Five-part Dress", def: "A traditional garment worn in Vietnam, particularly during the 18th century. It's considered the predecessor to the more modern áo dài", hint: "Hint: 18th century predecessor to áo dài" },
+      { id: "dress", text: "Five-part Dress", def: "A traditional garment worn in Vietnam, particularly during the 18th century. It's considered the predecessor to the more modern áo dài", hint: "Hint: Worn by Vietnamese women in the past" },
       { id: "turban", text: "Turban", def: "A piece of headscarf worn by Vietnamese men, particularly in historical or ceremonial contexts.", hint: "Hint: Often worn on formal occasions" },
-      { id: "4dress", text: "Four-Flapped Dress", def: "a Vietnamese garment which consists of a four-part layered design", hint: "Hint: Signifies the importance of family in Vietnamese culture. (Four flaps = parents, Two ties = children)" },
-      { id: "Blouse", text: "Loose-Fitting Blouse", def: "A traditional Vietnamese garment, typically worn in Southern Vietnam, particularly the Mekong Delta region.", hint: "Hint: Reflects a harmony between comfort and modesty" },
-      { id: "Bodice", text: "Bodice", def: "The upper part of a woman’s or child’s dress", hint: "Hint: Represents a distinct sartorial heritage that resisted full assimilation by neighboring cultures" },
-      { id: "SquareRobe", text: "Square-collared Robe", def: "A traditional outfit for women during the Nguyen Dynasty", hint: "Hint: Typically worn by Empresses, Princesses, and imperial concubines" },
-      { id: "CrossRobe", text: "Cross-collared Robe", def: "A traditional robe worn by Vietnamese before the 19th century, often worn by elites", hint: "Hint: Once the dominant form of attire, it is now mostly seen in festivals" },
-      { id: "palmhat", text: "Flat Palm Hat With Fringes", def: "A hat with a flat top, with a cone diameter of about 70–80 cm and a brim that is 10–12 cm high", hint: "Hint: Considered a marker of Vietnamese rural femininity" },
+      { id: "4dress", text: "Four-Flapped Dress", def: "a Vietnamese garment which consists of a four-part layered design", hint: "Hint: Signifies the importance of family in Vietnamese culture." },
+      { id: "Blouse", text: "Loose-Fitting Blouse", def: "A traditional Vietnamese garment, typically worn in Southern Vietnam, particularly the Mekong Delta region.", hint: "Hint: Reflects a harmony with the river region." },
+      { id: "Bodice", text: "Bodice", def: "The upper part of a woman’s or child’s dress", hint: "Hint: Represents a distinct sartorial heritage that resisted full assimilation by neighboring cultures." },
+      { id: "SquareRobe", text: "Square-collared Robe", def: "A traditional outfit for women during the Nguyen Dynasty", hint: "Hint: Typically worn by Empresses, Princesses, and imperial concubines." },
+      { id: "CrossRobe", text: "Cross-collared Robe", def: "A traditional robe worn by Vietnamese before the 19th century, often worn by elites", hint: "Hint: Once the dominant form of attire, it was replaced by other styles." },
+      { id: "palmhat", text: "Flat Palm Hat With Fringes", def: "A hat with a flat top, with a cone diameter of about 70–80 cm and a brim that is 10–12 cm high", hint: "Hint: Considered a marker of Vietnamese identity in some regions." },
       { id: "aodai", text: "Ao Dai", def: " A Vietnamese woman's high-necked tunic with ankle-length panels", hint: "Some claim that the dress first appeared as early as AD 38-42" }
     ];
 
@@ -155,6 +155,7 @@
     let currentSet = 0;
     let scoreCount = 0;
     let completed = false;
+    let sectionCompletedFlags = [];
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -169,6 +170,7 @@
       currentSet = 0;
       scoreCount = 0;
       completed = false;
+      sectionCompletedFlags = [];
       document.getElementById("score").textContent = '';
       document.getElementById("summary").textContent = '';
       document.getElementById("completedBanner").style.display = "none";
@@ -181,6 +183,11 @@
     function loadSet() {
       const start = currentSet * groupSize;
       const set = data.slice(start, start + groupSize);
+
+      // If sectionCompletedFlags hasn't been initialized for this set, do so
+      if (sectionCompletedFlags.length <= currentSet) {
+        sectionCompletedFlags[currentSet] = false;
+      }
 
       const defBox = document.getElementById("definitionBox");
       const wordBank = document.getElementById("words");
@@ -251,6 +258,12 @@
     function checkAnswers() {
       if (completed) return;
 
+      // If this section already completed, do not allow resubmission for points
+      if (sectionCompletedFlags[currentSet]) {
+        document.getElementById("score").textContent = `You already completed this section!`;
+        return;
+      }
+
       const defs = document.querySelectorAll('.definition');
       let incomplete = false;
 
@@ -285,9 +298,12 @@
         }
       });
 
-      // Only move to next set and update score if all are correct in this set
+      // If all are correct, only increment score and advance if not already completed
       if (correct === defs.length) {
-        scoreCount += correct;
+        if (!sectionCompletedFlags[currentSet]) {
+          scoreCount += correct;
+          sectionCompletedFlags[currentSet] = true;
+        }
         const percent = (scoreCount / data.length) * 100;
         document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
 
@@ -309,7 +325,7 @@
         }
       } else {
         // Don't advance, don't update score, let user try again
-        document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
+        document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct. Try again!`;
       }
     }
 
