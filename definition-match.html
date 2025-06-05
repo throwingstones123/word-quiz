@@ -255,14 +255,9 @@
       document.getElementById("progressBar").style.width = percent + "%";
     }
 
+    // --- REPLACE LINES 251-314 WITH THIS FUNCTION ---
     function checkAnswers() {
       if (completed) return;
-
-      // If this section already completed, do not allow resubmission for points
-      if (sectionCompletedFlags[currentSet]) {
-        document.getElementById("score").textContent = `You already completed this section!`;
-        return;
-      }
 
       const defs = document.querySelectorAll('.definition');
       let incomplete = false;
@@ -298,36 +293,40 @@
         }
       });
 
-      // If all are correct, only increment score and advance if not already completed
+      // Always give feedback, but only increment score and advance the first time all are correct in the section
       if (correct === defs.length) {
         if (!sectionCompletedFlags[currentSet]) {
           scoreCount += correct;
           sectionCompletedFlags[currentSet] = true;
-        }
-        const percent = (scoreCount / data.length) * 100;
-        document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
+          const percent = (scoreCount / data.length) * 100;
+          document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
 
-        if ((currentSet + 1) * groupSize >= data.length) {
-          // Finished all sets
-          document.getElementById("summary").textContent = percent >= 50
-            ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
-            : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
-          document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
-          completed = true;
-          document.getElementById("restartBtn").style.display = 'inline-block';
-          document.getElementById("checkBtn").style.display = 'none';
-          document.getElementById("completedBanner").style.display = "block";
-          updateProgress(100);
+          if ((currentSet + 1) * groupSize >= data.length) {
+            // Finished all sets
+            document.getElementById("summary").textContent = percent >= 50
+              ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
+              : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
+            document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+            completed = true;
+            document.getElementById("restartBtn").style.display = 'inline-block';
+            document.getElementById("checkBtn").style.display = 'none';
+            document.getElementById("completedBanner").style.display = "block";
+            updateProgress(100);
+          } else {
+            currentSet++;
+            loadSet();
+            updateProgress((scoreCount / data.length) * 100);
+          }
         } else {
-          currentSet++;
-          loadSet();
-          updateProgress((scoreCount / data.length) * 100);
+          // Section already completed, but still show feedback
+          document.getElementById("score").textContent = `Section already completed! You got ${scoreCount} out of ${data.length} correct.`;
         }
       } else {
         // Don't advance, don't update score, let user try again
         document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct. Try again!`;
       }
     }
+    // --- END OF REPLACEMENT ---
 
     // Launch
     restartQuiz();
