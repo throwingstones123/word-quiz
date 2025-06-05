@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Household Items Miniquiz</title>
+  <title>Household Items Match Quiz</title>
   <style>
     body {
       background-color: #111;
@@ -13,69 +13,129 @@
       padding: 2rem;
       text-align: center;
     }
-    h1 { font-size: 2.5rem; color: #7ad1d4; margin-bottom: 1rem; }
+    h1 {
+      font-size: 2.5rem;
+      color: #7ad1d4;
+      margin-bottom: 1rem;
+    }
     .progress-container {
-      width: 100%; max-width: 700px; height: 20px; background-color: #333;
-      border-radius: 25px; overflow: hidden; margin: 1rem auto 2rem;
+      width: 100%;
+      max-width: 700px;
+      height: 20px;
+      background-color: #333;
+      border-radius: 25px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
     }
     .progress-bar {
-      height: 100%; width: 0%; background-color: #7ad1d4;
-      transition: width 0.5s ease-in-out;
+      height: 100%;
+      width: 0%;
+      background-color: #7ad1d4;
+      transition: width 0.4s ease;
     }
     .quiz-container {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
-      max-width: 1000px; margin: 2rem auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 2rem auto;
     }
     .definition-box, .word-bank {
-      background: rgba(0, 0, 0, 0.75); padding: 1rem; border-radius: 10px;
-      min-height: 200px; border: 2px solid #888;
+      border: 1px solid #555;
+      background: #000;
+      padding: 1rem;
+      border-radius: 10px;
+      min-height: 200px;
     }
     .definition {
-      margin: 1rem 0; padding: 1rem; background-color: #111;
-      border-radius: 8px; border: 2px solid #333;
+      margin: 1rem 0;
+      padding: 1rem;
+      border: 1px solid #333;
+      background-color: #111;
+      border-radius: 8px;
     }
     .drop-zone {
-      border: 2px dashed #555; padding: 0.5rem;
-      margin-top: 0.5rem; min-height: 40px; font-weight: bold;
+      border: 2px dashed #555;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      min-height: 40px;
+      font-weight: bold;
       transition: background-color 0.3s, border-color 0.3s;
     }
-    .drop-zone.hovered { background-color: #222; }
+    .drop-zone.hovered {
+      background-color: #222;
+    }
     .word {
-      display: inline-block; margin: 0.5rem;
-      padding: 0.5rem 1rem; background-color: #222;
-      border: 1px solid #555; border-radius: 5px; cursor: grab;
-      font-weight: bold; transition: transform 0.2s ease;
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #222;
+      border: 1px solid #555;
+      border-radius: 5px;
+      cursor: grab;
+      font-weight: bold;
+      transition: transform 0.2s ease;
     }
     .word:hover {
-      transform: scale(1.1); background-color: #7ad1d4; color: black;
+      transform: scale(1.1);
+      background-color: #7ad1d4;
+      color: black;
     }
     button {
-      margin-top: 2rem; padding: 10px 20px; font-weight: bold;
-      background: #7ad1d4; border: none; cursor: pointer;
-      font-size: 1rem; border-radius: 5px;
+      margin-top: 2rem;
+      padding: 10px 20px;
+      font-weight: bold;
+      background: #7ad1d4;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      border-radius: 5px;
     }
-    #score { margin-top: 1.5rem; font-size: 1.2rem; color: #7ad1d4; }
-    #summary { font-size: 1.2rem; font-weight: bold; margin-top: 1rem; }
-    .hint { color: #ff4c4c; font-size: 0.9rem; margin-top: 0.3rem; }
-    #nextBtn { margin-left: 1rem; background: #49cc90; }
-    #checkBtn[disabled] { opacity: 0.5; cursor: not-allowed; }
+    #score {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      color: #7ad1d4;
+    }
+    #summary {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    .hint {
+      font-size: 0.9rem;
+      color: #ff4c4c;
+      margin-top: 0.3rem;
+    }
+    #completedBanner {
+      margin-top: 2rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #00ffaa;
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h1>Match the Definitions</h1>
+
+  <h1>Match the Household Item</h1>
+
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
+
   <div class="quiz-container">
     <div class="definition-box" id="definitionBox"></div>
     <div class="word-bank" ondrop="drop(event)" ondragover="allowDrop(event)">
       <div id="words"></div>
     </div>
   </div>
+
   <button id="checkBtn" onclick="checkAnswers()">Check Answers</button>
   <div id="score"></div>
   <div id="summary"></div>
+  <div id="completedBanner">🎉 You've completed the quiz!</div>
   <button id="restartBtn" onclick="restartQuiz()" style="display:none;">Play Again</button>
+
   <script>
     const originalData = [
       { id: "Altar", text: "Ancestor Altar", def: "A dedicated shrine or space in a household", hint: "Hint: It’s often used for honoring ancestors." },
@@ -91,37 +151,49 @@
       { id: "Stove", text: "Honeycomb Stove", def: "A compact, cylindrical charcoal stove commonly used in Vietnamese households", hint: "Hint: Small and portable, perfect for traditional cooking." },
       { id: "Plow", text: "Plow", def: "A farming tool with a curved blade pulled by animals or machines", hint: "Hint: A vital tool in Vietnamese agriculture, especially in wet rice farming." }
     ];
+
     let data = [];
-    const groupSize = 4;
+    let groupSize = 3;
     let currentSet = 0;
     let scoreCount = 0;
     let completed = false;
+    let sectionCompletedFlags = [];
+    let sectionCorrectFlags = [];
+    let firstAttemptFlags = [];
+
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
       }
     }
+
     function restartQuiz() {
       data = JSON.parse(JSON.stringify(originalData));
       shuffle(data);
       currentSet = 0;
       scoreCount = 0;
       completed = false;
+      sectionCompletedFlags = [];
+      sectionCorrectFlags = [];
+      firstAttemptFlags = [];
       document.getElementById("score").textContent = '';
       document.getElementById("summary").textContent = '';
-      document.getElementById("restartBtn").style.display = 'none';
-      document.getElementById("checkBtn").style.display = 'inline-block';
-      document.getElementById("checkBtn").disabled = false;
-      document.getElementById("checkBtn").style.opacity = 1;
-      const nextBtn = document.getElementById('nextBtn');
-      if (nextBtn) nextBtn.remove();
+      document.getElementById("completedBanner").style.display = "none";
+      document.getElementById("restartBtn").style.display = "none";
+      document.getElementById("checkBtn").style.display = "inline-block";
       updateProgress(0);
       loadSet();
     }
+
     function loadSet() {
       const start = currentSet * groupSize;
       const set = data.slice(start, start + groupSize);
+
+      if (sectionCompletedFlags.length <= currentSet) {
+        sectionCompletedFlags[currentSet] = false;
+      }
+      sectionCorrectFlags[currentSet] = Array(set.length).fill(false);
 
       const defBox = document.getElementById("definitionBox");
       const wordBank = document.getElementById("words");
@@ -147,31 +219,26 @@
         word.setAttribute("ondragstart", "drag(event)");
         wordBank.appendChild(word);
       });
-      // Remove nextBtn if it exists
-      const nextBtn = document.getElementById('nextBtn');
-      if (nextBtn) nextBtn.remove();
-      // Enable Check Answers for new set
-      document.getElementById("checkBtn").disabled = false;
-      document.getElementById("checkBtn").style.opacity = 1;
     }
+
     function allowDrop(ev) {
       ev.preventDefault();
       if (ev.target.classList.contains('drop-zone')) {
         ev.target.classList.add('hovered');
       }
     }
+
     function drag(ev) {
       ev.dataTransfer.setData("text", ev.target.id);
     }
+
     function drop(ev) {
       ev.preventDefault();
       ev.target.classList.remove('hovered');
       const dataId = ev.dataTransfer.getData("text");
       const wordElement = document.getElementById(dataId);
       const wordBank = document.getElementById('words');
-
       if (!ev.target.classList.contains('drop-zone') && !ev.target.classList.contains('word-bank')) return;
-
       if (ev.target.classList.contains('drop-zone')) {
         if (ev.target.children.length > 0) {
           const existingWord = ev.target.children[0];
@@ -182,87 +249,104 @@
         wordBank.appendChild(wordElement);
       }
     }
+
+    function getHint(answerKey) {
+      const item = data.find(d => d.id === answerKey);
+      return item ? item.hint : '';
+    }
+
+    function updateProgress(percent) {
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
     function checkAnswers() {
       if (completed) return;
+
       const defs = document.querySelectorAll('.definition');
       let incomplete = false;
+      const wordBank = document.getElementById('words');
+      const start = currentSet * groupSize;
+
       defs.forEach(def => {
         const drop = def.querySelector('.drop-zone');
         const hint = def.querySelector('.hint');
         hint.textContent = '';
-        hint.style.color = '#ff4c4c';
+
         if (!drop.children.length) {
           drop.style.borderColor = 'orange';
           hint.textContent = "Please match a word before checking.";
           incomplete = true;
         }
       });
+
       if (incomplete) return;
-      let correct = 0;
-      defs.forEach(def => {
+
+      let correctThisAttempt = 0;
+
+      defs.forEach((def, idx) => {
         const answer = def.getAttribute('data-answer');
         const drop = def.querySelector('.drop-zone');
         const word = drop.children[0]?.id || "";
         const hint = def.querySelector('.hint');
+
         if (word.toLowerCase() === answer.toLowerCase()) {
           drop.style.borderColor = 'green';
-          hint.textContent = '';
-          correct++;
+          correctThisAttempt++;
         } else {
+          if (drop.children.length > 0) {
+            wordBank.appendChild(drop.children[0]);
+          }
           drop.style.borderColor = 'red';
-          const itemHint = getHint(answer);
-          hint.textContent = `Incorrect. ${itemHint}`;
+          hint.textContent = getHint(answer);
         }
       });
 
-      // Only update progress for completed sets
-      let totalAnswered = (currentSet * groupSize) + correct;
-      let percent = (totalAnswered / data.length) * 100;
-      document.getElementById("score").textContent = `You got ${scoreCount + correct} out of ${data.length} correct.`;
+      // Only add score for the first attempt on this section
+      if (firstAttemptFlags[currentSet] === undefined) {
+        scoreCount += correctThisAttempt;
+        firstAttemptFlags[currentSet] = true;
+      }
 
-      // Cap Check Answers if all correct
-      if (correct === defs.length) {
-        document.getElementById("checkBtn").disabled = true;
-        document.getElementById("checkBtn").style.opacity = 0.5;
-        scoreCount += correct;
-        const summary = document.getElementById("summary");
-        if ((currentSet + 1) * groupSize >= data.length) {
-          percent = 100;
-          summary.textContent = percent >= 50
-            ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
-            : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
-          summary.style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
-          completed = true;
-          document.getElementById("restartBtn").style.display = 'inline-block';
-          document.getElementById("checkBtn").style.display = 'none';
-        } else {
-          // Show next button
-          if (!document.getElementById('nextBtn')) {
-            const nextBtn = document.createElement('button');
-            nextBtn.id = 'nextBtn';
-            nextBtn.textContent = 'Next';
-            nextBtn.onclick = () => {
-              currentSet++;
-              loadSet();
-              nextBtn.remove();
-              document.getElementById("score").textContent = '';
-              document.getElementById("summary").textContent = '';
-              updateProgress((scoreCount / data.length) * 100);
-            };
-            document.body.appendChild(nextBtn);
+      document.getElementById("score").textContent = `You got ${scoreCount} out of ${data.length} correct.`;
+
+      // Check if all are correct now (across current attempt)
+      let allCorrect = true;
+      defs.forEach(def => {
+        const answer = def.getAttribute('data-answer');
+        const drop = def.querySelector('.drop-zone');
+        const word = drop.children[0]?.id || "";
+        if (word.toLowerCase() !== answer.toLowerCase()) {
+          allCorrect = false;
+        }
+      });
+
+      if (allCorrect) {
+        if (!sectionCompletedFlags[currentSet]) {
+          sectionCompletedFlags[currentSet] = true;
+          const percent = (scoreCount / data.length) * 100;
+          if ((currentSet + 1) * groupSize >= data.length) {
+            // Finished all sets
+            document.getElementById("summary").textContent = percent >= 50
+              ? `✅ Great job! Final score: ${percent.toFixed(0)}%.`
+              : `❌ Final score: ${percent.toFixed(0)}%. Keep practicing!`;
+            document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+            completed = true;
+            document.getElementById("restartBtn").style.display = 'inline-block';
+            document.getElementById("checkBtn").style.display = 'none';
+            document.getElementById("completedBanner").style.display = "block";
+            updateProgress(100);
+          } else {
+            currentSet++;
+            loadSet();
+            updateProgress((scoreCount / data.length) * 100);
           }
+        } else {
+          document.getElementById("score").textContent = `Section already completed! You got ${scoreCount} out of ${data.length} correct.`;
         }
       }
-      updateProgress(percent);
     }
-    function getHint(answerKey) {
-      const item = data.find(d => d.id === answerKey);
-      return item ? item.hint : '';
-    }
-    function updateProgress(percent) {
-      document.getElementById("progressBar").style.width = percent + "%";
-    }
-    // Start
+
+    // Launch
     restartQuiz();
   </script>
 </body>
