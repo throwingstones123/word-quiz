@@ -145,16 +145,16 @@
 
   <script>
     const originalData = [
-      { id: "hat", text: "Conical Hat", def: "A large piece of headwear popular in some Asian countries, made of bamboo or straw", hint: "Hint: Often seen in rice paddies or markets" },
-      { id: "dress", text: "Five-part Dress", def: "A traditional garment worn in Vietnam, particularly during the 18th century. It's considered the predecessor to the more modern áo dài", hint: "Hint: Historic Vietnamese formalwear" },
-      { id: "turban", text: "Turban", def: "A piece of headscarf worn by Vietnamese men, particularly in historical or ceremonial contexts.", hint: "Hint: Often worn on formal occasions" },
-      { id: "4dress", text: "Four-Flapped Dress", def: "a Vietnamese garment which consists of a four-part layered design", hint: "Hint: Signifies the importance of family in Vietnamese culture." },
-      { id: "Blouse", text: "Loose-Fitting Blouse", def: "A traditional Vietnamese garment, typically worn in Southern Vietnam, particularly the Mekong Delta region.", hint: "Hint: Reflects a harmony with the tropical climate" },
-      { id: "Bodice", text: "Bodice", def: "The upper part of a woman’s or child’s dress", hint: "Hint: Represents a distinct sartorial heritage that resisted full assimilation by neighboring cultures" },
-      { id: "SquareRobe", text: "Square-collared Robe", def: "A traditional outfit for women during the Nguyen Dynasty", hint: "Hint: Typically worn by Empresses, Princesses, and imperial concubines." },
-      { id: "CrossRobe", text: "Cross-collared Robe", def: "A traditional robe worn by Vietnamese before the 19th century, often worn by elites", hint: "Hint: Once the dominant form of attire, it was later replaced by the áo dài" },
-      { id: "palmhat", text: "Flat Palm Hat With Fringes", def: "A hat with a flat top, with a cone diameter of about 70–80 cm and a brim that is 10–12 cm high", hint: "Hint: Considered a marker of femininity and beauty" },
-      { id: "aodai", text: "Ao Dai", def: " A Vietnamese woman's high-necked tunic with ankle-length panels", hint: "Some claim that the dress first appeared as early as AD 38-42" }
+      { id: "hat", text: "Conical Hat", def: "A large piece of headwear popular in some Asian countries, made of bamboo or straw", hint: "Hint: Often seen in rice paddies or markets", revisionLink: "https://huyvo022.edublogs.org/2025/05/11/conical-hat-non-la/" },
+      { id: "dress", text: "Five-part Dress", def: "A traditional garment worn in Vietnam, particularly during the 18th century. It's considered the predecessor to the more modern áo dài", hint: "Hint: Worn by both men and women in the past", revisionLink: "https://huyvo022.edublogs.org/2025/05/11/five-part-dress-ao-ngu-than/" },
+      { id: "4dress", text: "Four-Flapped Dress", def: "A Vietnamese garment which consists of a four-part layered design", hint: "Hint: Signifies the importance of family in Vietnamese culture.", revisionLink: "https://huyvo022.edublogs.org/2025/05/25/four-flapped-dress-ao-tu-than/" },
+      { id: "turban", text: "Turban", def: "A piece of headscarf worn by Vietnamese men, particularly in historical or ceremonial contexts.", hint: "Hint: Often worn on formal occasions", revisionLink: "https://huyvo022.edublogs.org/2025/05/11/turban-khan-xep/" },
+      { id: "Blouse", text: "Loose-Fitting Blouse", def: "A traditional Vietnamese garment, typically worn in Southern Vietnam, particularly the Mekong Delta region.", hint: "Hint: Reflects a hardworking and simple lifestyle.", revisionLink: "https://huyvo022.edublogs.org/2025/05/25/vietnamese-loose-fitting-blouse-ao-ba-ba/" },
+      { id: "Bodice", text: "Bodice", def: "The upper part of a woman’s or child’s dress", hint: "Hint: Represents a distinct sartorial heritage that resisted full assimilation by neighbors.", revisionLink: "https://huyvo022.edublogs.org/2025/05/25/vietnamese-bodice-yem/" },
+      { id: "SquareRobe", text: "Square-collared Robe", def: "A traditional outfit for women during the Nguyen Dynasty", hint: "Hint: Typically worn by Empresses, Princesses, and imperial concubines", revisionLink: "https://huyvo022.edublogs.org/2025/05/26/square-collared-robe-ao-nhat-binh/" },
+      { id: "CrossRobe", text: "Cross-collared Robe", def: "A traditional robe worn by Vietnamese before the 19th century, often worn by elites", hint: "Hint: Once the dominant form of attire, it was replaced by other styles later.", revisionLink: "https://huyvo022.edublogs.org/2025/05/26/cross-collared-robe-ao-giao-linh/" },
+      { id: "palmhat", text: "Flat Palm Hat With Fringes", def: "A hat with a flat top, with a cone diameter of about 70–80 cm and a brim that is 10–12 cm high", hint: "Hint: Considered a mark of elegance for women in the North.", revisionLink: "https://huyvo022.edublogs.org/2025/05/25/flat-palm-hat-with-fringes-non-quai-thao/" },
+      { id: "aodai", text: "Ao Dai", def: "A Vietnamese woman's high-necked tunic with ankle-length panels", hint: "Some claim that the dress first appeared as early as AD 38-42", revisionLink: "https://huyvo022.edublogs.org/2025/05/11/ao-dai/" }
     ];
 
     let data = [];
@@ -376,8 +376,14 @@
           <td>${i + 1}</td>
           <td>${item.def}</td>
           <td>${globalFirstAttemptCorrect[i] ? "✅ Correct" : "❌ Wrong"}</td>
-          <td></td>
-        </tr>`;
+          <td>`;
+        if (!globalFirstAttemptCorrect[i]) {
+          res += `Question - ${item.text}`;
+          if (item.revisionLink) {
+            res += ` <a href="${item.revisionLink}" target="_blank" style="color:#7ad1d4;">(Review Here)</a>`;
+          }
+        }
+        res += `</td></tr>`;
       });
       res += `</table>`;
       return res;
