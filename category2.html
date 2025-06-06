@@ -52,63 +52,72 @@
   </div>
   <script>
     const originalQuestions = [
-      {
-        text: "The beginning of the year according to the calendars of China, Vietnam, Korea, and some other East Asian countries",
-        options: ["Lunar New Year", "Golden Week", "Spring Festival"],
-        answer: "Lunar New Year",
-        explanation: "Lunar New Year marks the start of a new year on the lunar calendar and is celebrated in many East Asian countries.",
-        hint: "Think of the biggest holiday in East Asia, usually in January or February."
-      },
-      {
-        text: "An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha",
-        options: ["Vesak", "Christmas", "Easter"],
-        answer: "Vesak",
-        explanation: "Vesak, also known as Buddha Day, is the most significant Buddhist festival.",
-        hint: "This festival celebrates three major events in Buddha's life."
-      },
-      {
-        text: "An important celebration in Vietnamese culture that honors the nation’s ancient founders.",
-        options: ["Hung Kings’ Commemoration Day", "Tet Vu Lan", "Easter"],
-        answer: "Hung Kings’ Commemoration Day",
-        explanation: "This holiday pays respect to the legendary founders of Vietnam.",
-        hint: "It's about honoring the 'Hung Kings'."
-      },
-      {
-        text: "A traditional Buddhist festival celebrated primarily in Vietnam and parts of East Asia to show honor and gratitude to parents",
-        options: ["Vu Lan Festival", "Christmas Eve", "Parents' Day"],
-        answer: "Vu Lan Festival",
-        explanation: "Vu Lan Festival is dedicated to filial piety and honoring one’s parents.",
-        hint: "It's also called the Ghost Festival in some places."
-      },
-      {
-        text: "A national celebration in Vietnam held annually on November 20th, dedicated to honoring educators and recognizing their contributions",
-        options: ["Vietnamese Teachers’ Day", "Tet", "Parents' Day"],
-        answer: "Vietnamese Teachers’ Day",
-        explanation: "Vietnamese Teachers’ Day recognizes the hard work and dedication of educators.",
-        hint: "It is a day to give flowers and thanks to teachers."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on September 2nd to commemorate the day President Hồ Chí Minh declared independence",
-        options: ["Vietnamese National Day", "Unification Day", "Hung Kings' Anniversary"],
-        answer: "Vietnamese National Day",
-        explanation: "Vietnamese National Day marks the country's official declaration of independence.",
-        hint: "It's Vietnam's equivalent of the 4th of July."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on April 30th each year to commemorate the end of the Anti-American War of Resistance",
-        options: ["Reunification Day", "Tet", "Trung Thu Festival"],
-        answer: "Reunification Day",
-        explanation: "Reunification Day marks the fall of Saigon and the end of the Vietnam War.",
-        hint: "It celebrates the North and South becoming one country again."
-      },
-      {
-        text: "A national holiday in Vietnam celebrated on October 20th each year to honour the contributions of the fairer sex.",
-        options: ["Women’s Day", "Teachers' Day", "Vesak"],
-        answer: "Women’s Day",
-        explanation: "Vietnamese Women’s Day celebrates women and their achievements.",
-        hint: "It's a day for women, not teachers or monks."
-      }
-    ];
+      const originalQuestions = [
+  {
+    text: "The beginning of the year according to the calendars of China, Vietnam, Korea, and some other East Asian countries",
+    options: ["Lunar New Year", "Golden Week", "Spring Festival"],
+    answer: "Lunar New Year",
+    explanation: "Lunar New Year marks the start of a new year on the lunar calendar and is celebrated in many East Asian countries.",
+    hint: "Think of the biggest holiday in East Asia, usually in January or February.",
+    revisionLink: "https://huyvo022.edublogs.org/2025/05/10/lunar-new-year/"
+  },
+  {
+    text: "An important Buddhist festival that celebrates the birth, enlightenment and death of the Buddha",
+    options: ["Vesak", "Christmas", "Easter"],
+    answer: "Vesak",
+    explanation: "Vesak, also known as Buddha Day, is the most significant Buddhist festival.",
+    hint: "This festival celebrates three major events in Buddha's life.",
+    revisionLink: "https://huyvo022.edublogs.org/2025/05/10/vesak/"
+  },
+  {
+    text: "An important celebration in Vietnamese culture that honors the nation’s ancient founders.",
+    options: ["Hung Kings’ Commemoration Day", "Tet Vu Lan", "Easter"],
+    answer: "Hung Kings’ Commemoration Day",
+    explanation: "This holiday pays respect to the legendary founders of Vietnam.",
+    hint: "It's about honoring the 'Hung Kings'.",
+    revisionLink: "https://huyvo022.edublogs.org/2025/05/10/hung-kings-commemoration-day/"
+  },
+  {
+    text: "A traditional Buddhist festival celebrated primarily in Vietnam and parts of East Asia to show honor and gratitude to parents",
+    options: ["Vu Lan Festival", "Christmas Eve", "Parents' Day"],
+    answer: "Vu Lan Festival",
+    explanation: "Vu Lan Festival is dedicated to filial piety and honoring one’s parents.",
+    hint: "It's also called the Ghost Festival in some places.",
+    revisionLink: "https://huyvo022.edublogs.org/2025/05/23/vu-lan-festival-le-vu-lan/"
+  },
+  {
+    text: "A national celebration in Vietnam held annually on November 20th, dedicated to honoring educators and recognizing their contributions",
+    options: ["Vietnamese Teachers’ Day", "Tet", "Parents' Day"],
+    answer: "Vietnamese Teachers’ Day",
+    explanation: "Vietnamese Teachers’ Day recognizes the hard work and dedication of educators.",
+    hint: "It is a day to give flowers and thanks to teachers.",
+    revisionLink: "https://huyvo022.edublogs.org/2025/05/23/vietnamese-teachers-day-ngay-nha-giao-viet-nam/"
+  },
+  {
+    text: "A national holiday in Vietnam celebrated on September 2nd to commemorate the day President Hồ Chí Minh declared independence",
+    options: ["Vietnamese National Day", "Unification Day", "Hung Kings' Anniversary"],
+    answer: "Vietnamese National Day",
+    explanation: "Vietnamese National Day marks the country's official declaration of independence.",
+    hint: "It's Vietnam's equivalent of the 4th of July.",
+    revisionLink: "https://huyvo022.edublogs.org/2025/05/23/vietnamese-national-day-ngay-quoc-khanh/"
+  },
+  {
+    text: "A national holiday in Vietnam celebrated on April 30th each year to commemorate the end of the Anti-American War of Resistance",
+    options: ["Reunification Day", "Tet", "Trung Thu Festival"],
+    answer: "Reunification Day",
+    explanation: "Reunification Day marks the Liberation of Saigon and the end of the 20-year Resistance War",
+    hint: "It celebrates the North and South becoming one country again.",
+    revisionLink: "https://huyvo022.edublogs.org/2025/05/23/reunification-day-ngay-thong-nhat-dat-nuoc/"
+  },
+  {
+    text: "A national holiday in Vietnam celebrated on October 20th each year to honour the contributions of the fairer sex.",
+    options: ["Women’s Day", "Teachers' Day", "Vesak"],
+    answer: "Women’s Day",
+    explanation: "Vietnamese Women’s Day celebrates women and their achievements.",
+    hint: "It's a day for women, not teachers or monks.",
+    revisionLink: "https://huyvo022.edublogs.org/2025/05/23/vietnamese-womens-day-ngay-phu-nu-viet-nam/"
+  }
+];
 
     let shuffledQuestions = [];
     let currentQuestion = 0;
