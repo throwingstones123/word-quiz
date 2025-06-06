@@ -2,100 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mixed Format Quiz</title>
+  <title>Mixed Question Quiz</title>
   <style>
-    body {
-      background-color: #111;
-      color: white;
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      text-align: center;
-    }
-    h1 {
-      color: #7ad1d4;
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-    }
-    .progress-container {
-      width: 100%;
-      max-width: 700px;
-      height: 20px;
-      background-color: #333;
-      border-radius: 25px;
-      overflow: hidden;
-      margin: 1rem auto;
-    }
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #7ad1d4;
-      transition: width 0.4s ease;
-    }
-    .question-card {
-      max-width: 800px;
-      margin: 1.5rem auto;
-      background-color: #000;
-      padding: 1.5rem;
-      border-radius: 10px;
-      border: 1px solid #444;
-      display: none;
-      text-align: left;
-    }
-    .question-card.active {
-      display: block;
-    }
-    select, input[type="radio"] {
-      margin-top: 1rem;
-    }
-    .drop-zone {
-      border: 2px dashed #555;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      min-height: 40px;
-      font-weight: bold;
-      transition: background 0.3s, border-color 0.3s;
-    }
-    .drop-zone.hovered {
-      background-color: #222;
-    }
-    .drop-zone.correct-drop {
-      border-color: lightgreen;
-    }
-    .drop-zone.incorrect-drop {
-      border-color: #ff4c4c;
-    }
-    .word {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      background-color: #222;
-      border: 1px solid #555;
-      border-radius: 5px;
-      cursor: grab;
-      font-weight: bold;
-    }
-    .controls, #summary, #completedBanner {
-      margin-top: 1.5rem;
-    }
-    .correct {
-      color: lightgreen;
-    }
-    .incorrect {
-      color: #ff4c4c;
-    }
-    button {
-      margin: 0.5rem;
-      padding: 10px 20px;
-      font-weight: bold;
-      background-color: #7ad1d4;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #retryBtn {
-      display: none;
-    }
+    body { background-color: #111; color: #f0f0f0; font-family: 'Arial Black', sans-serif; margin: 0; padding: 2rem; }
+    h1 { text-align: center; font-size: 3rem; color: #70c1b3; letter-spacing: 2px; }
+    .progress-container { width: 100%; max-width: 700px; height: 20px; background-color: #333; border-radius: 25px; overflow: hidden; margin: 1rem auto 1.5rem; }
+    .progress-bar { height: 100%; width: 0%; background-color: #70c1b3; transition: width 0.3s ease-in-out; }
+    .nav-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; max-width: 700px; margin: 0 auto 1.5rem; }
+    .nav-grid button { width: 40px; height: 40px; border-radius: 50%; font-weight: bold; border: none; cursor: pointer; background-color: #444; color: #fff; transition: background-color 0.3s; }
+    .nav-grid button.active { background-color: #70c1b3; color: #000; }
+    .nav-grid button.answered:not(.active) { background-color: #2b996e; }
+    .quiz-container { max-width: 700px; margin: 1rem auto; }
+    .question-card { background: #1c1c1c; padding: 1.5rem; border: 2px solid #444; border-radius: 8px; display: none; }
+    .question-card.active { display: block; }
+    .question-card p { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
+    .question-card label { display: block; margin: 0.5rem 0; font-size: 1rem; font-weight: normal; cursor: pointer; }
+    .feedback { margin-top: 1rem; color: #ff8888; font-size: 0.95rem; }
+    .correct { color: #8ef08e !important; }
+    .nav-buttons { display: flex; justify-content: space-between; max-width: 700px; margin: 2rem auto 1rem; align-items: center; }
+    button { padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: bold; background-color: #70c1b3; border: none; border-radius: 6px; cursor: pointer; color: #000; transition: background-color 0.2s; }
+    button:hover { background-color: #59a499; }
+    #result, #summary { text-align: center; font-size: 1.3rem; margin-top: 1rem; }
+    #summary { font-weight: bold; }
+    #resetBtn { margin: 1rem auto; display: none; }
+    .check-btn[disabled], .nav-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+    table { background: #222; }
+    th, td { border:1px solid #444; padding:6px; }
+    th { background: #333; }
+    a { color: #70c1b3; }
+    .drop-zone { border: 2px dashed #555; padding: 0.5rem; margin-top: 0.5rem; min-height: 40px; font-weight: bold; transition: background 0.3s, border-color 0.3s; }
+    .drop-zone.hovered { background-color: #222; }
+    .drop-zone.correct-drop { border-color: lightgreen; }
+    .drop-zone.incorrect-drop { border-color: #ff4c4c; }
+    .word { display: inline-block; margin: 0.5rem; padding: 0.5rem 1rem; background-color: #222; border: 1px solid #555; border-radius: 5px; cursor: grab; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -103,710 +42,536 @@
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-  <div id="quiz-area"></div>
-  <div class="controls">
-    <button onclick="prevStep()">Back</button>
-    <button onclick="validateStep()" id="checkBtn">Check</button>
-    <button onclick="nextStep()" id="nextBtn" disabled>Next</button>
+  <div class="nav-grid" id="navGrid"></div>
+  <div class="quiz-container" id="quizContainer"></div>
+  <div class="nav-buttons">
+    <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+    <button class="check-btn" onclick="checkAnswer(currentQuestion)" id="checkBtn">Check</button>
+    <button onclick="nextQuestion()" id="nextBtn" disabled>Next</button>
+    <button onclick="grade()" id="submitBtn" style="display: none;">Submit</button>
   </div>
-  <div id="summary"></div>
-  <div id="completedBanner">🎉 You've completed the quiz!</div>
-  <button onclick="retryQuiz()" id="retryBtn">🔁 Retry Quiz</button>
+  <p id="result"></p>
+  <p id="summary"></p>
+  <div style="text-align: center;">
+    <button onclick="resetQuiz()" id="resetBtn">🔁 Reattempt Quiz</button>
+  </div>
   <script>
-      // 💾 Injected full quiz dataset from uploaded files
-     const baseQuestions = [
-  // 1 - Dropdown (flowers.html)
-  {
-    type: 'dropdown',
-    question: "Which white flower is commonly used in temple decorations?",
-    content: `<p><strong>Alex:</strong> What's that white flower around the temple?</p>
-      <p><strong>Jamie:</strong> Oh? that's the 
-        <select id="q0">
-          <option value="">--select--</option>
-          <option value="correct">Frangipani</option>
-          <option value="wrong">White Rose</option>
-          <option value="wrong">Lily</option>
-        </select>.
-      </p>`,
-    correct: "correct",
-    correctAnswerText: "Frangipani",
-    hint: "It's known for its strong fragrance and is often seen at religious ceremonies.",
-    explanation: "Frangipani flowers are valued in Vietnam for their fragrance and are commonly used as temple offerings and decorations."
-  },
+    // --- BEGIN: Full mixed quiz data with revision links ---
 
-  // 2 - Dropdown (people.html)
-  {
-    type: 'dropdown',
-    question: "Which ethnic group is known for Hindu-style towers?",
-    content: `<p><strong>Paul:</strong> Which ethnic group built all these beautiful towers again?</p>
-      <p><strong>Jamie:</strong> That’d be the 
-        <select id="q1">
-          <option value="">--select--</option>
-          <option value="correct">Cham</option>
-          <option value="wrong">Khmer</option>
-          <option value="wrong">Stieng</option>
-        </select>.
-      </p>`,
-    correct: "correct",
-    correctAnswerText: "Cham",
-    hint: "This group built the famous My Son sanctuary.",
-    explanation: "The Cham people constructed the iconic brick Hindu-style towers in central Vietnam, especially at the My Son site."
-  },
-
-  // 3 - Radio (animals.html)
-  {
-    type: 'radio',
-    question: "Animal used for farming in Vietnam?",
-    content: `<p><strong>Question:</strong> Which animal is traditionally used for pulling tools?</p>
-      <label><input type="radio" name="q2" value="wrong"> Dog</label><br/>
-      <label><input type="radio" name="q2" value="correct"> Buffalo</label><br/>
-      <label><input type="radio" name="q2" value="wrong"> Horses</label>`,
-    correct: "correct",
-    correctAnswerText: "Buffalo",
-    hint: "This strong animal is often seen working in rice fields.",
-    explanation: "Water buffalo are traditionally used for plowing and other farming tasks in Vietnam."
-  },
-
-  // 4 - Radio (category2.html)
-  {
-    type: 'radio',
-    question: "Celebration for honoring ancient Vietnamese founders?",
-    content: `<p><strong>Question:</strong> What is the festival that honors Vietnam’s ancient founders?</p>
-      <label><input type="radio" name="q3" value="correct"> Hung Kings’ Commemoration Day</label><br/>
-      <label><input type="radio" name="q3" value="wrong"> Vu Lan Festival</label><br/>
-      <label><input type="radio" name="q3" value="wrong"> Easter</label>`,
-    correct: "correct",
-    correctAnswerText: "Hung Kings’ Commemoration Day",
-    hint: "It's a national holiday, celebrated in April.",
-    explanation: "Hung Kings’ Commemoration Day honors the legendary founders of Vietnam and is a major public holiday."
-  },
-
-  // 5 - DragDrop (definition-match.html)
-  {
-    type: 'dragdrop',
-    question: "Match traditional Vietnamese clothing to its description",
-    content: `<div class="definition" data-answer="hat">
-        A large piece of headwear made of bamboo or straw.
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="dress">
-        A predecessor to the Ao Dai worn in 18th century.
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="turban">
-        Worn by Vietnamese men during ceremonies.
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div style="margin-top:1rem;" id="words">
-        <div class="word" draggable="true" ondragstart="drag(event)" id="hat">Conical Hat</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="dress">Five-part Dress</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="turban">Turban</div>
-      </div>`,
-    correct: { hat: "hat", dress: "dress", turban: "turban" },
-    hint: "The conical hat is iconic; the Five-part Dress predates the Ao Dai.",
-    explanation: "The conical hat (nón lá) is made of bamboo/straw, the Five-part Dress is a traditional predecessor of the Ao Dai, and the turban is a ceremonial headpiece for men."
-  },
-
-  // 6 - Radio (animals.html)
-  {
-    type: 'radio',
-    question: "What large bird lives near water and symbolizes longevity?",
-    content: `<p>What large bird lives near water and symbolizes longevity?</p>
-      <label><input type="radio" name="q4" value="correct"> Heron</label><br/>
-      <label><input type="radio" name="q4" value="wrong"> Crane</label><br/>
-      <label><input type="radio" name="q4" value="wrong"> Flamingo</label>`,
-    correct: "correct",
-    correctAnswerText: "Heron",
-    hint: "This bird is often depicted in Vietnamese art near rivers.",
-    explanation: "Herons symbolize longevity and are commonly seen around Vietnamese waterways."
-  },
-
-  // 7 - Dropdown (cuisine.html)
-  {
-    type: 'dropdown',
-    question: "What green Vietnamese dessert is made from sticky rice and mung bean?",
-    content: `<p><strong>Lan:</strong> It’s the one made from mung bean paste and sticky rice — that green one!</p>
-      <select id="q5">
-        <option value="">--select--</option>
-        <option value="correct">Green Sticky Rice Cake</option>
-        <option value="wrong">Sizzling Cake</option>
-        <option value="wrong">Fermented Pork Roll</option>
-      </select>`,
-    correct: "correct",
-    correctAnswerText: "Green Sticky Rice Cake",
-    hint: "It's green, sweet, and often served during festivals.",
-    explanation: "Green Sticky Rice Cake (Bánh Cốm) is a traditional dessert made from mung bean paste and sticky rice."
-  },
-
-  // 8 - Dropdown (flowers.html)
-  {
-    type: 'dropdown',
-    question: "What tree is commonly found as a village gathering place?",
-    content: `<p><strong>Kyle:</strong> This place feels like the heart of the village with that big</p>
-      <select id="q6">
-        <option value="">--select--</option>
-        <option value="wrong">Oak</option>
-        <option value="correct">Banyan</option>
-        <option value="wrong">Birch</option>
-      </select> tree around.`,
-    correct: "correct",
-    correctAnswerText: "Banyan",
-    hint: "This tree is huge with aerial roots and lots of shade.",
-    explanation: "The banyan tree is a traditional gathering spot at the heart of many Vietnamese villages."
-  },
-
-  // 9 - DragDrop (household.html)
-  {
-    type: 'dragdrop',
-    question: "Match household items to their descriptions",
-    content: `<div class="definition" data-answer="Pot">
-        Traditional clay cookware
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="Mat">
-        Floor item woven from reeds or straw
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="Lantern">
-        Decoration used during festivals
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div id="words" style="margin-top:1rem;">
-        <div class="word" draggable="true" ondragstart="drag(event)" id="Pot">Earthenware Pot</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="Mat">Straw Mat</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="Lantern">Silk Lantern</div>
-      </div>`,
-    correct: { Pot: "Pot", Mat: "Mat", Lantern: "Lantern" },
-    hint: "Earthenware is used for cooking; the mat is woven; the lantern is for festivals.",
-    explanation: "Earthenware pots are used for cooking, straw mats are for sitting/sleeping, and silk lanterns decorate festival areas."
-  },
-
-  // 10 - Radio (category2.html)
-  {
-    type: 'radio',
-    question: "What is celebrated on Nov 20 in Vietnam?",
-    content: `<p><strong>Question:</strong> What is celebrated in Vietnam to honor teachers?</p>
-      <label><input type="radio" name="q7" value="wrong"> Tet</label><br/>
-      <label><input type="radio" name="q7" value="correct"> Vietnamese Teachers’ Day</label><br/>
-      <label><input type="radio" name="q7" value="wrong"> Parents' Day</label>`,
-    correct: "correct",
-    correctAnswerText: "Vietnamese Teachers’ Day",
-    hint: "It's a day to honor a respected profession.",
-    explanation: "Vietnamese Teachers’ Day is celebrated on Nov 20 to honor teachers and education."
-  },
-
-  // 11 - Dropdown (people.html)
-  {
-    type: 'dropdown',
-    question: "Which ethnic group wears colorful skirts and silver jewelry?",
-    content: `<p><strong>Quỳnh:</strong> Those women with silver jewelry must be</p>
-      <select id="q8">
-        <option value="">--select--</option>
-        <option value="correct">Hmong</option>
-        <option value="wrong">Khmer</option>
-        <option value="wrong">Tay</option>
-      </select>!`,
-    correct: "correct",
-    correctAnswerText: "Hmong",
-    hint: "This group lives mostly in the northern mountains and is known for vibrant embroidery.",
-    explanation: "The Hmong people are recognized by their colorful skirts and distinctive silver jewelry."
-  },
-
-  // 12 - Radio (animals.html)
-  {
-    type: 'radio',
-    question: "What water animal has a thick shell?",
-    content: `<p>Which of these animals has a hard shell and is considered sacred?</p>
-      <label><input type="radio" name="q9" value="correct"> Turtle</label><br/>
-      <label><input type="radio" name="q9" value="wrong"> Beetle</label><br/>
-      <label><input type="radio" name="q9" value="wrong"> Snails</label>`,
-    correct: "correct",
-    correctAnswerText: "Turtle",
-    hint: "This animal is often a symbol of longevity and wisdom.",
-    explanation: "Turtles are sacred and symbolic in Vietnamese culture, known for their thick shells."
-  },
-
-  // 13 - DragDrop (environment.html)
-  {
-    type: 'dragdrop',
-    question: "Match English words to environment-related definitions",
-    content: `<div class="definition" data-answer="benevolent">
-        Kind and generous
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="opaque">
-        Not clear or transparent
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="audible">
-        Able to be heard
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div id="words" style="margin-top:1rem;">
-        <div class="word" draggable="true" ondragstart="drag(event)" id="benevolent">Benevolent</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="opaque">Opaque</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="audible">Audible</div>
-      </div>`,
-    correct: {
-      benevolent: "benevolent",
-      opaque: "opaque",
-      audible: "audible"
-    },
-    hint: "Benevolent means kind; opaque means not clear; audible means can be heard.",
-    explanation: "These words are common environmental terms: benevolent (kind), opaque (not transparent), audible (can be heard)."
-  },
-
-  // 14 - Dropdown (cuisine.html)
-  {
-    type: 'dropdown',
-    question: "Which Vietnamese dish is made with mung bean paste and sticky rice?",
-    content: `<p><strong>Thu:</strong> That green one, remember?</p>
-      <select id="q10">
-        <option value="">--select--</option>
-        <option value="correct">Green Sticky Rice Cake</option>
-        <option value="wrong">Fried Spring Roll</option>
-        <option value="wrong">Nem</option>
-      </select>`,
-    correct: "correct",
-    correctAnswerText: "Green Sticky Rice Cake",
-    hint: "It's green, sweet, and a festival favorite.",
-    explanation: "Green Sticky Rice Cake is a traditional Vietnamese dessert made from mung bean and sticky rice."
-  },
-
-  // 15 - Radio (category2.html)
-  {
-    type: 'radio',
-    question: "Vietnam’s independence day falls on?",
-    content: `<p>Which date celebrates Vietnam’s declaration of independence?</p>
-      <label><input type="radio" name="q11" value="correct"> Vietnamese National Day</label><br/>
-      <label><input type="radio" name="q11" value="wrong"> Unification Day</label><br/>
-      <label><input type="radio" name="q11" value="wrong"> Hung Kings' Anniversary</label>`,
-    correct: "correct",
-    correctAnswerText: "Vietnamese National Day",
-    hint: "This day is celebrated on September 2nd.",
-    explanation: "Vietnamese National Day (September 2nd) marks the country's declaration of independence."
-  },
-
-  // 16 - DragDrop (definition-match.html)
-  {
-    type: 'dragdrop',
-    question: "Match Vietnamese royal clothing items",
-    content: `<div class="definition" data-answer="SquareRobe">
-        Worn by Empresses in the Nguyen Dynasty
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="CrossRobe">
-        Dominant robe before 19th century
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="aodai">
-        Modern Vietnamese woman’s outfit
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div style="margin-top:1rem;" id="words">
-        <div class="word" draggable="true" ondragstart="drag(event)" id="SquareRobe">Square-collared Robe</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="CrossRobe">Cross-collared Robe</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="aodai">Ao Dai</div>
-      </div>`,
-    correct: { SquareRobe: "SquareRobe", CrossRobe: "CrossRobe", aodai: "aodai" },
-    hint: "Empresses wore square-collared robes; the Ao Dai is modern.",
-    explanation: "Square-collared robes were worn by empresses, cross-collared robes predate the Ao Dai, which is modern."
-  },
-
-  // 17 - Radio (category2.html)
-  {
-    type: 'radio',
-    question: "Which Buddhist festival celebrates the birth and enlightenment of Buddha?",
-    content: `<p>Which Buddhist festival celebrates birth, enlightenment, and death of Buddha?</p>
-      <label><input type="radio" name="q12" value="correct"> Vesak</label><br/>
-      <label><input type="radio" name="q12" value="wrong"> Christmas</label><br/>
-      <label><input type="radio" name="q12" value="wrong"> Easter</label>`,
-    correct: "correct",
-    correctAnswerText: "Vesak",
-    hint: "It's a major Buddhist holiday in many Asian countries.",
-    explanation: "Vesak celebrates the birth, enlightenment, and death of Buddha."
-  },
-
-  // 18 - Dropdown (flowers.html)
-  {
-    type: 'dropdown',
-    question: "Which flower is a major symbol of Tet in Vietnam?",
-    content: `<p><strong>Manny:</strong> Look at the 
-        <select id="q13">
-          <option value="">--select--</option>
-          <option value="correct">Yellow Apricot</option>
-          <option value="wrong">Tulips</option>
-          <option value="wrong">Poppy</option>
-        </select>, it's blooming. Tet must be near.</p>`,
-    correct: "correct",
-    correctAnswerText: "Yellow Apricot",
-    hint: "This flower blooms around Lunar New Year, especially in the south.",
-    explanation: "Yellow Apricot (Hoa Mai) is the symbolic flower of Tet in southern Vietnam."
-  },
-
-  // 19 - Radio (animals.html)
-  {
-    type: 'radio',
-    question: "What fish symbolizes success in Vietnamese culture?",
-    content: `<p><strong>Which fish symbolizes perseverance and success?</strong></p>
-      <label><input type="radio" name="q14" value="correct"> Carp</label><br/>
-      <label><input type="radio" name="q14" value="wrong"> Goldfish</label><br/>
-      <label><input type="radio" name="q14" value="wrong"> Sharks</label>`,
-    correct: "correct",
-    correctAnswerText: "Carp",
-    hint: "This fish is associated with the Kitchen Gods and New Year traditions.",
-    explanation: "Carp symbolizes perseverance and success, featuring in the Kitchen Gods legend."
-  },
-
-  // 20 - Dropdown (cuisine.html)
-  {
-    type: 'dropdown',
-    question: "Which dish is wrapped in banana leaves and has a chewy, fermented texture?",
-    content: `<p><strong>Phuc:</strong> Let's try something tangy and chewy wrapped in leaves?</p>
-      <select id="q15">
-        <option value="">--select--</option>
-        <option value="correct">Fermented Pork Roll</option>
-        <option value="wrong">Sticky Rice Cake</option>
-        <option value="wrong">Fried Spring Roll</option>
-      </select>`,
-    correct: "correct",
-    correctAnswerText: "Fermented Pork Roll",
-    hint: "It's tangy, chewy, and often eaten as a snack.",
-    explanation: "Fermented Pork Roll (Nem Chua) is a tangy, chewy delicacy wrapped in banana leaves."
-  },
-
-  // 21 - DragDrop (household.html)
-  {
-    type: 'dragdrop',
-    question: "Match traditional tools to their purpose",
-    content: `<div class="definition" data-answer="Plow">
-        Used in Vietnamese rice farming.
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="Stove">
-        Cylindrical charcoal stove
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div class="definition" data-answer="Fan">
-        Used to cool off in hot weather
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)"></div>
-      </div>
-      <div id="words" style="margin-top:1rem;">
-        <div class="word" draggable="true" ondragstart="drag(event)" id="Plow">Plow</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="Stove">Honeycomb Stove</div>
-        <div class="word" draggable="true" ondragstart="drag(event)" id="Fan">Palm-leaf Fan</div>
-      </div>`,
-    correct: { Plow: "Plow", Stove: "Stove", Fan: "Fan" },
-    hint: "Plow for farming, honeycomb stove for cooking, palm-leaf fan for cooling.",
-    explanation: "The plow is used in rice farming, the honeycomb stove for cooking, and the palm-leaf fan for cooling off in hot weather."
-  }
-];
-
-     // --- Quiz State Manager and Feedback System ---
-
-class QuizState {
-  constructor(baseQuestions) {
-    this.baseQuestions = baseQuestions;
-    this.reset();
-  }
-
-  reset() {
-    // Shuffle order
-    this.order = [...Array(this.baseQuestions.length).keys()].sort(() => 0.5 - Math.random());
-    this.questions = this.order.map(i => JSON.parse(JSON.stringify(this.baseQuestions[i])));
-    this.currentStep = 0;
-    this.score = 0;
-    this.validated = Array(this.questions.length).fill(false);
-    this.userAnswers = Array(this.questions.length).fill(null);
-    this.sectionScores = { dropdown: 0, radio: 0, dragdrop: 0 };
-  }
-
-  get currentQuestionIndex() {
-    return this.currentStep;
-  }
-
-  getOrderedQuestion(idx) {
-    return this.questions[idx];
-  }
-
-  getCurrentQuestion() {
-    return this.getOrderedQuestion(this.currentQuestionIndex);
-  }
-
-  markValidated(correct) {
-    if (correct && !this.validated[this.currentStep]) {
-      this.score++;
-      const type = this.getCurrentQuestion().type;
-      if (type && this.sectionScores[type] !== undefined) {
-        this.sectionScores[type]++;
+    const originalQuestions = [
+      {
+        type: 'dropdown',
+        text: "Which white flower is commonly used in temple decorations?",
+        options: ["Frangipani", "White Rose", "Lily"],
+        answer: "Frangipani",
+        explanation: "Frangipani flowers are valued in Vietnam for their fragrance and are commonly used as temple offerings and decorations.",
+        hint: "It's known for its strong fragrance and is often seen at religious ceremonies.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/21/frangipani-hoa-su/"
+      },
+      {
+        type: 'dropdown',
+        text: "Which ethnic group is known for Hindu-style towers?",
+        options: ["Cham", "Khmer", "Stieng"],
+        answer: "Cham",
+        explanation: "The Cham people constructed the iconic brick Hindu-style towers in central Vietnam, especially at the My Son site.",
+        hint: "This group built the famous My Son sanctuary.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/23/cham-people/"
+      },
+      {
+        type: 'radio',
+        text: "Animal used for farming in Vietnam?",
+        options: ["Dog", "Buffalo", "Horses"],
+        answer: "Buffalo",
+        explanation: "Water buffalo are traditionally used for plowing and other farming tasks in Vietnam.",
+        hint: "This strong animal is often seen working in rice fields.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/20/water-buffalo-con-trau/"
+      },
+      {
+        type: 'radio',
+        text: "Celebration for honoring ancient Vietnamese founders?",
+        options: ["Hung Kings’ Commemoration Day", "Vu Lan Festival", "Easter"],
+        answer: "Hung Kings’ Commemoration Day",
+        explanation: "Hung Kings’ Commemoration Day honors the legendary founders of Vietnam and is a major public holiday.",
+        hint: "It's a national holiday, celebrated in April.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/24/hung-kings-commemoration-day/"
+      },
+      {
+        type: 'dragdrop',
+        text: "Match traditional Vietnamese clothing to its description",
+        dragdrop: [
+          { left: "A large piece of headwear made of bamboo or straw.", right: "Conical Hat", key: "hat" },
+          { left: "A predecessor to the Ao Dai worn in 18th century.", right: "Five-part Dress", key: "dress" },
+          { left: "Worn by Vietnamese men during ceremonies.", right: "Turban", key: "turban" }
+        ],
+        explanation: "The conical hat (nón lá) is made of bamboo/straw, the Five-part Dress is a traditional predecessor of the Ao Dai, and the turban is a ceremonial headpiece for men.",
+        hint: "The conical hat is iconic; the Five-part Dress predates the Ao Dai.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/27/vietnamese-clothing/"
+      },
+      {
+        type: 'radio',
+        text: "What large bird lives near water and symbolizes longevity?",
+        options: ["Heron", "Crane", "Flamingo"],
+        answer: "Heron",
+        explanation: "Herons symbolize longevity and are commonly seen around Vietnamese waterways.",
+        hint: "This bird is often depicted in Vietnamese art near rivers.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/22/heron-con-co/"
+      },
+      {
+        type: 'dropdown',
+        text: "What green Vietnamese dessert is made from sticky rice and mung bean?",
+        options: ["Green Sticky Rice Cake", "Sizzling Cake", "Fermented Pork Roll"],
+        answer: "Green Sticky Rice Cake",
+        explanation: "Green Sticky Rice Cake (Bánh Cốm) is a traditional dessert made from mung bean paste and sticky rice.",
+        hint: "It's green, sweet, and often served during festivals.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/22/green-sticky-rice-cake-banh-com/"
+      },
+      {
+        type: 'dropdown',
+        text: "What tree is commonly found as a village gathering place?",
+        options: ["Oak", "Banyan", "Birch"],
+        answer: "Banyan",
+        explanation: "The banyan tree is a traditional gathering spot at the heart of many Vietnamese villages.",
+        hint: "This tree is huge with aerial roots and lots of shade.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/21/banyan-tree/"
+      },
+      {
+        type: 'dragdrop',
+        text: "Match household items to their descriptions",
+        dragdrop: [
+          { left: "Traditional clay cookware", right: "Earthenware Pot", key: "Pot" },
+          { left: "Floor item woven from reeds or straw", right: "Straw Mat", key: "Mat" },
+          { left: "Decoration used during festivals", right: "Silk Lantern", key: "Lantern" }
+        ],
+        explanation: "Earthenware pots are used for cooking, straw mats are for sitting/sleeping, and silk lanterns decorate festival areas.",
+        hint: "Earthenware is used for cooking; the mat is woven; the lantern is for festivals.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/22/household-items/"
+      },
+      {
+        type: 'radio',
+        text: "What is celebrated on Nov 20 in Vietnam?",
+        options: ["Tet", "Vietnamese Teachers’ Day", "Parents' Day"],
+        answer: "Vietnamese Teachers’ Day",
+        explanation: "Vietnamese Teachers’ Day is celebrated on Nov 20 to honor teachers and education.",
+        hint: "It's a day to honor a respected profession.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/24/vietnamese-teachers-day/"
+      },
+      {
+        type: 'dropdown',
+        text: "Which ethnic group wears colorful skirts and silver jewelry?",
+        options: ["Hmong", "Khmer", "Tay"],
+        answer: "Hmong",
+        explanation: "The Hmong people are recognized by their colorful skirts and distinctive silver jewelry.",
+        hint: "This group lives mostly in the northern mountains and is known for vibrant embroidery.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/23/hmong-people/"
+      },
+      {
+        type: 'radio',
+        text: "What water animal has a thick shell?",
+        options: ["Turtle", "Beetle", "Snails"],
+        answer: "Turtle",
+        explanation: "Turtles are sacred and symbolic in Vietnamese culture, known for their thick shells.",
+        hint: "This animal is often a symbol of longevity and wisdom.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/21/turtle-rua/"
+      },
+      {
+        type: 'dragdrop',
+        text: "Match English words to environment-related definitions",
+        dragdrop: [
+          { left: "Kind and generous", right: "Benevolent", key: "benevolent" },
+          { left: "Not clear or transparent", right: "Opaque", key: "opaque" },
+          { left: "Able to be heard", right: "Audible", key: "audible" }
+        ],
+        explanation: "These words are common environmental terms: benevolent (kind), opaque (not transparent), audible (can be heard).",
+        hint: "Benevolent means kind; opaque means not clear; audible means can be heard.",
+        revisionLink: null
+      },
+      {
+        type: 'dropdown',
+        text: "Which Vietnamese dish is made with mung bean paste and sticky rice?",
+        options: ["Green Sticky Rice Cake", "Fried Spring Roll", "Nem"],
+        answer: "Green Sticky Rice Cake",
+        explanation: "Green Sticky Rice Cake is a traditional Vietnamese dessert made from mung bean and sticky rice.",
+        hint: "It's green, sweet, and a festival favorite.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/22/green-sticky-rice-cake-banh-com/"
+      },
+      {
+        type: 'radio',
+        text: "Vietnam’s independence day falls on?",
+        options: ["Vietnamese National Day", "Unification Day", "Hung Kings' Anniversary"],
+        answer: "Vietnamese National Day",
+        explanation: "Vietnamese National Day (September 2nd) marks the country's declaration of independence.",
+        hint: "This day is celebrated on September 2nd.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/24/vietnamese-national-day/"
+      },
+      {
+        type: 'dragdrop',
+        text: "Match Vietnamese royal clothing items",
+        dragdrop: [
+          { left: "Worn by Empresses in the Nguyen Dynasty", right: "Square-collared Robe", key: "SquareRobe" },
+          { left: "Dominant robe before 19th century", right: "Cross-collared Robe", key: "CrossRobe" },
+          { left: "Modern Vietnamese woman’s outfit", right: "Ao Dai", key: "aodai" }
+        ],
+        explanation: "Square-collared robes were worn by empresses, cross-collared robes predate the Ao Dai, which is modern.",
+        hint: "Empresses wore square-collared robes; the Ao Dai is modern.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/27/vietnamese-clothing/"
+      },
+      {
+        type: 'radio',
+        text: "Which Buddhist festival celebrates the birth and enlightenment of Buddha?",
+        options: ["Vesak", "Christmas", "Easter"],
+        answer: "Vesak",
+        explanation: "Vesak celebrates the birth, enlightenment, and death of Buddha.",
+        hint: "It's a major Buddhist holiday in many Asian countries.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/25/vesak/"
+      },
+      {
+        type: 'dropdown',
+        text: "Which flower is a major symbol of Tet in Vietnam?",
+        options: ["Yellow Apricot", "Tulips", "Poppy"],
+        answer: "Yellow Apricot",
+        explanation: "Yellow Apricot (Hoa Mai) is the symbolic flower of Tet in southern Vietnam.",
+        hint: "This flower blooms around Lunar New Year, especially in the south.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/21/yellow-apricot-hoa-mai/"
+      },
+      {
+        type: 'radio',
+        text: "What fish symbolizes success in Vietnamese culture?",
+        options: ["Carp", "Goldfish", "Sharks"],
+        answer: "Carp",
+        explanation: "Carp symbolizes perseverance and success, featuring in the Kitchen Gods legend.",
+        hint: "This fish is associated with the Kitchen Gods and New Year traditions.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/21/carp-ca-chep/"
+      },
+      {
+        type: 'dropdown',
+        text: "Which dish is wrapped in banana leaves and has a chewy, fermented texture?",
+        options: ["Fermented Pork Roll", "Sticky Rice Cake", "Fried Spring Roll"],
+        answer: "Fermented Pork Roll",
+        explanation: "Fermented Pork Roll (Nem Chua) is a tangy, chewy delicacy wrapped in banana leaves.",
+        hint: "It's tangy, chewy, and often eaten as a snack.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/22/fermented-pork-roll-nem-chua/"
+      },
+      {
+        type: 'dragdrop',
+        text: "Match traditional tools to their purpose",
+        dragdrop: [
+          { left: "Used in Vietnamese rice farming.", right: "Plow", key: "Plow" },
+          { left: "Cylindrical charcoal stove", right: "Honeycomb Stove", key: "Stove" },
+          { left: "Used to cool off in hot weather", right: "Palm-leaf Fan", key: "Fan" }
+        ],
+        explanation: "The plow is used in rice farming, the honeycomb stove for cooking, and the palm-leaf fan for cooling off in hot weather.",
+        hint: "Plow for farming, honeycomb stove for cooking, palm-leaf fan for cooling.",
+        revisionLink: "https://huyvo022.edublogs.org/2025/05/22/household-items/"
       }
-    }
-    this.validated[this.currentStep] = true;
-  }
-}
+    ];
 
-class Feedback {
-  static correct(msg = "✅ Correct!") {
-    return `<span class='correct'>${msg}</span>`;
-  }
-  static incorrect(msg = "❌ Incorrect.") {
-    return `<span class='incorrect'>${msg}</span>`;
-  }
-  static review(msg = "Review") {
-    return `<span>${msg}</span>`;
-  }
-  static warning(msg = "⚠️ Please complete this question.") {
-    return `<span class='incorrect'>${msg}</span>`;
-  }
-  static dragdropFeedback(allCorrect, details) {
-    if (allCorrect) {
-      return Feedback.correct("✅ All matches correct!");
-    }
-    return Feedback.incorrect("❌ Some matches incorrect.") + details.join('');
-  }
-}
+    let shuffledQuestions = [];
+    let currentQuestion = 0;
+    const answers = {};
+    const validated = {};
+    const firstAttemptCorrect = {};
+    const quizContainer = document.getElementById("quizContainer");
+    const navGrid = document.getElementById("navGrid");
 
-// --- Quiz Logic and UI Integration ---
-
-const quizState = new QuizState(baseQuestions);
-
-function initQuiz() {
-  quizState.reset();
-  const quizArea = document.getElementById("quiz-area");
-  quizArea.innerHTML = "";
-
-  quizState.questions.forEach((q, idx) => {
-    const div = document.createElement("div");
-    div.className = "question-card";
-    div.id = `step${idx}`;
-    div.innerHTML = `<p><strong>${q.question}</strong></p>${q.content}<div class="feedback" id="f${idx}"></div>`;
-    quizArea.appendChild(div);
-  });
-
-  attachDragDropListeners();
-  showStep(quizState.currentStep);
-
-  document.getElementById("summary").innerHTML = "";
-  document.getElementById("completedBanner").style.display = "none";
-  document.getElementById("retryBtn").style.display = "none";
-  document.querySelector(".controls").style.display = "block";
-  document.getElementById("checkBtn").textContent = "Check";
-}
-
-function showStep(index) {
-  document.querySelectorAll(".question-card").forEach((el, i) => {
-    el.classList.toggle("active", i === index);
-  });
-
-  const q = quizState.getOrderedQuestion(index);
-  const stepEl = document.getElementById(`step${index}`);
-
-  if (q.type === 'dropdown') {
-    const select = stepEl.querySelector('select');
-    if (quizState.userAnswers[index]) select.value = quizState.userAnswers[index];
-  }
-
-  if (q.type === 'radio') {
-    const radios = stepEl.querySelectorAll('input[type="radio"]');
-    radios.forEach(r => {
-      r.checked = (r.value === quizState.userAnswers[index]);
-    });
-  }
-
-  document.getElementById("nextBtn").disabled = !quizState.validated[index];
-  document.getElementById(`f${index}`).innerHTML = '';
-  document.getElementById("checkBtn").textContent = quizState.validated[index] ? "Review" : "Check";
-  updateProgress(index);
-}
-
-function validateStep() {
-  const idx = quizState.currentStep;
-  const q = quizState.getCurrentQuestion();
-  const stepEl = document.getElementById(`step${idx}`);
-  const feedbackDiv = document.getElementById(`f${idx}`);
-  feedbackDiv.innerHTML = '';
-  let correct = true;
-
-  if (q.type === 'dropdown') {
-  const select = stepEl.querySelector('select');
-  const val = select?.value;
-  quizState.userAnswers[idx] = val;
-
-  if (val === q.correct) {
-  feedbackDiv.innerHTML = Feedback.correct() +
-    `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
-} else {
-  correct = false;
-  feedbackDiv.innerHTML = Feedback.incorrect("❌ Incorrect.") +
-    `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
-}
-} else if (q.type === 'radio') {
-  const checked = stepEl.querySelector('input[type="radio"]:checked');
-  if (checked) {
-    quizState.userAnswers[idx] = checked.value;
-    if (checked.value === q.correct) {
-  feedbackDiv.innerHTML = Feedback.correct() +
-    `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
-} else {
-  correct = false;
-  feedbackDiv.innerHTML = Feedback.incorrect("❌ Incorrect.") +
-    `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
-}
-  } else {
-    correct = false;
-    feedbackDiv.innerHTML = Feedback.warning();
-  }
-} else if (q.type === 'dragdrop') {
-  let allCorrect = true;
-  let details = [];
-  const defs = stepEl.querySelectorAll(".definition");
-
-  defs.forEach(def => {
-    const expected = def.getAttribute("data-answer")?.toLowerCase();
-    const dropZone = def.querySelector(".drop-zone");
-    const wordElement = dropZone.children[0];
-    const actual = wordElement?.id?.toLowerCase();
-
-    dropZone.classList.remove('correct-drop', 'incorrect-drop');
-
-    if (!wordElement) {
-      allCorrect = false;
-      details.push(`❌ Nothing dropped in "<em>${def.textContent.trim()}</em>"`);
-      return;
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
     }
 
-    document.querySelectorAll('.drop-zone').forEach(dz => {
-      if (dz !== dropZone && dz.contains(wordElement)) {
-        dz.removeChild(wordElement);
+    function renderQuestions() {
+      quizContainer.innerHTML = "";
+      navGrid.innerHTML = "";
+      shuffledQuestions = shuffle([...originalQuestions]);
+      Object.keys(validated).forEach(k => delete validated[k]);
+      Object.keys(answers).forEach(k => delete answers[k]);
+      Object.keys(firstAttemptCorrect).forEach(k => delete firstAttemptCorrect[k]);
+      shuffledQuestions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.id = `card${i}`;
+        if (i === 0) card.classList.add("active");
+        let optionsHtml = "";
+        if (q.type === "radio") {
+          optionsHtml = q.options.map(opt => `
+            <label>
+              <input type="radio" name="q${i}" value="${opt}">
+              ${opt}
+            </label>
+          `).join("");
+        } else if (q.type === "dropdown") {
+          optionsHtml = `
+            <select name="q${i}">
+              <option value="">--select--</option>
+              ${q.options.map(opt => `<option value="${opt}">${opt}</option>`).join("")}
+            </select>
+          `;
+        } else if (q.type === "dragdrop") {
+          // Render definitions and words for dragdrop
+          optionsHtml = `
+            <div id="dragdrop-defs-${i}">
+              ${q.dragdrop.map(pair =>
+                `<div class="definition" data-answer="${pair.key}">
+                  ${pair.left}
+                  <div class="drop-zone"></div>
+                </div>`
+              ).join("")}
+            </div>
+            <div id="words${i}" style="margin-top:1rem;">
+              ${q.dragdrop.map(pair =>
+                `<div class="word" draggable="true" id="${pair.key}${i}">${pair.right}</div>`
+              ).join("")}
+            </div>
+          `;
+        }
+        card.innerHTML = `
+          <p>${q.text}</p>
+          ${optionsHtml}
+          <div class="feedback" id="feedback${i}"></div>
+        `;
+        quizContainer.appendChild(card);
+
+        // Nav Button
+        const navBtn = document.createElement("button");
+        navBtn.textContent = i + 1;
+        navBtn.onclick = () => goToQuestion(i);
+        navBtn.id = `navBtn${i}`;
+        navGrid.appendChild(navBtn);
+      });
+      updateProgress();
+      highlightNav();
+      updateNavButtons();
+      updateCheckButton();
+    }
+
+    function checkAnswer(index) {
+      const q = shuffledQuestions[index];
+      let selected = null;
+      const feedback = document.getElementById(`feedback${index}`);
+      if (q.type === "radio") {
+        const radios = document.getElementsByName(`q${index}`);
+        for (const radio of radios) {
+          if (radio.checked) selected = radio.value;
+        }
+        if (!selected) {
+          feedback.innerHTML = "❌ Please select an answer.";
+          feedback.className = "feedback";
+          return;
+        }
+        answers[`q${index}`] = selected;
+        if (firstAttemptCorrect[index] === undefined) {
+          firstAttemptCorrect[index] = (selected === q.answer);
+        }
+        if (selected === q.answer) {
+          feedback.innerHTML = `✅ Correct! ${q.explanation}`;
+          feedback.className = "feedback correct";
+        } else {
+          feedback.innerHTML = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
+        }
+      } else if (q.type === "dropdown") {
+        const select = document.querySelector(`#card${index} select[name="q${index}"]`);
+        selected = select ? select.value : null;
+        if (!selected) {
+          feedback.innerHTML = "❌ Please select an answer.";
+          feedback.className = "feedback";
+          return;
+        }
+        answers[`q${index}`] = selected;
+        if (firstAttemptCorrect[index] === undefined) {
+          firstAttemptCorrect[index] = (selected === q.answer);
+        }
+        if (selected === q.answer) {
+          feedback.innerHTML = `✅ Correct! ${q.explanation}`;
+          feedback.className = "feedback correct";
+        } else {
+          feedback.innerHTML = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
+        }
+      } else if (q.type === "dragdrop") {
+        let allCorrect = true;
+        let details = [];
+        for (const pair of q.dragdrop) {
+          const zone = document.querySelector(`#card${index} .definition[data-answer="${pair.key}"] .drop-zone`);
+          const child = zone && zone.children[0];
+          const actual = child && child.textContent.trim();
+          if (!child) {
+            allCorrect = false;
+            details.push(`❌ Nothing dropped for "${pair.left}"<br>`);
+            zone.classList.remove('correct-drop', 'incorrect-drop');
+            zone.classList.add('incorrect-drop');
+            continue;
+          }
+          if (actual === pair.right) {
+            zone.classList.remove('incorrect-drop');
+            zone.classList.add('correct-drop');
+          } else {
+            allCorrect = false;
+            details.push(`❌ For "<strong>${pair.left}</strong>", you dropped "<em>${actual}</em>".<br>`);
+            zone.classList.remove('correct-drop');
+            zone.classList.add('incorrect-drop');
+          }
+        }
+        if (firstAttemptCorrect[index] === undefined) {
+          firstAttemptCorrect[index] = allCorrect;
+        }
+        answers[`q${index}`] = allCorrect;
+        if (allCorrect) {
+          feedback.innerHTML = `✅ All matches correct! ${q.explanation}`;
+          feedback.className = "feedback correct";
+        } else {
+          feedback.innerHTML = `❌ Some matches incorrect.<br>${details.join("")} <div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
+          feedback.className = "feedback";
+        }
+      }
+      validated[index] = true;
+      document.getElementById(`navBtn${index}`).classList.add("answered");
+      if (index === shuffledQuestions.length - 1) {
+        document.getElementById("submitBtn").style.display = "inline-block";
+      }
+      updateProgress();
+      updateNavButtons();
+    }
+
+    function updateCheckButton() {
+      document.getElementById('checkBtn').onclick = function() { checkAnswer(currentQuestion); };
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prevBtn").style.display = currentQuestion === 0 ? "none" : "inline-block";
+      const nextBtn = document.getElementById("nextBtn");
+      if (currentQuestion === shuffledQuestions.length - 1) {
+        nextBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "inline-block";
+        nextBtn.disabled = !validated[currentQuestion];
+      }
+      document.getElementById("submitBtn").style.display = (currentQuestion === shuffledQuestions.length - 1 && validated[currentQuestion]) ? "inline-block" : "none";
+      updateCheckButton();
+    }
+
+    function showQuestion(index) {
+      document.querySelectorAll(".question-card").forEach(card => card.classList.remove("active"));
+      document.getElementById(`card${index}`).classList.add("active");
+      currentQuestion = index;
+      highlightNav();
+      updateNavButtons();
+    }
+
+    function goToQuestion(index) {
+      showQuestion(index);
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < shuffledQuestions.length - 1 && validated[currentQuestion]) showQuestion(currentQuestion + 1);
+    }
+
+    function highlightNav() {
+      for (let i = 0; i < shuffledQuestions.length; i++) {
+        document.getElementById(`navBtn${i}`).classList.remove("active");
+      }
+      document.getElementById(`navBtn${currentQuestion}`).classList.add("active");
+    }
+
+    function updateProgress() {
+      const percent = (Object.keys(validated).length / shuffledQuestions.length) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    function grade() {
+      let score = 0;
+      shuffledQuestions.forEach((q, i) => {
+        const userAnswer = answers[`q${i}`];
+        const feedback = document.getElementById(`feedback${i}`);
+        if (q.type === "dragdrop" ? !userAnswer : userAnswer !== q.answer) {
+          feedback.textContent = `❌ Incorrect. Hint: ${q.hint}`;
+          feedback.className = "feedback";
+        } else {
+          score++;
+          feedback.className = "feedback correct";
+        }
+      });
+      const percent = (score / shuffledQuestions.length) * 100;
+      document.getElementById("result").textContent = `You got ${score} out of ${shuffledQuestions.length} correct.`;
+      document.getElementById("summary").textContent = percent >= 50
+        ? `✅ Well done! You passed with ${percent.toFixed(0)}%.`
+        : `❌ You got ${percent.toFixed(0)}%. Keep practicing!`;
+      document.getElementById("summary").style.color = percent >= 50 ? "lightgreen" : "#ff4c4c";
+      document.getElementById("resetBtn").style.display = "inline-block";
+
+      // Build summary table of first attempts
+      let tableHtml = `<table style="margin:2rem auto;border-collapse:collapse;color:#fff;background:#222;">
+        <tr>
+          <th style="border:1px solid #444;padding:6px;">#</th>
+          <th style="border:1px solid #444;padding:6px;">Question</th>
+          <th style="border:1px solid #444;padding:6px;">First Attempt</th>
+          <th style="border:1px solid #444;padding:6px;">Suggested Revision</th>
+        </tr>`;
+      shuffledQuestions.forEach((q, i) => {
+        const correct = firstAttemptCorrect[i];
+        tableHtml += `<tr>
+          <td style="border:1px solid #444;padding:6px;">${i + 1}</td>
+          <td style="border:1px solid #444;padding:6px;">${q.text}</td>
+          <td style="border:1px solid #444;padding:6px;">${correct ? "✅ Correct" : "❌ Wrong"}</td>
+          <td style="border:1px solid #444;padding:6px;">${
+            !correct && q.revisionLink
+              ? `<a href="${q.revisionLink}" target="_blank">(Review Here)</a>`
+              : ""
+          }</td>
+        </tr>`;
+      });
+      tableHtml += `</table>`;
+      document.getElementById("summary").innerHTML += tableHtml;
+    }
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      for (let key in answers) delete answers[key];
+      for (let key in validated) delete validated[key];
+      for (let key in firstAttemptCorrect) delete firstAttemptCorrect[key];
+      document.getElementById("result").textContent = "";
+      document.getElementById("summary").textContent = "";
+      document.getElementById("summary").innerHTML = "";
+      document.getElementById("resetBtn").style.display = "none";
+      renderQuestions();
+      showQuestion(currentQuestion);
+    }
+
+    renderQuestions();
+    showQuestion(currentQuestion);
+
+    // Drag & drop support (for dragdrop type)
+    document.addEventListener('dragstart', function(ev) {
+      if (ev.target.classList.contains('word')) {
+        ev.dataTransfer.setData("text", ev.target.id);
       }
     });
-
-    if (expected === actual) {
-      dropZone.classList.add('correct-drop');
-    } else {
-      dropZone.classList.add('incorrect-drop');
-      allCorrect = false;
-     details.push(
-  `<>❌ For "<strong>${def.textContent.split('\n')[0].trim()}</strong>", you dropped "<em>${wordElement.textContent}</em>".`
-);
-    }
-  });
-
-  // Show hint and explanation always
-  if (allCorrect) {
-  feedbackDiv.innerHTML =
-    Feedback.dragdropFeedback(allCorrect, details) +
-    `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`;
-} else {
-  feedbackDiv.innerHTML =
-    Feedback.dragdropFeedback(allCorrect, details) +
-    `<div class="hint"><strong>Hint:</strong> ${q.hint}</div>`;
-}
-correct = allCorrect;
-}
-
-  quizState.markValidated(correct);
-  document.getElementById("nextBtn").disabled = false;
-  document.getElementById("checkBtn").textContent = "Review";
-}
-
-function updateProgress(index) {
-  document.getElementById("progressBar").style.width = ((index / quizState.questions.length) * 100) + "%";
-}
-
-function nextStep() {
-  if (quizState.currentStep < quizState.questions.length - 1) {
-    quizState.currentStep++;
-    showStep(quizState.currentStep);
-  } else {
-    document.getElementById("progressBar").style.width = "100%";
-    document.getElementById("completedBanner").style.display = "block";
-    showSummary();
-  }
-}
-
-function prevStep() {
-  if (quizState.currentStep > 0) {
-    quizState.currentStep--;
-    showStep(quizState.currentStep);
-  }
-}
-
-function showSummary() {
-  const total = quizState.questions.length;
-  const percent = Math.round((quizState.score / total) * 100);
-  const summary = document.getElementById("summary");
-
-  summary.innerHTML = `<p style="color:${percent >= 50 ? 'lightgreen' : '#ff4c4c'}">
-    ${percent >= 50 ? '✅ You passed with ' + percent + '% (' + quizState.score + '/' + total + ')' : '❌ You scored ' + percent + '%. Keep practicing! (' + quizState.score + '/' + total + ')'}
-    </p>
-    <p><strong>📊 Section Breakdown:</strong></p>
-    <ul style="text-align:left; display:inline-block;">
-      <li>🟡 Dropdown: ${quizState.sectionScores.dropdown}</li>
-      <li>🔵 Radio: ${quizState.sectionScores.radio}</li>
-      <li>🟣 Drag & Drop: ${quizState.sectionScores.dragdrop}</li>
-    </ul>`;
-  document.querySelector(".controls").style.display = "none";
-  document.getElementById("retryBtn").style.display = "inline-block";
-}
-
-function retryQuiz() {
-  initQuiz();
-}
-
-// --- Drag & Drop Handling ---
-
-function allowDrop(ev) {
-  ev.preventDefault();
-  if (ev.target.classList.contains("drop-zone")) {
-    ev.target.classList.add("hovered");
-  }
-}
-
-function leaveDrop(ev) {
-  if (ev.target.classList.contains("drop-zone")) {
-    ev.target.classList.remove("hovered");
-  }
-}
-
-function drag(ev) {
-  ev.dataTransfer.setData("text", ev.target.id);
-}
-
-function drop(ev) {
-  ev.preventDefault();
-  const id = ev.dataTransfer.getData("text");
-  const dragged = document.getElementById(id);
-
-  if (ev.target.classList.contains("drop-zone")) {
-    ev.target.classList.remove("hovered");
-
-    if (ev.target.children.length > 0) {
-      const existing = ev.target.children[0];
-      document.getElementById("words").appendChild(existing);
-    }
-
-    ev.target.appendChild(dragged);
-  }
-}
-
-function attachDragDropListeners() {
-  document.addEventListener('dragstart', function(ev) {
-    if (ev.target.classList.contains('word')) drag(ev);
-  });
-  document.addEventListener('dragover', function(ev) {
-    if (ev.target.classList.contains('drop-zone')) allowDrop(ev);
-  });
-  document.addEventListener('dragleave', function(ev) {
-    if (ev.target.classList.contains('drop-zone')) leaveDrop(ev);
-  });
-  document.addEventListener('drop', function(ev) {
-    if (ev.target.classList.contains('drop-zone')) drop(ev);
-  });
-}
-
-// --- Initialize on Load ---
-initQuiz();
+    document.addEventListener('dragover', function(ev) {
+      if (ev.target.classList.contains('drop-zone')) ev.preventDefault();
+    });
+    document.addEventListener('drop', function(ev) {
+      if (ev.target.classList.contains('drop-zone')) {
+        ev.preventDefault();
+        const id = ev.dataTransfer.getData("text");
+        const dragged = document.getElementById(id);
+        // Only allow one in each drop-zone
+        if (ev.target.children.length > 0) {
+          const existing = ev.target.children[0];
+          // Move back to original words area
+          let wordsDiv = ev.target.parentElement.parentElement.querySelector('[id^="words"]');
+          if (wordsDiv) {
+            wordsDiv.appendChild(existing);
+          }
+        }
+        ev.target.appendChild(dragged);
+      }
+    });
   </script>
 </body>
 </html>
